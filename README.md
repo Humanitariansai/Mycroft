@@ -1,4 +1,5 @@
-# Mycroft: An Open Source Framework for AI-Powered Investment
+# Mycroft: An Open Source Framework for AI-Powered Investment   
+_Using AI to Invest in AI_
 
 Named after Sherlock Holmes's enigmatic elder brother—a man of superior analytical abilities who preferred to orchestrate from behind the scenes—the Mycroft framework represents a breakthrough in AI-powered investment intelligence. With its tagline "Using AI to Invest in AI," this open-source platform employs a sophisticated ecosystem of specialized agents working in concert to analyze the rapidly evolving artificial intelligence sector while implementing disciplined investment strategies.
 
