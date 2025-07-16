@@ -3,6 +3,8 @@
 ## Introduction
 Hello and welcome! Today we're exploring agentic AI and its revolutionary impact on the financial sector through the lens of the Mycroft project. Unlike traditional AI chatbots that simply respond to queries, agentic AI represents the next frontier in artificial intelligence, especially for investment intelligence.
 
+📺 **Watch What is Agentic AI in Finance?**: [What is Agentic AI in Finance? Meet Mycroft](https://youtu.be/tlyUimlR6KM)
+
 ## Definition
 Agentic AI uses sophisticated reasoning and iterative planning to autonomously solve complex, multi-step problems. While conventional AI chatbots provide responses based on single interactions, agentic systems can perceive, reason, act, and learn continuously to accomplish financial tasks with minimal human intervention.
 
@@ -17,6 +19,8 @@ Agentic AI operates through a powerful four-step process:
 
 ### About Mycroft
 Named after Sherlock Holmes's enigmatic elder brother, the Mycroft framework is an open-source educational experiment in AI-powered investment intelligence. Led by Professor Nik Bear Brown, PhD, MBA, this project explores how an ecosystem of specialized agents might work together to analyze the rapidly evolving artificial intelligence sector while implementing disciplined investment strategies. The tagline "Using AI to Invest in AI" perfectly encapsulates this innovative approach.
+
+📺 **Watch Mycroft AI**: [Mycroft AI](https://youtu.be/1H0hsBU_foA?si=dzIwSPZj-MlKXE66)
 
 ### Starting Small: The Experimental Approach
 While hundreds of financial agents could eventually be built, the Mycroft project takes a pragmatic approach by starting with just a few core agents and the Mycroft orchestration layer. This allows the system to evolve based on empirical results from simulated trading environments rather than theoretical assumptions.
@@ -64,3 +68,8 @@ The Mycroft project represents a practical implementation of agentic AI in finan
 
 By applying agentic AI principles to financial analysis through this experimental framework, the Mycroft project not only explores how AI can enhance investment intelligence but also demonstrates a responsible approach to developing complex AI systems: start small, validate thoroughly, and scale gradually based on proven results.
 
+---
+
+**Additional Resources:**
+- [What is Agentic AI in Finance? Meet Mycroft](https://youtu.be/tlyUimlR6KM)
+- [Mycroft AI](https://youtu.be/1H0hsBU_foA?si=dzIwSPZj-MlKXE66)
