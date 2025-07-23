@@ -6,12 +6,26 @@ This paper explores recommendations for implementing an orchestration layer by l
 ## Proposed Solution
 Build a modular orchestration layer using a fully open-source stack that combines the following tools:
 
-**Apache Airflow or Prefect:** For workflow orchestration </br>
+**Apache Airflow or Prefect:** For workflow orchestration </br>  (Is is customizable enough?)
 **Celery:** For distributed task execution </br>
 **Kafka or Redis:** For inter-agent communication </br>
 **Docker:** For containerized deployment </br>
 **FastAPI/gRPC:** For agent APIs </br>
 **Prometheus + Grafana:** For monitoring and observability </br>
+
+Intuition ReactFlow is more customizable and an alternative to n8n
+
+React Libraries with Similar Functionality
+There are several React-based libraries that provide visual workflow/orchestration capabilities:
+
+ReactFlow: A highly customizable library for building node-based editors and interactive diagrams. It's well-suited for creating visual workflow editors and supports features like custom node types, interactive connections, and state management.
+React Diagrams: A diagramming library that allows you to create and interact with workflow-like diagrams with entities and links.
+react-flow-chart: A library specifically designed for creating flowcharts in React applications.
+Flume: A React-based node editor that allows you to create node-based editors with a focus on logic flows.
+
+
+
+
 
 This system will facilitate task scheduling, agent coordination, dynamic resource scaling, and ensemble-style conflict resolution, all while supporting transparency and experimentation—key pillars of Mycroft’s educational mission.
 
