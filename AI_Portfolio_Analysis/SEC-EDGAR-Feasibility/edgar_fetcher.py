@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-SEC EDGAR Document Fetcher
+SEC EDGAR Document Fetcher - Enhanced Version
 This script fetches the latest SEC filings for a given company ticker symbol.
-It retrieves the company's CIK, lists recent filings, and fetches the content of the latest
-10-K filing. The content can be saved to a file."""
+It retrieves the company's CIK, lists recent filings, and can fetch the most recent
+filing for each form type (10-K, 10-Q, 8-K, etc.). The content can be saved to files.
+"""
 
 import requests
 import json
 import time
 from datetime import datetime
+from collections import defaultdict
 
 class EDGARFetcher:
     def __init__(self):
@@ -46,8 +48,19 @@ class EDGARFetcher:
             print(f"Error fetching company info: {e}")
             return None, None
     
-    def get_filings_list(self, cik):
+    def get_filings_list(self, cik, form_types=None):
+        """
+        Get filings list, optionally filtered by form types
+        
+        Args:
+            cik: Company CIK number
+            form_types: List of form types to include (e.g., ['10-K', '10-Q', '8-K'])
+                       If None, includes common SEC forms
+        """
         print(f"Fetching filings list for CIK {cik}...")
+        
+        if form_types is None:
+            form_types = ['10-K', '10-Q', '8-K', '10-K/A', '10-Q/A', '8-K/A', 'DEF 14A', '13F-HR', 'SC 13G', 'SC 13D']
         
         url = f"{self.base_url}CIK{cik}.json"
         
@@ -65,7 +78,7 @@ class EDGARFetcher:
                 accession_numbers = recent_filings.get('accessionNumber', [])
                 
                 for i, form in enumerate(forms):
-                    if form in ['10-K', '10-Q', '8-K']:
+                    if form in form_types:
                         filings.append({
                             'form_type': form,
                             'filing_date': filing_dates[i],
@@ -73,13 +86,35 @@ class EDGARFetcher:
                             'document_url': self._build_document_url(cik, accession_numbers[i])
                         })
                 
+                # Sort by filing date (most recent first)
                 filings.sort(key=lambda x: x['filing_date'], reverse=True)
             
-            return filings[:10]
+            return filings
             
         except requests.exceptions.RequestException as e:
             print(f"Error fetching filings: {e}")
             return []
+    
+    def get_most_recent_by_form_type(self, cik, form_types=None):
+        """
+        Get the most recent filing for each form type
+        
+        Returns:
+            dict: Dictionary with form_type as key and filing info as value
+        """
+        filings = self.get_filings_list(cik, form_types)
+        
+        # Group filings by form type and get the most recent for each
+        most_recent = {}
+        
+        for filing in filings:
+            form_type = filing['form_type']
+            if form_type not in most_recent:
+                most_recent[form_type] = filing
+            # Since filings are sorted by date (newest first), 
+            # the first occurrence is the most recent
+        
+        return most_recent
     
     def _build_document_url(self, cik, accession_number):
         acc_no_dashes = accession_number.replace('-', '')
@@ -89,7 +124,7 @@ class EDGARFetcher:
         print(f"Fetching document from {document_url}")
         
         try:
-            time.sleep(0.1)
+            time.sleep(0.1)  # Be respectful to SEC servers
             
             response = requests.get(document_url, headers=self.headers)
             response.raise_for_status()
@@ -111,6 +146,7 @@ class EDGARFetcher:
             return False
     
     def fetch_latest_filing(self, ticker, form_type='10-K', save_to_file=True):
+        """Fetch the latest filing of a specific form type"""
         print(f"\n{'='*50}")
         print(f"Fetching latest {form_type} for {ticker}")
         print('='*50)
@@ -155,6 +191,64 @@ class EDGARFetcher:
             'content': content,
             'url': target_filing['document_url']
         }
+    
+    def fetch_all_latest_filings(self, ticker, form_types=None, save_to_file=True):
+        """
+        Fetch the most recent filing for each form type
+        
+        Args:
+            ticker: Stock ticker symbol
+            form_types: List of form types to fetch (defaults to common forms)
+            save_to_file: Whether to save documents to files
+            
+        Returns:
+            dict: Dictionary with form_type as key and filing data as value
+        """
+        print(f"\n{'='*60}")
+        print(f"Fetching all latest filings for {ticker}")
+        print('='*60)
+        
+        cik, company_name = self.get_company_info(ticker)
+        if not cik:
+            return None
+        
+        most_recent_filings = self.get_most_recent_by_form_type(cik, form_types)
+        
+        if not most_recent_filings:
+            print("No filings found")
+            return None
+        
+        results = {}
+        
+        print(f"\nFound {len(most_recent_filings)} different form types:")
+        for form_type in sorted(most_recent_filings.keys()):
+            filing = most_recent_filings[form_type]
+            print(f"  - {form_type}: {filing['filing_date']}")
+        
+        print(f"\nFetching document content...")
+        
+        for form_type, filing in most_recent_filings.items():
+            print(f"\nProcessing {form_type} from {filing['filing_date']}...")
+            
+            content = self.fetch_document_content(filing['document_url'])
+            if content:
+                if save_to_file:
+                    filename = f"{ticker}_{form_type.replace('/', '_')}_{filing['filing_date']}.txt"
+                    self.save_document(content, filename)
+                
+                results[form_type] = {
+                    'ticker': ticker,
+                    'company_name': company_name,
+                    'form_type': form_type,
+                    'filing_date': filing['filing_date'],
+                    'content': content,
+                    'url': filing['document_url'],
+                    'content_length': len(content)
+                }
+            else:
+                print(f"Failed to fetch content for {form_type}")
+        
+        return results
 
 def main():
     fetcher = EDGARFetcher()
@@ -165,21 +259,68 @@ def main():
         print("No ticker provided")
         return
     
-    result = fetcher.fetch_latest_filing(ticker, form_type='10-K')
+    print("\nChoose an option:")
+    print("1. Fetch specific form type (e.g., 10-K)")
+    print("2. Fetch all latest form types")
     
-    if result:
-        print(f"\nSUCCESS!")
-        print(f"Company: {result['company_name']}")
-        print(f"Document: {result['form_type']} filed {result['filing_date']}")
-        print(f"Content length: {len(result['content']):,} characters")
-        print(f"Document URL: {result['url']}")
+    choice = input("Enter choice (1 or 2): ").strip()
+    
+    if choice == "1":
+        form_type = input("Enter form type (e.g., 10-K, 10-Q, 8-K): ").strip().upper()
+        if not form_type:
+            form_type = "10-K"
         
-        print(f"\nFirst 500 characters of document:")
-        print("-" * 50)
-        print(result['content'][:500])
-        print("-" * 50)
+        result = fetcher.fetch_latest_filing(ticker, form_type=form_type)
+        
+        if result:
+            print(f"\nSUCCESS!")
+            print(f"Company: {result['company_name']}")
+            print(f"Document: {result['form_type']} filed {result['filing_date']}")
+            print(f"Content length: {len(result['content']):,} characters")
+            print(f"Document URL: {result['url']}")
+            
+            print(f"\nFirst 500 characters of document:")
+            print("-" * 50)
+            print(result['content'][:500])
+            print("-" * 50)
+        else:
+            print("Failed to fetch document")
+    
+    elif choice == "2":
+        # Option to specify custom form types
+        custom_forms = input("Enter specific form types (comma-separated, or press Enter for defaults): ").strip()
+        form_types = None
+        if custom_forms:
+            form_types = [f.strip().upper() for f in custom_forms.split(',')]
+        
+        results = fetcher.fetch_all_latest_filings(ticker, form_types=form_types)
+        
+        if results:
+            print(f"\n{'='*60}")
+            print("SUMMARY OF FETCHED DOCUMENTS")
+            print('='*60)
+            
+            total_chars = 0
+            for form_type, result in results.items():
+                total_chars += result['content_length']
+                print(f"{form_type:12} | {result['filing_date']} | {result['content_length']:,} chars")
+            
+            print(f"\nTotal documents: {len(results)}")
+            print(f"Total content: {total_chars:,} characters")
+            
+            # Show preview of one document
+            if results:
+                sample_form = list(results.keys())[0]
+                sample_result = results[sample_form]
+                print(f"\nPreview of {sample_form} (first 300 characters):")
+                print("-" * 50)
+                print(sample_result['content'][:300])
+                print("-" * 50)
+        else:
+            print("Failed to fetch documents")
+    
     else:
-        print("Failed to fetch document")
+        print("Invalid choice")
 
 if __name__ == "__main__":
     main()
