@@ -98,7 +98,7 @@ Based on the Mycroft Framework's focus on AI-powered investment intelligence, I'
   - Developer community sentiment tracking
   - Signal-to-noise ratio optimization
 
-### Financial Report Agent
+### Financial Metrics Agent
 - **Purpose**: Process and interpret formal financial disclosures
 - **Capabilities**:
   - Automated parsing of quarterly reports
