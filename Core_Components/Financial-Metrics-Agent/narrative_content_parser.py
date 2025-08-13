@@ -1,16 +1,16 @@
-from edgar import *
+from sec_api import ExtractorApi
 
-# Set your identity (required by SEC)
-set_identity("your.email@example.com")
+extractorApi = ExtractorApi("YOUR_API_KEY")
 
-# Get company filings
-company = Company("AAPL")
-filings = company.get_filings(form="10-K")
+# 10-K example - Tesla filing
+filing_url = "https://www.sec.gov/Archives/edgar/data/1318605/000156459021004599/tsla-10k_20201231.htm"
 
-# Get latest 10-K
-filing = filings[0]
+# Get Risk Factors as clean text
+risk_factors = extractorApi.get_section(filing_url, "1A", "text")
 
-# Extract text content (this likely includes narrative sections)
-text = filing.text()
+# Get MD&A as HTML
+mda = extractorApi.get_section(filing_url, "7", "html")
 
-print(text[0:1000]) # Print first 1000 characters of the text
+# 10-Q example
+filing_url_10q = "https://www.sec.gov/Archives/edgar/data/1318605/000095017022006034/tsla-20220331.htm"
+risk_factors_10q = extractorApi.get_section(filing_url_10q, "part2item1a", "text")
