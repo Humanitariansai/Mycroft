@@ -1,0 +1,239 @@
+<SEC-DOCUMENT>0001193125-18-154948.txt : 20180508
+<SEC-HEADER>0001193125-18-154948.hdr.sgml : 20180508
+<ACCEPTANCE-DATETIME>20180507213132
+ACCESSION NUMBER:		0001193125-18-154948
+CONFORMED SUBMISSION TYPE:	8-K/A
+PUBLIC DOCUMENT COUNT:		2
+CONFORMED PERIOD OF REPORT:	20180430
+ITEM INFORMATION:		Other Events
+FILED AS OF DATE:		20180508
+DATE AS OF CHANGE:		20180507
+
+FILER:
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			APPLE INC
+		CENTRAL INDEX KEY:			0000320193
+		STANDARD INDUSTRIAL CLASSIFICATION:	ELECTRONIC COMPUTERS [3571]
+		IRS NUMBER:				942404110
+		STATE OF INCORPORATION:			CA
+		FISCAL YEAR END:			0930
+
+	FILING VALUES:
+		FORM TYPE:		8-K/A
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	001-36743
+		FILM NUMBER:		18812776
+
+	BUSINESS ADDRESS:	
+		STREET 1:		ONE APPLE PARK WAY
+		CITY:			CUPERTINO
+		STATE:			CA
+		ZIP:			95014
+		BUSINESS PHONE:		(408) 996-1010
+
+	MAIL ADDRESS:	
+		STREET 1:		ONE APPLE PARK WAY
+		CITY:			CUPERTINO
+		STATE:			CA
+		ZIP:			95014
+
+	FORMER COMPANY:	
+		FORMER CONFORMED NAME:	APPLE COMPUTER INC
+		DATE OF NAME CHANGE:	19970808
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>8-K/A
+<SEQUENCE>1
+<FILENAME>d563832d8ka.htm
+<DESCRIPTION>AMENDMENT NO. 1 TO FORM 8-K
+<TEXT>
+<HTML><HEAD>
+<TITLE>Amendment No. 1 to Form 8-K</TITLE>
+</HEAD>
+ <BODY BGCOLOR="WHITE">
+
+ <P STYLE="line-height:1.0pt;margin-top:0pt;margin-bottom:0pt;border-bottom:1px solid #000000">&nbsp;</P>
+<P STYLE="line-height:3.0pt;margin-top:0pt;margin-bottom:2pt;border-bottom:1px solid #000000">&nbsp;</P> <P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:15pt; font-family:ARIAL" ALIGN="center"><B>UNITED STATES </B></P>
+<P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:15pt; font-family:ARIAL" ALIGN="center"><B>SECURITIES AND EXCHANGE COMMISSION </B></P>
+<P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:11pt; font-family:ARIAL" ALIGN="center"><B>Washington, D.C. 20549 </B></P> <P STYLE="font-size:12pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P><center>
+<P STYLE="line-height:6.0pt;margin-top:0pt;margin-bottom:2pt;border-bottom:1.00pt solid #000000;width:21%">&nbsp;</P></center> <P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:17pt; font-family:ARIAL" ALIGN="center"><B>FORM <FONT
+STYLE="white-space:nowrap">8-K/A</FONT> </B></P> <P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:13pt; font-family:ARIAL" ALIGN="center"><B>CURRENT REPORT </B></P>
+<P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:13pt; font-family:ARIAL" ALIGN="center"><B>Pursuant to Section&nbsp;13 OR 15(d) of The Securities Exchange Act of 1934 </B></P>
+<P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:11pt; font-family:ARIAL" ALIGN="center"><B>April&nbsp;30, 2018 </B></P> <P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:8pt; font-family:ARIAL" ALIGN="center">Date of Report (Date of
+earliest event reported) </P> <P STYLE="font-size:12pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P><center> <P STYLE="line-height:6.0pt;margin-top:0pt;margin-bottom:2pt;border-bottom:1.00pt solid #000000;width:21%">&nbsp;</P></center>
+<P STYLE="font-size:12pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P> <P STYLE="margin-top:0pt;margin-bottom:0pt" ALIGN="center">
+
+
+<IMG SRC="g563832g0505090350040.jpg" ALT="LOGO">
+ </P> <P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:21pt; font-family:ARIAL" ALIGN="center"><B>Apple Inc. </B></P>
+<P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:8pt; font-family:ARIAL" ALIGN="center">(Exact name of Registrant as specified in its charter) </P> <P STYLE="font-size:12pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P>
+<TABLE CELLSPACING="0" CELLPADDING="0" WIDTH="100%" BORDER="0" STYLE="BORDER-COLLAPSE:COLLAPSE; font-family:ARIAL; font-size:8pt" ALIGN="center">
+
+
+<TR>
+<TD WIDTH="32%"></TD>
+<TD VALIGN="bottom" WIDTH="1%"></TD>
+<TD WIDTH="34%"></TD>
+<TD VALIGN="bottom" WIDTH="1%"></TD>
+<TD WIDTH="32%"></TD></TR>
+
+
+<TR STYLE="page-break-inside:avoid ; font-family:ARIAL; font-size:9pt">
+<TD VALIGN="top" ALIGN="center"><B>California</B></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top" ALIGN="center"><B><FONT STYLE="white-space:nowrap">001-36743</FONT></B></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top" ALIGN="center"><B><FONT STYLE="white-space:nowrap">94-2404110</FONT></B></TD></TR>
+<TR STYLE="page-break-inside:avoid ; font-family:ARIAL; font-size:8pt">
+<TD VALIGN="top" ALIGN="center">(State or other jurisdiction <BR>of incorporation)</TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top" ALIGN="center"> <P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:8pt; font-family:ARIAL" ALIGN="center">(Commission</P> <P STYLE="margin-top:0pt; margin-bottom:1pt; font-size:8pt; font-family:ARIAL" ALIGN="center">File
+Number)</P></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top" ALIGN="center"> <P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:8pt; font-family:ARIAL" ALIGN="center">(I.R.S. Employer</P>
+<P STYLE="margin-top:0pt; margin-bottom:1pt; font-size:8pt; font-family:ARIAL" ALIGN="center">Identification No.)</P></TD></TR>
+</TABLE> <P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="center"><B>One Apple Park Way </B></P>
+<P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="center"><B>Cupertino, California 95014 </B></P> <P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:8pt; font-family:ARIAL" ALIGN="center">(Address of principal
+executive offices) (Zip Code) </P> <P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="center"><B>(408) <FONT STYLE="white-space:nowrap">996-1010</FONT> </B></P>
+<P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:8pt; font-family:ARIAL" ALIGN="center">(Registrant&#146;s telephone number, including area code) </P>
+<P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="center"><B>Not applicable </B></P> <P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:8pt; font-family:ARIAL" ALIGN="center">(Former name or former address,
+if changed since last report.) </P> <P STYLE="margin-top:24pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="justify">Check the appropriate box below if the Form <FONT STYLE="white-space:nowrap">8-K</FONT> filing is intended to
+simultaneously satisfy the filing obligation of the Registrant under any of the following provisions: </P> <P STYLE="font-size:12pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P>
+<TABLE STYLE="BORDER-COLLAPSE:COLLAPSE; font-family:ARIAL; font-size:9pt" BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+<TR style = "page-break-inside:avoid">
+<TD WIDTH="3%" VALIGN="top" ALIGN="left"><FONT STYLE="font-family:Times New Roman">&#9744;</FONT></TD>
+<TD ALIGN="left" VALIGN="top"> <P ALIGN="justify" STYLE=" margin-top:0pt ; margin-bottom:0pt; font-family:ARIAL; font-size:9pt">Written communications pursuant to Rule 425 under the Securities Act (17 CFR 230.425) </P></TD></TR></TABLE>
+<P STYLE="font-size:6pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P>
+<TABLE STYLE="BORDER-COLLAPSE:COLLAPSE; font-family:ARIAL; font-size:9pt" BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+<TR style = "page-break-inside:avoid">
+<TD WIDTH="3%" VALIGN="top" ALIGN="left"><FONT STYLE="font-family:Times New Roman">&#9744;</FONT></TD>
+<TD ALIGN="left" VALIGN="top"> <P ALIGN="justify" STYLE=" margin-top:0pt ; margin-bottom:0pt; font-family:ARIAL; font-size:9pt">Soliciting material pursuant to Rule <FONT STYLE="white-space:nowrap">14a-12</FONT> under the Exchange Act (17 CFR <FONT
+STYLE="white-space:nowrap">240.14a-12)</FONT> </P></TD></TR></TABLE> <P STYLE="font-size:6pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P>
+<TABLE STYLE="BORDER-COLLAPSE:COLLAPSE; font-family:ARIAL; font-size:9pt" BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+<TR style = "page-break-inside:avoid">
+<TD WIDTH="3%" VALIGN="top" ALIGN="left"><FONT STYLE="font-family:Times New Roman">&#9744;</FONT></TD>
+<TD ALIGN="left" VALIGN="top"> <P ALIGN="justify" STYLE=" margin-top:0pt ; margin-bottom:0pt; font-family:ARIAL; font-size:9pt"><FONT STYLE="white-space:nowrap">Pre-commencement</FONT> communications pursuant to Rule
+<FONT STYLE="white-space:nowrap">14d-2(b)</FONT> under the Exchange Act (17 CFR <FONT STYLE="white-space:nowrap">240.14d-2(b))</FONT> </P></TD></TR></TABLE> <P STYLE="font-size:6pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P>
+<TABLE STYLE="BORDER-COLLAPSE:COLLAPSE; font-family:ARIAL; font-size:9pt" BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+<TR style = "page-break-inside:avoid">
+<TD WIDTH="3%" VALIGN="top" ALIGN="left"><FONT STYLE="font-family:Times New Roman">&#9744;</FONT></TD>
+<TD ALIGN="left" VALIGN="top"> <P ALIGN="justify" STYLE=" margin-top:0pt ; margin-bottom:0pt; font-family:ARIAL; font-size:9pt"><FONT STYLE="white-space:nowrap">Pre-commencement</FONT> communications pursuant to Rule
+<FONT STYLE="white-space:nowrap">13e-4(c)</FONT> under the Exchange Act (17 CFR <FONT STYLE="white-space:nowrap">240.13e-4(c))</FONT> </P></TD></TR></TABLE>
+<P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="justify">Indicate by check mark whether the registrant is an emerging growth company as defined in Rule 405 of the Securities Act of 1933 (&#167;230.405 of this
+chapter) or Rule <FONT STYLE="white-space:nowrap">12b-2</FONT> of the Securities Exchange Act of 1934 <FONT STYLE="white-space:nowrap">(&#167;240.12b-2</FONT> of this chapter). </P>
+<P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL">Emerging growth company&nbsp;&nbsp;<FONT STYLE="font-family:Times New Roman">&#9744;</FONT> </P>
+<P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="justify">If an emerging growth company, indicate by check mark if the registrant has elected not to use the extended transition period for complying with any new
+or revised financial accounting standards provided pursuant to Section&nbsp;13(a) of the Exchange Act.&nbsp;&nbsp;<FONT STYLE="font-family:Times New Roman">&#9744;</FONT> </P> <P STYLE="font-size:12pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P>
+<P STYLE="line-height:1.0pt;margin-top:0pt;margin-bottom:0pt;border-bottom:1px solid #000000">&nbsp;</P> <P STYLE="line-height:3.0pt;margin-top:0pt;margin-bottom:2pt;border-bottom:1px solid #000000">&nbsp;</P>
+
+<p Style='page-break-before:always'>
+<HR  SIZE="3" style="COLOR:#999999" WIDTH="100%" ALIGN="CENTER">
+
+
+<TABLE STYLE="BORDER-COLLAPSE:COLLAPSE; font-family:ARIAL; font-size:9pt" BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+<TR style = "page-break-inside:avoid">
+<TD WIDTH="8%" VALIGN="top" ALIGN="left"><B>Item&nbsp;8.01</B></TD>
+<TD ALIGN="left" VALIGN="top"><B>Other Events. </B></TD></TR></TABLE> <P STYLE="margin-top:6pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="justify">On May&nbsp;7, 2018, Apple Inc. filed a Current Report on Form 8-K, which included a
+Notice of Proposed Settlement and Settlement Hearing as Exhibit 99.1 to that filing (the &#147;Notice&#148;). This Form 8-K amendment is being filed solely to correct the reference in the Notice to the date by which any written shareholder
+objections to the settlement of In re Apple Inc. E-Book Derivative Litigation Case No. 1-14-CV-269543 must be filed. Written objections must be filed on or before July&nbsp;6, 2018; not June&nbsp;29, 2018, as was indicated on page&nbsp;9 of the
+Notice included as Exhibit 99.1 to the original filing. </P>
+
+<p Style='page-break-before:always'>
+<HR  SIZE="3" style="COLOR:#999999" WIDTH="100%" ALIGN="CENTER">
+
+ <P STYLE="margin-top:0pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="center"><B>SIGNATURE </B></P>
+<P STYLE="margin-top:12pt; margin-bottom:0pt; font-size:9pt; font-family:ARIAL" ALIGN="justify">Pursuant to the requirements of the Securities Exchange Act of 1934, the Registrant has duly caused this report to be signed on its behalf by the
+undersigned hereunto duly authorized. </P> <P STYLE="font-size:12pt;margin-top:0pt;margin-bottom:0pt">&nbsp;</P>
+<TABLE CELLSPACING="0" CELLPADDING="0" WIDTH="100%" BORDER="0" STYLE="BORDER-COLLAPSE:COLLAPSE; font-family:ARIAL; font-size:9pt">
+
+
+<TR>
+<TD WIDTH="46%"></TD>
+<TD VALIGN="bottom" WIDTH="1%"></TD>
+<TD WIDTH="4%"></TD>
+<TD VALIGN="bottom"></TD>
+<TD WIDTH="2%"></TD>
+<TD VALIGN="bottom" WIDTH="1%"></TD>
+<TD WIDTH="45%"></TD></TR>
+
+
+<TR STYLE="page-break-inside:avoid ; font-family:ARIAL; font-size:9pt">
+<TD VALIGN="top">Date: May&nbsp;7, 2018</TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top" COLSPAN="3">Apple Inc.</TD></TR>
+<TR STYLE="font-size:1pt">
+<TD HEIGHT="16"></TD>
+<TD HEIGHT="16" COLSPAN="2"></TD>
+<TD HEIGHT="16" COLSPAN="2"></TD>
+<TD HEIGHT="16" COLSPAN="2"></TD></TR>
+<TR STYLE="page-break-inside:avoid ; font-family:ARIAL; font-size:9pt">
+<TD VALIGN="top"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top">By:</TD>
+<TD VALIGN="bottom" STYLE=" BORDER-BOTTOM:1px solid #000000">&nbsp;</TD>
+<TD VALIGN="top" STYLE="BORDER-BOTTOM:1px solid #000000">/s/ Gene D. Levoff</TD></TR>
+<TR STYLE="page-break-inside:avoid ; font-family:ARIAL; font-size:9pt">
+<TD VALIGN="top"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="bottom"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="bottom">Gene D. Levoff</TD></TR>
+<TR STYLE="page-break-inside:avoid ; font-family:ARIAL; font-size:9pt">
+<TD VALIGN="top"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="bottom"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="top"></TD>
+<TD VALIGN="bottom">&nbsp;</TD>
+<TD VALIGN="bottom">Secretary</TD></TR>
+</TABLE>
+</BODY></HTML>
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>GRAPHIC
+<SEQUENCE>2
+<FILENAME>g563832g0505090350040.jpg
+<DESCRIPTION>GRAPHIC
+<TEXT>
+begin 644 g563832g0505090350040.jpg
+M_]C_X  02D9)1@ ! 0$ 8 !@  #_VP!#  @&!@<&!0@'!P<)"0@*#!0-# L+
+M#!D2$P\4'1H?'AT:'!P@)"XG("(L(QP<*#<I+# Q-#0T'R<Y/3@R/"XS-#+_
+MVP!# 0D)"0P+#!@-#1@R(1PA,C(R,C(R,C(R,C(R,C(R,C(R,C(R,C(R,C(R
+M,C(R,C(R,C(R,C(R,C(R,C(R,C(R,C+_P  1"  [ # # 2(  A$! Q$!_\0
+M'P   04! 0$! 0$           $" P0%!@<("0H+_\0 M1   @$# P($ P4%
+M! 0   %] 0(#  01!1(A,4$&$U%A!R)Q%#*!D:$((T*QP152T? D,V)R@@D*
+M%A<8&1HE)B<H*2HT-38W.#DZ0T1%1D=(24I35%565UA96F-D969G:&EJ<W1U
+M=G=X>7J#A(6&AXB)BI*3E)66EYB9FJ*CI*6FIZBIJK*SM+6VM[BYNL+#Q,7&
+MQ\C)RM+3U-76U]C9VN'BX^3EYN?HZ>KQ\O/T]?;W^/GZ_\0 'P$  P$! 0$!
+M 0$! 0        $" P0%!@<("0H+_\0 M1$  @$"! 0#! <%! 0  0)W  $"
+M Q$$!2$Q!A)!40=A<1,B,H$(%$*1H;'!"2,S4O 58G+1"A8D-.$E\1<8&1HF
+M)R@I*C4V-S@Y.D-$149'2$E*4U155E=865IC9&5F9VAI:G-T=79W>'EZ@H.$
+MA8:'B(F*DI.4E9:7F)F:HJ.DI::GJ*FJLK.TM;:WN+FZPL/$Q<;'R,G*TM/4
+MU=;7V-G:XN/DY>;GZ.GJ\O/T]?;W^/GZ_]H # ,!  (1 Q$ /P#W^BBL35/%
+M^@Z-)Y5]J4,<G= <L/P% &WT&37BOC_XJWL>H2Z7H$ODI$=LERO+,?1?2O1K
+MGQ+I^K:#>MHM[%=7'DMLC1OFSCTKQGP]X#D6]74O%4T>GV*/O*S. \I],4 >
+MT^"&OI/"-A+J,\DUS(F]GE.6.>F:Z&N9T[QQX6N9$L[75( 5 1%)VCZ#-=*"
+M&7(((/0B@#@/BAXUD\,Z7'9V+ 7]V#AO^>:="?K7SQ++)/*TLSL\C'+,QR37
+M=_&&YDF^(%Q"Q^6"&-4^A4-_,UP5 Q\,TMNX>&1XV'0J<&I+F]NKQMUS<2S$
+M?WV)J"B@ Y!R.OM7T5\*(M?C\-[M6?-J^#:A_OA??VKPKPS8KJ7B;3K-^5EG
+M4-GTS7UE'&D42QQJ%1 %4#L!0(^=?C%;/#X_GF;[L\$;+^"[?Z5P5>X?&W0F
+MN-.L]9B0EK<^5+@?PGD?KFO#Z!A1110!<TJ^;3=6M+U>L$JO^1KZPTK4[;5]
+M,@OK5P\4R!A@]/:OD.O5_@G)JTNK7,:3N-+BC+2(>5+G@8]#W_"@#V?4].@U
+M;3+BPN5#0SH48?UKY;\4>&[SPOK4UC=(VP,3%)CAU[$5]75GZKH>F:Y (=3L
+MH;I%.0)!T^AZT"/DJ*&6=]D,3R/_ '44D_I3YK2YM@#<6TT0/3S(RN?SKZNT
+MKPWHVA@C3=.M[;/4HO/YGFK.H:98ZK;F"_M(KB(_PR+F@#Y*L+"YU.^BL[.)
+MI9Y6VJJC-?3_ (+\,1>%?#T-BH!G;YYW'\3G^@JSI/A70M"E:73-,@MI&X+J
+(,G\S6Q0!_]D!
+
+end
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

@@ -1,0 +1,229 @@
+{
+  "name": "Financial_Metrics",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "548d53e3-09f8-4924-adb2-9bd3561d107e",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "script_path",
+              "stringValue": "/mnt/data/gitrepos/Mycroft/Core_Components/Financial-Metrics-Agent/financial_analyzer.py"
+            },
+            {
+              "name": "user_agent",
+              "stringValue": "'Financial Analyzer your.email@example.com'"
+            },
+            {
+              "name": "ticker",
+              "stringValue": "AAPL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "99c8bc94-cf97-403d-8a31-78fb6190905f",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -736,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=python3 {{ $node['Set Variables'].json['script_path'] }} --ticker {{ $node['Set Variables'].json['ticker'] }} --user-agent \\\"{{ $node['Set Variables'].json['user_agent'] }}"
+      },
+      "id": "4b656979-1b1e-4e05-a1d7-8399895009ed",
+      "name": "Execute Python Script",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Python script output\nconst stdout = $input.first().json.stdout;\nconst stderr = $input.first().json.stderr;\nconst exitCode = $input.first().json.exitCode;\nconst ticker = $node['Set Variables'].json['ticker'];\n\nif (exitCode !== 0) {\n  return [{\n    json: {\n      success: false,\n      error: `Script failed with exit code ${exitCode}: ${stderr}`,\n      ticker: ticker,\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\n// Parse JSON output from Python script\nlet analysisData = {};\ntry {\n  // Look for JSON in stdout\n  const jsonMatch = stdout.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    analysisData = JSON.parse(jsonMatch[0]);\n  } else {\n    analysisData = { raw_output: stdout };\n  }\n} catch (e) {\n  analysisData = { \n    parse_error: e.message,\n    raw_output: stdout \n  };\n}\n\nreturn [{\n  json: {\n    success: true,\n    ticker: ticker,\n    execution_time: new Date().toISOString(),\n    analysis_data: analysisData,\n    raw_stdout: stdout,\n    stderr: stderr\n  }\n}];"
+      },
+      "id": "fb78946b-4900-455e-a8bd-5fd06f513e17",
+      "name": "Process Python Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nif (!input.success) {\n  return [input]; // Pass through errors\n}\n\nconst data = input.analysis_data.data || input.analysis_data;\nconst ticker = input.ticker;\n\n// Create formatted summary\nconst summary = {\n  company_name: data.company_info?.company_name || 'N/A',\n  ticker: ticker,\n  industry: data.company_info?.sic_description || 'N/A',\n  analysis_date: input.execution_time,\n  \n  // Financial highlights\n  financial_highlights: {},\n  \n  // Key ratios\n  key_ratios: data.financial_ratios || {},\n  \n  // Investment metrics\n  investment_summary: {\n    revenue_trend: 'Analysis needed',\n    profitability: 'Analysis needed',\n    financial_health: 'Analysis needed'\n  }\n};\n\n// Extract key financial metrics\nif (data.latest_annual_data) {\n  const annual = data.latest_annual_data;\n  \n  summary.financial_highlights = {\n    revenue: {\n      value: annual.revenue?.value || 0,\n      formatted: annual.revenue?.value ? `$${(annual.revenue.value / 1000000).toFixed(2)}M` : 'N/A',\n      fiscal_year: annual.revenue?.fiscal_year\n    },\n    net_income: {\n      value: annual.net_income?.value || 0,\n      formatted: annual.net_income?.value ? `$${(annual.net_income.value / 1000000).toFixed(2)}M` : 'N/A',\n      fiscal_year: annual.net_income?.fiscal_year\n    },\n    total_assets: {\n      value: annual.total_assets?.value || 0,\n      formatted: annual.total_assets?.value ? `$${(annual.total_assets.value / 1000000).toFixed(2)}M` : 'N/A'\n    },\n    cash: {\n      value: annual.cash_and_equivalents?.value || 0,\n      formatted: annual.cash_and_equivalents?.value ? `$${(annual.cash_and_equivalents.value / 1000000).toFixed(2)}M` : 'N/A'\n    }\n  };\n}\n\n// Create readable report\nconst readable_report = `\n# SEC Financial Analysis Report: ${summary.company_name} (${ticker})\n\n## Company Overview\n- **Company**: ${summary.company_name}\n- **Ticker**: ${ticker}\n- **Industry**: ${summary.industry}\n- **Analysis Date**: ${new Date(summary.analysis_date).toLocaleDateString()}\n\n## Financial Highlights (Latest Annual Data)\n- **Revenue**: ${summary.financial_highlights.revenue?.formatted || 'N/A'}\n- **Net Income**: ${summary.financial_highlights.net_income?.formatted || 'N/A'}\n- **Total Assets**: ${summary.financial_highlights.total_assets?.formatted || 'N/A'}\n- **Cash & Equivalents**: ${summary.financial_highlights.cash?.formatted || 'N/A'}\n\n## Key Financial Ratios\n${Object.entries(summary.key_ratios).map(([key, value]) => \n  `- **${key.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase())}**: ${typeof value === 'number' ? value.toFixed(2) : value}${key.includes('margin') || key.includes('return') ? '%' : ''}`\n).join('\\n')}\n\n## Full Data Available\nComplete historical data and detailed metrics are available in the full analysis output.\n`;\n\nreturn [{\n  json: {\n    success: input.success,\n    ticker: ticker,\n    summary: summary,\n    readable_report: readable_report,\n    full_analysis: data,\n    execution_metadata: {\n      timestamp: input.execution_time,\n      raw_output_length: input.raw_stdout?.length || 0\n    }\n  }\n}];"
+      },
+      "id": "daabb457-430d-4eb0-a37f-3b0a842ce974",
+      "name": "Format Analysis Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "success-condition",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "35b65ecc-33e2-4074-8c68-c7a2f374457b",
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "472af0ca-60f5-4d02-8d02-245f319f1a38",
+      "name": "Success - Display Report",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: $json.error || 'Analysis failed', ticker: $json.ticker, timestamp: $json.timestamp } }}",
+        "options": {}
+      },
+      "id": "7aa49ca9-734a-463a-9530-976bb83d927c",
+      "name": "Error - Return Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        368,
+        64
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Execute Python Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Python Script": {
+      "main": [
+        [
+          {
+            "node": "Process Python Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Python Results": {
+      "main": [
+        [
+          {
+            "node": "Format Analysis Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Analysis Output": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Success - Display Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error - Return Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3431765c-78b4-4eb8-8dcf-9fa11b486043",
+  "meta": {
+    "instanceId": "54e139bdd36444c24c3c5ac8519ffbbee75318a9c1efe841874a03d85ac23aaf"
+  },
+  "id": "OOjxzLqcWPt1SdrO",
+  "tags": []
+}
