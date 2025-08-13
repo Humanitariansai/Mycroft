@@ -6,9 +6,11 @@ This n8n workflow automatically executes a Python-based financial analyzer to pu
 
 ---
 
+![n8n Financial Analyzer Workflow](../images/sec.png)
+
 ### **🔄 Workflow Overview**
 
-This production-ready n8n workflow transforms raw SEC data into actionable financial insights through intelligent automation:
+This n8n workflow transforms raw SEC data into actionable financial insights through intelligent automation:
 
 1. **🎯 Manual Trigger** – initiates the analysis process
 2. **⚙️ Set Variables** – configures ticker symbol, script path, and user agent  
