@@ -20,7 +20,7 @@ An advanced n8n workflow that provides real-time financial news analysis using A
 News Sources → Data Processing → FinBERT AI → Risk Scoring → Database → Alerts & Reports
      ↓              ↓              ↓           ↓           ↓         ↓
 NewsAPI/RSS    Normalization   Sentiment   Multi-factor PostgreSQL  Email/Reports
-Google News    Deduplication   Analysis    Algorithm    Storage     Dashboard
+Google News    Deduplication   Analysis    Algorithm    Storage     
 ```
 
 ## 📊 Key Components
