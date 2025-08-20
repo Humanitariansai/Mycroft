@@ -11,3 +11,5 @@ Config.toml
 #!**/tests/Config.toml
 
 __pycache__/
+
+Core_Components/Financial-Metrics-Agent/AAPL_SEC_filings/
