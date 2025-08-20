@@ -12,4 +12,4 @@ Config.toml
 
 __pycache__/
 
-Core_Components/Financial-Metrics-Agent/AAPL_SEC_filings/
+Core_Components/SEC_Filings_Analysis_Agent/AAPL_SEC_filings/
