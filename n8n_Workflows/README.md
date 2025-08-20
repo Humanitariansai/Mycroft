@@ -5,7 +5,7 @@ Daily workflow that monitors AI news and alerts on negative sentiment. Uses News
 
 > ⚠️ Note: This version is a starting point.
 
-➡️ For full technical documentation, check out the [README.md](./AI_NEWS_SENTIMENT/README.md) file.
+➡️ For full technical documentation, check out the [AI News Sentiment.md](./AI_NEWS_SENTIMENT/AI%20News%20Sentiment.md) file.
 
 ➡️ A more advanced Phase 2 version is also available, which uses FinBERT-based sentiment analysis, multi-factor risk scoring, PostgreSQL storage, and real-time alerts. 
 For full technical documentation, check out the [Mycroft News Intelligence Agent.md](./AI_NEWS_SENTIMENT/Mycroft%20News%20Intelligence%20Agent.md) file.
