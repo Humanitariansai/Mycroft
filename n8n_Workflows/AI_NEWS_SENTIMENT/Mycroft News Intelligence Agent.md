@@ -200,7 +200,7 @@ CREATE TABLE financial_intelligence (
 - **Multi-language Support**: Global news source integration
 - **Predictive Analytics**: Trend forecasting and early warning systems
 - **API Development**: RESTful API for external integrations
-
+💡 In the next iteration, I also plan to merge the article metadata (title, URL) back with the sentiment output so that it can be visualized in dashboards.
 
 
 ## 🙏 Acknowledgments
@@ -208,4 +208,12 @@ CREATE TABLE financial_intelligence (
 - **Hugging Face**: For providing FinBERT model access
 - **n8n Community**: For workflow automation platform
 - **Financial Data Providers**: NewsAPI, RSS sources, Google News
+
+
+🎥 Demo Videos  
+Video 1 – FinBERT Integration Overview  
+Video 2 – Full Financial Intelligence Workflow  
+👉 Google Drive Link: https://drive.google.com/file/d/1pAXFCT7IeT-lDlmHjDFQtYbbEbBT4YDL/view?usp=sharing                
+👉 Google Drive Link: https://drive.google.com/file/d/1RreTQHt5PeJwgCpcHG4I8arcmJidi5ni/view?usp=sharing
+
 
