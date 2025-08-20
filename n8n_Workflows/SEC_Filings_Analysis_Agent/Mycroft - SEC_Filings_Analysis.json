@@ -10,7 +10,7 @@
         -80
       ],
       "id": "bc8d6172-6682-46b5-8ec9-d138615fdd8e",
-      "name": "When clicking ‘Execute workflow’"
+      "name": "When clicking 'Execute workflow'"
     },
     {
       "parameters": {
@@ -72,7 +72,13 @@
             {
               "id": "c2ff31ae-dd77-4d02-b3b0-a26898280d06",
               "name": "scripts_path",
-              "value": "Core_Components/Financial-Metrics-Agent/",
+              "value": "Core_Components/SEC_Filings_Analysis_Agent/",
+              "type": "string"
+            },
+            {
+              "id": "a8f92e1b-3c4d-4f2a-9b8e-7d5f6e8a9c2b",
+              "name": "temp_dir",
+              "value": "/tmp",
               "type": "string"
             }
           ]
@@ -90,7 +96,7 @@
     },
     {
       "parameters": {
-        "command": "=cd /tmp && rm -rf sec_analysis && git clone {{ $json.github_repo_url }} sec_analysis"
+        "command": "=cd {{ $json.temp_dir }} && rm -rf sec_analysis && git clone {{ $json.github_repo_url }} sec_analysis"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -103,7 +109,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const config = $node['Set Variables'].json;\n\nconst repoDir = '/tmp/sec_analysis';\nconst scriptsDir = `/tmp/sec_analysis/${config.scripts_path}`;\nconst outputDir = '/tmp/sec_output';\n\nreturn [{\n  json: {\n    ...config,\n    repo_dir: repoDir,\n    scripts_dir: scriptsDir,\n    output_dir: outputDir,\n    clone_success: true\n  }\n}];"
+        "jsCode": "const config = $node['Set Variables'].json;\n\nconst repoDir = `${config.temp_dir}/sec_analysis`;\nconst scriptsDir = `${config.temp_dir}/sec_analysis/${config.scripts_path}`;\nconst outputDir = `${config.temp_dir}/sec_output`;\n\nreturn [{\n  json: {\n    ...config,\n    repo_dir: repoDir,\n    scripts_dir: scriptsDir,\n    output_dir: outputDir,\n    clone_success: true\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -116,7 +122,7 @@
     },
     {
       "parameters": {
-        "command": "=rm -rf /tmp/sec_output && mkdir -p /tmp/sec_output/data && cd /tmp/sec_analysis/{{ $json.scripts_path}} && python3 -m pip install -r requirements.txt --user --quiet"
+        "command": "=rm -rf {{ $json.temp_dir }}/sec_output && mkdir -p {{ $json.temp_dir }}/sec_output/data && cd {{ $json.temp_dir }}/sec_analysis/{{ $json.scripts_path}} && python3 -m pip install -r requirements.txt --user --quiet"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -129,7 +135,7 @@
     },
     {
       "parameters": {
-        "command": "=cd /tmp/sec_analysis/{{ $json.scripts_path }} && python3 edgar_fetcher.py --ticker {{ $json.ticker }} --output-dir /tmp/sec_output/data --user-agent \"{{ $json.user_agent }}\" --forms 10-K,10-Q --max-per-type 1"
+        "command": "=cd {{ $json.temp_dir }}/sec_analysis/{{ $json.scripts_path }} && python3 edgar_fetcher.py --ticker {{ $json.ticker }} --output-dir {{ $json.temp_dir }}/sec_output/data --user-agent \"{{ $json.user_agent }}\" --forms 10-K,10-Q --max-per-type 1"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -142,7 +148,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const stdout = $input.first().json.stdout;\nconst stderr = $input.first().json.stderr;\nconst exitCode = $input.first().json.exitCode;\n\nconsole.log('EDGAR stdout:', stdout);\nconsole.log('EDGAR stderr:', stderr);\n\nif (exitCode !== 0) {\n  return [{\n    json: {\n      success: false,\n      error: `EDGAR failed: ${stderr}`,\n      ticker: $node['Set Path Variables'].json.ticker\n    }\n  }];\n}\n\nlet result = {};\ntry {\n  const jsonMatch = stdout.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    result = JSON.parse(jsonMatch[0]);\n  } else {\n    throw new Error('No JSON output found');\n  }\n} catch (e) {\n  return [{\n    json: {\n      success: false,\n      error: `Parse error: ${e.message}`,\n      raw_output: stdout\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ...result,\n    ticker: $node['Set Path Variables'].json.ticker,\n    user_agent: $node['Set Path Variables'].json.user_agent,\n    scripts_path: $node['Set Path Variables'].json.scripts_path\n  }\n}];"
+        "jsCode": "const stdout = $input.first().json.stdout;\nconst stderr = $input.first().json.stderr;\nconst exitCode = $input.first().json.exitCode;\n\nconsole.log('EDGAR stdout:', stdout);\nconsole.log('EDGAR stderr:', stderr);\n\nif (exitCode !== 0) {\n  return [{\n    json: {\n      success: false,\n      error: `EDGAR failed: ${stderr}`,\n      ticker: $node['Set Path Variables'].json.ticker\n    }\n  }];\n}\n\nlet result = {};\ntry {\n  const jsonMatch = stdout.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    result = JSON.parse(jsonMatch[0]);\n  } else {\n    throw new Error('No JSON output found');\n  }\n} catch (e) {\n  return [{\n    json: {\n      success: false,\n      error: `Parse error: ${e.message}`,\n      raw_output: stdout\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ...result,\n    ticker: $node['Set Path Variables'].json.ticker,\n    user_agent: $node['Set Path Variables'].json.user_agent,\n    scripts_path: $node['Set Path Variables'].json.scripts_path,\n    temp_dir: $node['Set Path Variables'].json.temp_dir\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -155,7 +161,7 @@
     },
     {
       "parameters": {
-        "command": "=cd /tmp/sec_analysis/{{ $json.scripts_path }} && python3 financial_analyzer.py --ticker {{ $json.ticker }} --user-agent \"{{ $json.user_agent }}\" --output-dir /tmp/sec_output/data"
+        "command": "=cd {{ $json.temp_dir }}/sec_analysis/{{ $json.scripts_path }} && python3 financial_analyzer.py --ticker {{ $json.ticker }} --user-agent \"{{ $json.user_agent }}\" --output-dir {{ $json.temp_dir }}/sec_output/data"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -168,7 +174,7 @@
     },
     {
       "parameters": {
-        "command": "=cd /tmp/sec_analysis/{{ $json.scripts_path }} && python3 narrative_parser.py --input-dir {{ $json.output_directory }} --output-dir /tmp/sec_output/data/narratives --ticker {{ $json.ticker }}"
+        "command": "=cd {{ $json.temp_dir }}/sec_analysis/{{ $json.scripts_path }} && python3 narrative_parser.py --input-dir {{ $json.output_directory }} --output-dir {{ $json.temp_dir }}/sec_output/data/narratives --ticker {{ $json.ticker }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -207,7 +213,7 @@
     },
     {
       "parameters": {
-        "command": "rm -rf /tmp/sec_analysis && rm -rf /tmp/sec_output && \\\necho \"🧹 Cleanup completed\""
+        "command": "=rm -rf {{ $json.temp_dir }}/sec_analysis && rm -rf {{ $json.temp_dir }}/sec_output && \\\necho \"🧹 Cleanup completed\""
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -233,7 +239,7 @@
     },
     {
       "parameters": {
-        "command": "rm -rf /tmp/sec_analysis && rm -rf /tmp/sec_output && echo \"Error cleanup completed\""
+        "command": "=rm -rf {{ $json.temp_dir }}/sec_analysis && rm -rf {{ $json.temp_dir }}/sec_output && echo \"Error cleanup completed\""
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -247,7 +253,7 @@
   ],
   "pinData": {},
   "connections": {
-    "When clicking ‘Execute workflow’": {
+    "When clicking 'Execute workflow'": {
       "main": [
         [
           {
