@@ -14,6 +14,7 @@ from sec_edgar_api import EdgarClient
 
 class SECFinancialAnalyzer:
     def __init__(self, user_agent: str):
+        self.user_agent = user_agent
         self.edgar = EdgarClient(user_agent=user_agent)
         self.ticker_to_cik_cache = {}
     
@@ -25,7 +26,7 @@ class SECFinancialAnalyzer:
         try:
             import requests
             tickers_url = "https://www.sec.gov/files/company_tickers.json"
-            headers = {'User-Agent': self.edgar.user_agent}
+            headers = {'User-Agent': self.user_agent}
             
             response = requests.get(tickers_url, headers=headers)
             response.raise_for_status()
@@ -296,8 +297,8 @@ def main():
     """Command line interface for n8n."""
     parser = argparse.ArgumentParser(description='SEC Financial Analyzer for n8n')
     parser.add_argument('--ticker', required=True, help='Stock ticker symbol')
-    parser.add_argument('--user-agent', required=True, help='User agent string')
-    parser.add_argument('--output-dir', default='/app/data', help='Output directory')
+    parser.add_argument('--user-agent', help='User agent string', default='Humanitarian AI hr@humanitariansai.com')
+    parser.add_argument('--output-dir', default='./data', help='Output directory')
     
     args = parser.parse_args()
     
