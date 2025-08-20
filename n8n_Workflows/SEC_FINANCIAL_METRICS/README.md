@@ -1,114 +1,117 @@
-## **📈 SEC Financial Metrics Analyzer with n8n**
+# SEC Filings Analysis Tool
 
-# 🏦 Financial Analysis Workflow Summary
+> **Developed by:** Darshan Rajopadhye (rajopadhye.d@northeastern.edu)
 
-This n8n workflow automatically executes a Python-based financial analyzer to pull SEC filing data and generate comprehensive financial reports for any publicly traded company. Perfect for investment research and financial analysis automation!
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-linkedin-profile)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/your-github-username)
 
----
+## Overview
+
+The SEC Filings Analysis Tool is a specialized component within the Mycroft AI Agent ecosystem that automates the complex process of financial regulatory analysis. This n8n workflow transforms simple stock ticker symbols into comprehensive, actionable business intelligence by systematically processing SEC filings.
+
+As part of the larger Mycroft AI Agent project, this tool serves as a critical financial intelligence component, providing the foundational data and insights that will power broader analytical capabilities and decision-making processes.
+
+## What Does This Workflow Do?
+
+**Input:** A stock ticker symbol (e.g., "AAPL", "TSLA", "MSFT")
+
+**Output:** Complete financial analysis package including:
+- Downloaded SEC filings (10-K annual reports, 10-Q quarterly reports, 8-K reports)
+- Extracted financial metrics and ratios
+- Parsed narrative insights from company disclosures
+- Structured data ready in json format
 
 ![n8n Financial Analyzer Workflow](../images/sec.png)
 
-### **🔄 Workflow Overview**
+## Information Flow
 
-This n8n workflow transforms raw SEC data into actionable financial insights through intelligent automation:
-
-1. **🎯 Manual Trigger** – initiates the analysis process
-2. **⚙️ Set Variables** – configures ticker symbol, script path, and user agent  
-3. **🐍 Execute Python Script** – runs the financial analyzer with SEC data retrieval
-4. **🔍 Process Results** – parses JSON output and handles errors gracefully
-5. **📊 Format Analysis** – creates structured summaries and readable reports
-6. **✅ Success Check** – routes to appropriate response handler
-7. **📤 Response Handler** – returns formatted financial insights or error details
-
-🟢 **Current Status**: Manual execution | **Future**: Full orchestration automation
-
----
-
-### **💰 What You Get**
-
-#### **Company Intelligence**
-- 🏢 Company name & industry classification  
-- 📈 Latest annual financial highlights
-- 💵 Revenue, Net Income, Assets, Cash positions
-- 📊 Key financial ratios & health metrics
-
-#### **Example Output Structure**
-```json
-{
-  "success": true,
-  "ticker": "AAPL",
-  "summary": {
-    "company_name": "Apple Inc.",
-    "financial_highlights": {
-      "revenue": {
-        "formatted": "$394,328.00M",
-        "fiscal_year": "2023"
-      },
-      "net_income": {
-        "formatted": "$96,995.00M"
-      }
-    },
-    "key_ratios": {
-      "profit_margin": 24.6,
-      "return_on_assets": 22.4
-    }
-  }
-}
+```
+Stock Ticker (AAPL) 
+    ↓
+SEC EDGAR Database → Download Latest Filings
+    ↓
+Raw HTML/XML Filings
+    ↓
+┌─────────────────┬─────────────────┐
+│   Financial     │    Narrative    │
+│   Analysis      │    Analysis     │
+│                 │                 │
+│ • Revenue       │ • Risk Factors  │
+│ • Profit        │ • MD&A          │
+│ • Ratios        │ • Business      │
+│ • Trends        │   Overview      │
+└─────────────────┴─────────────────┘
+    ↓
+Structured JSON Output + Analysis Reports
 ```
 
----
+## Workflow Stages
 
-### **🎛️ Quick Configuration**
+> **Note:** This workflow utilizes custom Python scripts developed for financial analysis. View the complete script collection at: [📂 GitHub Repository - Financial Analysis Scripts](https://github.com/Humanitariansai/Mycroft/tree/main/Core_Components/Financial-Metrics-Agent)
 
-**Default Setup:**
-```javascript
-// Set Variables Node Configuration
-{
-  "script_path": "/mnt/data/gitrepos/Mycroft/Core_Components/Financial-Metrics-Agent/financial_analyzer.py",
-  "user_agent": "'Financial Analyzer your.email@example.com'",
-  "ticker": "AAPL"  // 🍎 Change me!
-}
+### Stage 1: Input & Configuration
+**What happens:** The workflow starts when you click "Execute"
+- **Input required:** Stock ticker symbol (defaults to AAPL)
+- **Configuration set:** User agent, repository location, output paths
+- **Information flow:** Ticker symbol → Workflow configuration
+
+### Stage 2: Resource Preparation  
+**What happens:** Sets up the analysis environment
+- **Downloads:** Latest analysis scripts from GitHub repository
+- **Installs:** Required Python libraries and dependencies  
+- **Creates:** Temporary workspace directories
+- **Information flow:** Configuration → Ready analysis environment
+
+### Stage 3: SEC Data Acquisition
+**What happens:** Fetches official company filings
+- **Connects to:** SEC EDGAR database using your ticker
+- **Downloads:** Most recent 10-K (annual) and 10-Q (quarterly) reports
+- **Validates:** File integrity and format compliance
+- **Information flow:** Ticker → SEC filings (HTML/XML documents)
+
+
+### Stage 4: Financial Data Extraction
+**What happens:** Converts filing documents into quantitative metrics
+- **Processes:** Balance sheets, income statements, cash flow statements  
+- **Calculates:** Financial ratios, growth rates, performance indicators
+- **Generates:** Trend analysis and comparative metrics
+- **Information flow:** SEC filings → Financial metrics JSON
+
+### Stage 5: Narrative Content Analysis  
+**What happens:** Extracts qualitative business insights
+- **Parses:** Management Discussion & Analysis (MD&A) sections
+- **Extracts:** Risk factors, business strategy, market conditions
+- **Analyzes:** Key business themes and forward-looking statements
+- **Information flow:** SEC filings → Narrative insights JSON
+
+
+## Input Requirements
+
+| Input Type | Required | Default | Description |
+|------------|----------|---------|-------------|
+| **Stock Ticker** | Yes | AAPL | Valid NYSE/NASDAQ symbol |
+| **User Contact** | Yes | Pre-configured | SEC requires contact info |
+| **Github Repository** | Yes | Pre-configured | The workflow uses python scripts hosted on project repository |
+| **Script Path** | Yes | Pre-configured | Required to navigate repository structure |
+
+## Output Deliverables
+
+### Financial Analysis Package
+```
+📊 Financial Metrics
+├── Revenue analysis (growth, seasonality)
+├── Profitability ratios (margins, ROE, ROA)  
+├── Liquidity metrics (current ratio, quick ratio)
+├── Leverage analysis (debt ratios, coverage)
+└── Efficiency measures (asset turnover, inventory)
 ```
 
-**🚀 Want to analyze Tesla?** Just update:
-```javascript
-"ticker": "TSLA"  // ⚡ Electric!
+### Narrative Intelligence Package  
 ```
-
-**⚠️ Important**: Update the user agent with your actual email for SEC EDGAR compliance!
-
----
-
-### **🧠 Smart Processing Logic**
-
-The workflow includes intelligent error handling and data formatting:
-
-```javascript
-// Error Detection
-if (exitCode !== 0) {
-  return [{
-    json: {
-      success: false,
-      error: `Script failed with exit code ${exitCode}: ${stderr}`,
-      ticker: ticker,
-      timestamp: new Date().toISOString()
-    }
-  }];
-}
-
-// Financial Formatting  
-revenue: {
-  value: annual.revenue?.value || 0,
-  formatted: `$${(annual.revenue.value / 1000000).toFixed(2)}M`,
-  fiscal_year: annual.revenue?.fiscal_year
-}
+📖 Business Insights
+├── Risk factor analysis
+├── Strategic priorities and initiatives
+├── Market condition assessments
+├── Management outlook and guidance
+└── Regulatory and competitive landscape
 ```
-
----
-
-### **Future Vision**🔮 
-
-This is a **production-ready component** of a larger financial intelligence system that will be Mycroft:
-
-📍 **Current State**: Manual execution for on-demand analysis  
-🚀 **Future State**: Full automation as part of orchestration layer
