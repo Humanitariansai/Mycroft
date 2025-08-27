@@ -247,21 +247,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Professor Nik Bear Brown** - Educational guidance and framework design
 - **Open Source Community** - Collaborative development and learning
 
-## Changelog
 
-### v1.0.0 (Current)
-- Initial release with 3-source architecture
-- Groq API integration for fast sentiment analysis
-- Google Cloud storage integration
-- Comprehensive signal quality filtering
-- Complete n8n workflow implementation
-
-### Roadmap
-- Multi-language sentiment analysis
-- Real-time streaming data processing
-- Enhanced backtesting capabilities
-- Integration with additional Mycroft agents
-- Mobile app for monitoring agent performance
 
 ---
 
