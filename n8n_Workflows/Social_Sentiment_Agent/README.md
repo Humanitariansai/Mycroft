@@ -2,6 +2,9 @@
 
 An AI-powered sentiment analysis agent for the Mycroft Framework - Using AI to Invest in AI
 
+**Author:** Vinay Sai Rajapu  
+**LinkedIn:** [https://www.linkedin.com/in/vinay-sai-rajapu/](https://www.linkedin.com/in/vinay-sai-rajapu/)
+
 ## Overview
 
 The Mycroft Social Sentiment Agent is an open-source educational experiment in AI-powered investment intelligence. Named after Sherlock Holmes's analytical elder brother, this agent processes social media discussions about artificial intelligence to generate actionable investment signals.
@@ -237,6 +240,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
+- **Vinay Sai Rajapu** - Project creator and lead developer - [LinkedIn](https://www.linkedin.com/in/vinay-sai-rajapu/)
 - **Mycroft Framework** - Architecture inspiration and educational vision
 - **n8n Community** - Powerful workflow automation platform
 - **Groq** - Lightning-fast AI inference infrastructure
