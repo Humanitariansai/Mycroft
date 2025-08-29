@@ -214,6 +214,6 @@ CREATE TABLE financial_intelligence (
 Video 1 – FinBERT Integration Overview  
 Video 2 – Full Financial Intelligence Workflow  
 👉 Google Drive Link: https://drive.google.com/file/d/13N2djJ8JNWmQLZ2hg7XvbkMdh_XysAoW/view?usp=sharing              
-👉 Google Drive Link: https://drive.google.com/file/d/1RreTQHt5PeJwgCpcHG4I8arcmJidi5ni/view?usp=sharing
+👉 Google Drive Link: https://drive.google.com/file/d/1Ab1p5C6P4wcHdbB6DFWcV19Uxbrb3HRK/view?usp=sharing
 
 
