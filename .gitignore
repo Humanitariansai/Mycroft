@@ -12,4 +12,8 @@ Config.toml
 
 __pycache__/
 
+*.db
+*.tsv
+
 Core_Components/SEC_Filings_Analysis_Agent/AAPL_SEC_filings/
+Core_Components/Patents_Analysis_Agent/patents_data/
