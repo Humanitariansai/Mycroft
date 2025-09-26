@@ -16,4 +16,4 @@ __pycache__/
 *.tsv
 
 Core_Components/SEC_Filings_Analysis_Agent/AAPL_SEC_filings/
-Core_Components/Patents_Analysis_Agent/patents_data/
+Core_Components/Patents_Analysis_Agent/patent_data/
