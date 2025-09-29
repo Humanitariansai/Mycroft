@@ -22,7 +22,7 @@ As part of the larger Mycroft AI Agent project, this tool serves as a critical i
 - Patent classification (CPC, WIPO) mapping
 - Structured CSV data with metrics JSON
 
-![n8n Patent Intelligence Workflow](../images/patents.png)
+![n8n Patent Intelligence Workflow](../images/patent.png)
 
 ## Information Flow
 
