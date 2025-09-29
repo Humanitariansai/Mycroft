@@ -15,3 +15,7 @@ Tool that analyzes SEC financial filings for publicly traded companies. Executes
 
 ➡️ For full technical documentation, check out the [README.md](./SEC_FINANCIAL_METRICS/README.md) file.
 
+## Patent Intelligence System Workflow
+Automated patent monitoring and AI classification system that tracks recent USPTO patent filings. Extracts patent metadata from PatentsView API using cursor-based pagination, processes records to identify AI-related innovations through keyword matching and CPC code analysis, normalizes company names, and generates intelligence reports with confidence scoring. Delivers CSV data and metrics JSON via email for competitive intelligence and technology scouting.
+
+➡️ For full technical documentation, check out the [README.md](./Patent_Intelligence_Agent/README.md) file.
