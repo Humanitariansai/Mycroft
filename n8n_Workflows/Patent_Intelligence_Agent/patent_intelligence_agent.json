@@ -1,0 +1,462 @@
+{
+  "name": "Patent Intelligence System",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f8b8c8e0-7d4c-4a0b-8f3e-1a2b3c4d5e6f",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "78db0104-55a2-4142-bb82-370d63d9bdf5",
+              "name": "github_repo_url",
+              "value": "https://github.com/yourusername/patent-intelligence-system.git",
+              "type": "string"
+            },
+            {
+              "id": "985331f1-aa8c-4888-aae7-d29cbde21a6c",
+              "name": "scripts_path",
+              "value": "src/",
+              "type": "string"
+            },
+            {
+              "id": "4731832b-6c7e-4517-8d89-6add5414aebd",
+              "name": "temp_dir",
+              "value": "/tmp",
+              "type": "string"
+            },
+            {
+              "id": "c2ff31ae-dd77-4d02-b3b0-a26898280d06",
+              "name": "patent_year",
+              "value": "2024",
+              "type": "string"
+            },
+            {
+              "id": "a8f92e1b-3c4d-4f2a-9b8e-7d5f6e8a9c2b",
+              "name": "api_key",
+              "value": "={{ $env.PATENT_API_KEY }}",
+              "type": "string"
+            },
+            {
+              "id": "b9c83f2c-4d5e-5f3a-0c9f-8e6g7f9a0d3c",
+              "name": "notify_email",
+              "value": "={{ $env.DEFAULT_EMAIL }}",
+              "type": "string"
+            },
+            {
+              "id": "c0d94g3d-5e6f-6g4b-1d0g-9f7h8g0b1e4d",
+              "name": "smtp_host",
+              "value": "={{ $env.SMTP_HOST }}",
+              "type": "string"
+            },
+            {
+              "id": "d1e05h4e-6f7g-7h5c-2e1h-0g8i9h1c2f5e",
+              "name": "smtp_port",
+              "value": "={{ $env.SMTP_PORT }}",
+              "type": "string"
+            },
+            {
+              "id": "e2f16i5f-7g8h-8i6d-3f2i-1h9j0i2d3g6f",
+              "name": "smtp_user",
+              "value": "={{ $env.SMTP_USER }}",
+              "type": "string"
+            },
+            {
+              "id": "f3g27j6g-8h9i-9j7e-4g3j-2i0k1j3e4h7g",
+              "name": "smtp_password",
+              "value": "={{ $env.SMTP_PASSWORD }}",
+              "type": "string"
+            },
+            {
+              "id": "g4h38k7h-9i0j-0k8f-5h4k-3j1l2k4f5i8h",
+              "name": "from_email",
+              "value": "={{ $env.FROM_EMAIL }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567891",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $json.temp_dir }} && rm -rf patent_intelligence && git clone {{ $json.github_repo_url }} patent_intelligence"
+      },
+      "id": "b2c3d4e5-f6g7-8901-bcde-f23456789013",
+      "name": "Setup Github Repo",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $node['Set Variables'].json;\n\nconst repoDir = `${config.temp_dir}/patent_intelligence`;\nconst scriptsDir = `${config.temp_dir}/patent_intelligence/${config.scripts_path}`;\nconst outputDir = `${config.temp_dir}/patent_output`;\n\nreturn [{\n  json: {\n    ...config,\n    repo_dir: repoDir,\n    scripts_dir: scriptsDir,\n    output_dir: outputDir,\n    clone_success: true\n  }\n}];"
+      },
+      "id": "c3d4e5f6-g7h8-9012-cdef-345678901235",
+      "name": "Set Path Variables",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=rm -rf {{ $json.output_dir }} && mkdir -p {{ $json.output_dir }}/data && cd {{ $json.scripts_dir }} && python3 -m pip install -r requirements.txt --user --quiet"
+      },
+      "id": "d4e5f6g7-h8i9-0123-defg-456789012346",
+      "name": "Setup Environment and Output Directories",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $json.scripts_dir }} && python3 patent_extractor.py --year {{ $json.patent_year }} --output {{ $json.output_dir }}/data/patents_{{ $json.patent_year }}.csv --api_key {{ $json.api_key }}"
+      },
+      "id": "e5f6g7h8-i9j0-1234-efgh-567890123457",
+      "name": "Extract Patents",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "e5f6g7h8-i9j0-1234-efgh-567890123457",
+              "leftValue": "={{ $node['Extract Patents'].json.exitCode }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "f6g7h8i9-j0k1-2345-fghi-678901234568",
+      "name": "Check Extraction Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $json.scripts_dir }} && python3 patent_processor.py {{ $json.output_dir }}/data/patents_{{ $json.patent_year }}.csv --output {{ $json.output_dir }}/data/processed_patents_{{ $json.patent_year }}.csv"
+      },
+      "id": "g7h8i9j0-k1l2-3456-ghij-789012345679",
+      "name": "Process Patents",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "={{ $json.output_dir }}/data/processed_patents_{{ $json.patent_year }}.csv"
+      },
+      "id": "h8i9j0k1-l2m3-4567-hijk-890123456780",
+      "name": "Read Processed Data",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "={{ $json.output_dir }}/data/processed_patents_{{ $json.patent_year }}_metrics.json"
+      },
+      "id": "i9j0k1l2-m3n4-5678-ijkl-901234567891",
+      "name": "Read Metrics",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.from_email }}",
+        "toEmail": "={{ $json.notify_email }}",
+        "subject": "Patent Intelligence Report - {{ $json.patent_year }}",
+        "emailFormat": "text",
+        "message": "Patent processing completed successfully!\n\nSummary:\n- Total Patents: {{ JSON.parse($node['Read Metrics'].binary.data.toString()).total_patents }}\n- AI Patents: {{ JSON.parse($node['Read Metrics'].binary.data.toString()).ai_patents }}\n- AI Percentage: {{ JSON.parse($node['Read Metrics'].binary.data.toString()).ai_percentage }}%\n\nTop Organizations:\n{{ Object.entries(JSON.parse($node['Read Metrics'].binary.data.toString()).top_organizations).map(([org, count]) => `- ${org}: ${count} patents`).join('\\n') }}\n\nData files saved to: {{ $json.output_dir }}/data/\n\nProcessing completed at: {{ $now }}",
+        "attachments": [
+          {
+            "name": "processed_patents_{{ $json.patent_year }}.csv",
+            "data": "={{ $node['Read Processed Data'].binary.data }}",
+            "type": "binary"
+          },
+          {
+            "name": "metrics_{{ $json.patent_year }}.json",
+            "data": "={{ $node['Read Metrics'].binary.data }}",
+            "type": "binary"
+          }
+        ],
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "id": "i9j0k1l2-m3n4-5678-ijkl-901234567891",
+      "name": "Send Report Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        200
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "smtp_creds",
+          "name": "SMTP Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.from_email }}",
+        "toEmail": "={{ $json.notify_email }}",
+        "subject": "Patent Intelligence Error - {{ $json.patent_year }}",
+        "emailFormat": "text",
+        "message": "Patent processing failed!\n\nError Details:\n{{ $node['Extract Patents'].json.stderr || 'Unknown error occurred during patent extraction' }}\n\nPlease check the system logs for more details.\n\nFailed at: {{ $now }}",
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "id": "j0k1l2m3-n4o5-6789-jklm-012345678902",
+      "name": "Error Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        400
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "smtp_creds",
+          "name": "SMTP Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=rm -rf {{ $json.repo_dir }} && echo \"🧹 Repository cleanup completed\""
+      },
+      "id": "j0k1l2m3-n4o5-6789-jklm-012345678902",
+      "name": "Cleanup Repository",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2040,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=rm -rf {{ $json.repo_dir }} && echo \"Error cleanup completed\""
+      },
+      "id": "k1l2m3n4-o5p6-7890-klmn-123456789013",
+      "name": "Cleanup Repository Error",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        400
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Setup Github Repo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Github Repo": {
+      "main": [
+        [
+          {
+            "node": "Set Path Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Path Variables": {
+      "main": [
+        [
+          {
+            "node": "Setup Environment and Output Directories",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Patents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Patents": {
+      "main": [
+        [
+          {
+            "node": "Check Extraction Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Extraction Success": {
+      "main": [
+        [
+          {
+            "node": "Process Patents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Patents": {
+      "main": [
+        [
+          {
+            "node": "Read Processed Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Processed Data": {
+      "main": [
+        [
+          {
+            "node": "Send Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Metrics": {
+      "main": [
+        [
+          {
+            "node": "Send Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Report Email": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Notification": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Repository Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "patent-intelligence-workflow",
+  "tags": []
+}
