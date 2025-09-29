@@ -1,3 +1,12 @@
+"""
+Patent Intelligence System - Data Fetcher
+Advanced patent data fetching from PatentSearch API.
+
+Author: Darshan Rahul Rajopadhye
+License: MIT
+"""
+
+
 import os
 import sys
 import json

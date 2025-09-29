@@ -2,7 +2,7 @@
 Patent Intelligence System - Data Processor
 Advanced patent data processing with AI classification and enrichment.
 
-Author: Your Name
+Author: Darshan Rahul Rajopadhye
 License: MIT
 """
 
