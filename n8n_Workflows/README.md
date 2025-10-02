@@ -19,3 +19,10 @@ Tool that analyzes SEC financial filings for publicly traded companies. Executes
 Automated patent monitoring and AI classification system that tracks recent USPTO patent filings. Extracts patent metadata from PatentsView API using cursor-based pagination, processes records to identify AI-related innovations through keyword matching and CPC code analysis, normalizes company names, and generates intelligence reports with confidence scoring. Delivers CSV data and metrics JSON via email for competitive intelligence and technology scouting.
 
 ➡️ For full technical documentation, check out the [README.md](./Patent_Intelligence_Agent/README.md) file.
+
+## Forecasting Agent Workflow
+
+An n8n workflow that generates stock price forecasts by combining market data (Alpha Vantage) with FinBERT-based sentiment analysis.  
+The agent computes optimistic, realistic, and pessimistic scenarios, applies volatility-based risk scoring, and stores results in PostgreSQL for downstream dashboards.
+
+📄 For full technical documentation, check out the [Forecasting_Agent.md](n8n_Workflows/Forecasting_Agent/Forecasting_Agent.md) file.
