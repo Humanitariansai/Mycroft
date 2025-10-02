@@ -25,4 +25,4 @@ Automated patent monitoring and AI classification system that tracks recent USPT
 An n8n workflow that generates stock price forecasts by combining market data (Alpha Vantage) with FinBERT-based sentiment analysis.  
 The agent computes optimistic, realistic, and pessimistic scenarios, applies volatility-based risk scoring, and stores results in PostgreSQL for downstream dashboards.
 
-📄 For full technical documentation, check out the [Forecasting_Agent.md](n8n_Workflows/Forecasting_Agent/Forecasting_Agent.md) file.
+📄 For full technical documentation, check out the [README.md](./Forecasting_Agent/Forecasting_Agent.md) file.
