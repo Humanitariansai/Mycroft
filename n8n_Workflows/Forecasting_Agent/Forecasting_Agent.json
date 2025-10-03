@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "url": "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=7R60PPYGUOHG4ZRX",
+        "url": "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=yourkey",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
