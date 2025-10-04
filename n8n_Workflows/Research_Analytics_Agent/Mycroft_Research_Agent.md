@@ -2,7 +2,7 @@
 
 An educational n8n workflow that demonstrates AI-powered investment analysis by combining financial metrics with patent intelligence to evaluate AI companies.
 
-![Mycroft Research Agent Workflow](https://github.com/n8n_Workflows/Research_Analytics_Agent/n8n_workflow)
+![Mycroft Research Agent Workflow](https://github.com/n8n_Workflows/Research_Analytics_Agent/n8n_workflow.png)
 
 ## 🚀 Features
 
