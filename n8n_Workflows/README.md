@@ -26,3 +26,8 @@ An n8n workflow that generates stock price forecasts by combining market data (A
 The agent computes optimistic, realistic, and pessimistic scenarios, applies volatility-based risk scoring, and stores results in PostgreSQL for downstream dashboards.
 
 📄 For full technical documentation, check out the [README.md](./Forecasting_Agent/Forecasting_Agent.md) file.
+
+## Research Agent Workflow
+Educational AI-powered investment analysis workflow that evaluates AI companies by combining financial metrics with patent intelligence. Named after Sherlock Holmes's analytical brother, the system fetches live financial data from Alpha Vantage, performs Google patent searches, calculates innovation and financial health scores, and generates comprehensive investment recommendations with risk assessments. Outputs professional reports in multiple formats (JSON, text, CSV) with letter grades, investment thesis, and confidence ratings.
+
+➡️ For full technical documentation, check out the [Mycroft Research Agent.md](./Research_Agent/Mycroft%20Research%20Agent.md) file.
