@@ -1,6 +1,8 @@
-# Research Analytical Agent - Investment Intelligence System
+# Mycroft Research Agent - Investment Intelligence System
 
 An educational n8n workflow that demonstrates AI-powered investment analysis by combining financial metrics with patent intelligence to evaluate AI companies.
+
+![Mycroft Research Agent Workflow](https://github.com/n8n_Workflows/Research_Analytics_Agent/n8n_workflow)
 
 ## 🚀 Features
 
