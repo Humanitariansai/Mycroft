@@ -8,9 +8,15 @@ import json
 import sys
 import argparse
 import os
+import warnings
+import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from sec_edgar_api import EdgarClient
+
+warnings.filterwarnings('ignore')
+logging.getLogger('urllib3').setLevel(logging.ERROR)
+logging.getLogger('sec_edgar_api').setLevel(logging.ERROR)
 
 class SECFinancialAnalyzer:
     def __init__(self, user_agent: str):
@@ -307,7 +313,9 @@ def main():
         result = analyzer.create_financial_analysis(args.ticker, args.output_dir)
         
         # Output JSON for n8n
-        print(json.dumps(result, default=str))
+        output = json.dumps(result, default=str, ensure_ascii=False)
+        print(output)
+        sys.stdout.flush()
         
         # Exit with appropriate code
         sys.exit(0 if result['success'] else 1)
@@ -318,7 +326,8 @@ def main():
             'error': str(e),
             'ticker': args.ticker
         }
-        print(json.dumps(error_output))
+        print(json.dumps(error_output, ensure_ascii=False))
+        sys.stdout.flush()
         sys.exit(1)
 
 if __name__ == "__main__":
