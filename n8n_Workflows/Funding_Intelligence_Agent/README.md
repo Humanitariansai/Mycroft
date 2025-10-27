@@ -345,15 +345,6 @@ Solution:
 4. Clear test data and re-run workflow
 ```
 
-## 🙏 Acknowledgments
-- **n8n Community**: For the powerful workflow automation platform
-- **Zyte**: For reliable web scraping infrastructure
-- **PostgreSQL**: For robust data storage and querying
-- **Google Sheets**: For easy dashboard creation and sharing
-- **Claude AI**: For assistance in development and optimization
-
-
-
 ## 📞 Contact
 - **GitHub**: https://github.com/Humanitariansai/Mycroft/new/main/n8n_Workflows
 - **LinkedIn**: https://www.linkedin.com/in/anshika-khandelwal/
