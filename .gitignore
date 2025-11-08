@@ -18,3 +18,19 @@ __pycache__/
 
 Core_Components/SEC_Filings_Analysis_Agent/AAPL_SEC_filings/
 Core_Components/Patents_Analysis_Agent/patent_data/
+
+#macOS files
+.DS_Store
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+
+# Virtual environments
+.venv
+
+.env
