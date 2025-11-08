@@ -1,0 +1,1131 @@
+{
+  "name": "News Monitoring Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -8352
+      ],
+      "id": "a1ca5966-3451-414f-9072-be95d6fcb9c0",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cCsif8WPl9bvPFqT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -176,
+        -7552
+      ],
+      "id": "9c27c10a-a2b1-484c-95c7-9d3caac09676",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://newshelper:8000/fetch",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lib",
+              "value": "feedparser"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "[]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        -7264
+      ],
+      "id": "0b725733-a198-4a2f-8c43-c595d85efe73",
+      "name": "feedparser fetch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://newshelper:8000/fetch",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lib",
+              "value": "googlenews"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "[\"Artificial Intelligence\"]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        -7648
+      ],
+      "id": "03f28e32-2e63-46e4-8d00-0e0a4e5d6069",
+      "name": "googlenews fetch"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -848,
+        -7472
+      ],
+      "id": "9286f3ed-099d-4288-bbfe-a057ef8a2baa",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "http://newshelper:8000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -624,
+        -7552
+      ],
+      "id": "97b48d1f-30c4-4091-b62f-7d08407647ad",
+      "name": "Healthcheck",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        944,
+        -7712
+      ],
+      "id": "9e384c22-2f93-48f8-8301-f94cce046620",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.title }}{{\"\\n\"}}{{ $json.content }}",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "id",
+                "value": "={{ $json.id }}"
+              },
+              {
+                "name": "content",
+                "value": "={{ $json.content }}"
+              },
+              {
+                "name": "url",
+                "value": "={{ $json.url }}"
+              },
+              {
+                "name": "published_date",
+                "value": "={{ $json.published_date }}"
+              },
+              {
+                "name": "source_name",
+                "value": "={{ $json.source_name }}"
+              },
+              {
+                "name": "site_name",
+                "value": "={{ $json.site_name }}"
+              },
+              {
+                "name": "sentiment",
+                "value": "={{ {label:$json.label, score: $json.score}.toJsonString() }}"
+              },
+              {
+                "name": "fetch_lib",
+                "value": "={{ $json.fetch_lib }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        -8352
+      ],
+      "id": "7a3f4fbc-a2df-406e-9af9-b38ae1c60eee",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "splitCode": "markdown"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        -8144
+      ],
+      "id": "f2f463c2-4cdb-4fac-93c0-b40d6fc95ad1",
+      "name": "Recursive Character Text Splitter1"
+    },
+    {
+      "parameters": {
+        "modelName": "FinLang/finance-embeddings-investopedia",
+        "options": {
+          "provider": "hf-inference"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        -7744
+      ],
+      "id": "72e736f9-e35b-4b4c-b4e7-ee7a8ff3164c",
+      "name": "Embeddings HuggingFace Inference",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "L2EP9YdnueVmIJ3N",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "finance_embeddings_vectorstore",
+        "embeddingBatchSize": 30,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        -7568
+      ],
+      "id": "69b03c57-c98f-4d00-b1bf-391ef2366d3f",
+      "name": "Postgres PGVector HF Embeddings",
+      "credentials": {
+        "postgres": {
+          "id": "ENymcdbhkCXigTtB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "news_vectors",
+        "embeddingBatchSize": 30,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        -8576
+      ],
+      "id": "d013bf42-8824-466c-bd95-4c999c543ef2",
+      "name": "Postgres PGVector Gemini Embeddings",
+      "credentials": {
+        "postgres": {
+          "id": "ENymcdbhkCXigTtB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        -6272
+      ],
+      "id": "275115c9-fdd5-48ba-91d6-fac5405b7d67",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cCsif8WPl9bvPFqT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        -6064
+      ],
+      "id": "b5661d64-6ea9-4b76-a510-8e4748c6c3d9",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "ENymcdbhkCXigTtB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -928,
+        -6288
+      ],
+      "id": "fb21a017-97d7-4d9f-8451-ddea24c01744",
+      "name": "When chat message received",
+      "webhookId": "022ec8b8-c15d-4a3e-9041-99fe1c227010"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://newshelper:8000/parse",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.toJsonString() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        -7712
+      ],
+      "id": "d73221aa-91ad-4c67-876f-9ff1e80dd417",
+      "name": "Parse"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b8933c2-fc02-4e30-8718-1542d6fef542",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "544bf72a-dc7c-428e-b3f0-2cfc8181663f",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "023ca7b1-0127-4d65-bae4-015f6099d812",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        -7712
+      ],
+      "id": "1d7d05bf-77b9-4f00-a0f5-e6cc0d899de1",
+      "name": "not null"
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.url }}, {{ $json.title }}",
+        "options": {
+          "historySize": 10000
+        }
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        48,
+        -7616
+      ],
+      "id": "d5c8cbae-14ca-4ac8-a65c-700dc28f2fba",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "numberInputs": 4,
+        "output": "empty"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1312,
+        -7328
+      ],
+      "id": "203880a6-dbfa-4d7c-94f6-96882ec1599c",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://newshelper:8000/finbert",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "article",
+              "value": "={{ $json.content.toJsonString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        -7792
+      ],
+      "id": "1b806b2d-c35d-4338-a204-e8be77f7b964",
+      "name": "FinBert"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "news_articles",
+          "mode": "list",
+          "cachedResultName": "news_articles"
+        },
+        "embeddingBatchSize": 30,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        -7968
+      ],
+      "id": "b92d421f-bbbd-4718-8994-6e66630d13c8",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "P1wErSL6hch5xzfW",
+          "name": "QdrantApi local account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "FinLang/finance-embeddings-investopedia",
+        "options": {
+          "provider": "hf-inference"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -5856
+      ],
+      "id": "4d7942bb-b9b6-4be3-a46a-7bc51e58e906",
+      "name": "Embeddings HuggingFace Inference4",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "L2EP9YdnueVmIJ3N",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Role and Task\nYou are an assistant to a trustworthy investment analyst, up-to-date with the current news. Your job is to assist you boss (financial analyst) by providing filters to focus their search towards while answering the client query. Your job is to just provide the filter if you can but not to respond to user query.\n\n# Context\n- Today is {{ $now.toISO() }}\n- Filter you will be providing has to be on these keys: {{ {\n//\"url\": \"url of the news article\",\n//\"title\": \"title of the news article\",\n//\"content\": \"content of the news article\",\n\"published_date\": \"this is an ISO String. The news article was first published on this date\",\n\"updated_date\": \"this is an ISO String. The news article was updated on this date\",\n//\"sentiment\": {\"label\": \"financial sentiment of this news article possible values are [positive, neutral, negative]\",\n//\"score\": \"floating point value indicating the scale of financial sentiment. The range is 0 to 1 where 0 means lower impact and 1 is high\" }\n}.toJsonString() }}\n\n# Rules:\n- Always return the filter object which is a valid json object without any markdown, all keys are optional"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -672,
+        -6496
+      ],
+      "id": "5e8e0d97-13ef-4566-b0af-92f5e759bcce",
+      "name": "Metadata Agent",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=# Role and Task\nYou are a trustworthy investment analyst, up-to-date with the current news. Your job is to answer client questions by breaking down the question and consulting your tools.\n\n# Context\n- Today is {{ $now }}\n\n- Your tools: \n  1. News Articles RAG: query and pull news similar to your query\n  2. News Articles RAG1: query and pull news similar to your query\n\n# Rules:\n- Always ground yourself with the data provided to you by your tools.\n- Always assume the question is in the context of AI and tech domain\n- You are skilled in drawing conclusions and patterns from the the responses from your tools. You are expected to ask questions in various aspects to draw out hidden patterns to your tools.\n- Use all the information as context o tanswer the client question.",
+          "maxIterations": 10,
+          "returnIntermediateSteps": true,
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -176,
+        -6288
+      ],
+      "id": "4d61d3d4-dc58-470d-8cb0-1998da43f072",
+      "name": "RAG Agent"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"url\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n      \"title\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n      \"content\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n      \"published_date\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n      \"updated_date\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"sentiment\": {\n\t\t\t\"type\": \"object\",\n\t\t\t\"properties\": {\n\t\t\t\t\"label\": {\n                  \"type\": \"string\",\n                  \"score\": \"float\"\n                }\n\t\t\t}\n\t\t}\n\t}\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        -6272
+      ],
+      "id": "46ae7f9f-a90d-4c01-b2b7-bcfc45623ad1",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "news articles with the following metadata:\nurl: url of the news article\ntitle: title of the news article\ncontent: content of the news article\npublished_date: the news article was first published on this date\nupdated_date: the news article was updated on this date\nsentiment:{label: financial sentiment of this news article possible values are [positive, neutral, negative],\nscore: floating point value indicating the scale of financial sentiment. The range is 0 to 1 where 0 means lower impact and 1 is }",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "news_articles",
+          "mode": "list",
+          "cachedResultName": "news_articles"
+        },
+        "options": {
+          "searchFilterJson": "={\n  \"should\": {{ $json.output.forEach((k,v) => {\n              return {\"key\": k,\n                        \"match\": {\n                          \"value\": v\n                          }\n                      }\n                    })\n                }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        -6064
+      ],
+      "id": "b1c58b50-8e43-4696-8060-733c383f487f",
+      "name": "News Articles RAG1",
+      "credentials": {
+        "qdrantApi": {
+          "id": "P1wErSL6hch5xzfW",
+          "name": "QdrantApi local account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        -6064
+      ],
+      "id": "9c7a407e-f679-4dde-9b8a-17f836c413f9",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cCsif8WPl9bvPFqT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## News Monitoring Workflow: runs every 20 min\n",
+        "height": 1584,
+        "width": 2992,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        -8688
+      ],
+      "id": "556399f1-4e3f-416b-934a-f1a61a2a34ac",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Utils\n",
+        "height": 480,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        -9696
+      ],
+      "id": "c826dd7e-7fcd-45bd-98f2-7149212ec797",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## News Agent",
+        "height": 896,
+        "width": 1360,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        -6608
+      ],
+      "id": "101445de-7489-4fd7-81de-be19cc752718",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select\n  start_time::DATE as \"date\",\n  sum(ingested) as ingested_total,\n  sum(deduplicated) as unique_items,\n  sum(processed) as processed_total,\n  round((sum(deduplicated) - sum(processed)::decimal) * 100 / sum(deduplicated), 2) as loss_percentage,\n  round(sum(processed)::decimal * 100 / sum(ingested), 2) as signal_percentage\nfrom\n  metrics\ngroup by\n  start_time::DATE\norder by\n  \"date\";",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -832,
+        -9600
+      ],
+      "id": "31ea2765-514c-40f6-88d4-1b78477de5fa",
+      "name": "View daily KPIs",
+      "credentials": {
+        "postgres": {
+          "id": "ENymcdbhkCXigTtB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://qdrant:6333/collections/news_articles",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "qdrantRestApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"vectors\": {\n      \"size\": 768,\n      \"distance\": \"Cosine\"\n    }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -832,
+        -9376
+      ],
+      "id": "41cebb42-561b-486c-bbb1-cd4cfe5482fa",
+      "name": "Create Qdrant Collection",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "Fayn7DdvZmSVNsMQ",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "metrics",
+          "mode": "list",
+          "cachedResultName": "metrics"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "start_time": "={{ $('Schedule Trigger').first().json.timestamp }}",
+            "end_time": "={{ $now.toISO() }}",
+            "ingested": "={{ $('Merge').all().length }}",
+            "deduplicated": "={{ $('Remove Duplicates').all().length }}",
+            "processed": "={{ $('Merge1').all().length }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "start_time",
+              "displayName": "start_time",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end_time",
+              "displayName": "end_time",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ingested",
+              "displayName": "ingested",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deduplicated",
+              "displayName": "deduplicated",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processed",
+              "displayName": "processed",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1664,
+        -7296
+      ],
+      "id": "44ce1d2c-c2e2-44fa-bb4d-468c00d1e27a",
+      "name": "Write metrics",
+      "credentials": {
+        "postgres": {
+          "id": "ENymcdbhkCXigTtB",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Gemini Embeddings",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "feedparser fetch": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "googlenews fetch": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Healthcheck",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Healthcheck": {
+      "main": [
+        [
+          {
+            "node": "feedparser fetch",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "googlenews fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Gemini Embeddings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Postgres PGVector HF Embeddings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector HF Embeddings",
+            "type": "ai_document",
+            "index": 0
+          },
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          },
+          {
+            "node": "Postgres PGVector Gemini Embeddings",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector HF Embeddings",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Metadata Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Metadata Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse": {
+      "main": [
+        [
+          {
+            "node": "not null",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "not null": {
+      "main": [
+        [
+          {
+            "node": "FinBert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Parse",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Write metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FinBert": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "Embeddings HuggingFace Inference4": {
+      "ai_embedding": [
+        [
+          {
+            "node": "News Articles RAG1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Metadata Agent": {
+      "main": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Metadata Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Articles RAG1": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveExecutionProgress": true
+  },
+  "versionId": "1d00eeb4-27d0-4a45-a6f6-f5460b56ec88",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5fbe7010a47dbbee5902aa79ce4b5f892b76b997e2f56279d16da651c03d3f60"
+  },
+  "id": "HYyK6YLCeDYCElmF",
+  "tags": []
+}
