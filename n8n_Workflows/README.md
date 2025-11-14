@@ -38,7 +38,7 @@ Automated workflow that monitors AI startup funding announcements from TechCrunc
 📊 For full technical documentation, check out the [README.md](./Funding_Intelligence_Agent/README.md) file.
 
 
-## Research Agent - Earnings & Competitor Intelligence Workflow
+## Research Agent - Earnings & Competitor Analysis Workflow
 Educational AI-powered investment analysis workflow that evaluates AI companies through a multi-agent intelligence framework, the system combines four specialized agents: **Financial Analysis** (Alpha Vantage metrics), **Patent Intelligence** (Google patent searches), **Earnings Execution** (quarterly beat/miss tracking with momentum analysis), and **Competitive Benchmarking** (peer rankings and sector comparison). The workflow calculates weighted scores, generates comprehensive investment recommendations with risk assessments, and produces professional markdown reports.
 
 ➡️ For full technical documentation, check out the [README.md](./Research_Analytics_Agent/README.md) file.
