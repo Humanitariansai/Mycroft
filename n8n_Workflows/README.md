@@ -42,3 +42,9 @@ Automated workflow that monitors AI startup funding announcements from TechCrunc
 Educational AI-powered investment analysis workflow that evaluates AI companies through a multi-agent intelligence framework, the system combines four specialized agents: **Financial Analysis** (Alpha Vantage metrics), **Patent Intelligence** (Google patent searches), **Earnings Execution** (quarterly beat/miss tracking with momentum analysis), and **Competitive Benchmarking** (peer rankings and sector comparison). The workflow calculates weighted scores, generates comprehensive investment recommendations with risk assessments, and produces professional markdown reports.
 
 ➡️ For full technical documentation, check out the [README.md](./Research_Analytics_Agent/README.md) file.
+
+## Investor Intelligence Agent
+
+AI-powered workflow that analyzes relationships between investors, startups, and AI-sector funding activity using PostgreSQL and natural-language query parsing. Automatically classifies user questions (e.g., investor profiles, startup investors, recent deals, top investors), routes them to optimized SQL workflows, and returns structured insights via an interactive HTML chatbot interface. Enables rapid exploration of investor networks, deal histories, and sector trends.
+
+📄 For full technical documentation, check out the [Readme.md](./Investor_Intelligence/Readme.md) file.
