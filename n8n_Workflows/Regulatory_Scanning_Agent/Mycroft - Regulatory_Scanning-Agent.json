@@ -1,0 +1,223 @@
+{
+  "name": "Mycroft - Regulatory RSS Feed Collector - Test",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bterm%5D=artificial+intelligence",
+        "options": {}
+      },
+      "name": "Federal Register - AI",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        16,
+        0
+      ],
+      "id": "e7c952d0-3308-4b61-be4d-329157e54970"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=FTC+artificial+intelligence&hl=en-US&gl=US&ceid=US:en",
+        "options": {}
+      },
+      "name": "FTC Press Releases",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        0,
+        272
+      ],
+      "id": "bb944eb2-027e-46a2-9967-8fb476949433"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=AI+regulation&hl=en-US&gl=US&ceid=US:en",
+        "options": {}
+      },
+      "name": "Google News - AI Regulation",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        16,
+        576
+      ],
+      "id": "5d22025d-18ba-43b5-a230-9d46bca2102b"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "source",
+              "value": "={{ $json.creator }}"
+            },
+            {
+              "name": "title",
+              "value": "={{$json.title}}"
+            },
+            {
+              "name": "link",
+              "value": "={{$json.link}}"
+            },
+            {
+              "name": "published",
+              "value": "={{$json.pubDate || $json.published}}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Normalize Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        512,
+        144
+      ],
+      "id": "f82d673b-71e6-4ddb-a29d-8db7b2731cae"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.content}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "Filter Empty Content",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        688,
+        96
+      ],
+      "id": "41227bd9-81e2-4abb-b927-bed0d85712a8"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        320
+      ],
+      "id": "449c399d-ede0-4658-ab0a-0aa3b3a48ecd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        256
+      ],
+      "id": "3c09e65b-4887-4056-9695-2967a5aa4988",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Federal Register - AI": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Data": {
+      "main": [
+        [
+          {
+            "node": "Filter Empty Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Empty Content": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Federal Register - AI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "FTC Press Releases",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google News - AI Regulation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FTC Press Releases": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Google News - AI Regulation": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8cf9bc76-f48b-47ae-aa7b-c604ab065348",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cd9255a6b77cecfa2a0113f9e18af5c705ea1be9dbd097a2fe10c53df63bf753"
+  },
+  "id": "daw6A3xrlnseyKC9",
+  "tags": []
+}
