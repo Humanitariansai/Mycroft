@@ -6,6 +6,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/therrshan)
 
 
+### [![LinkedIn](https://img.shields.io/badge/Youtube_Demo-red?style=flat&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=zgWUwwgSJWE&t=9s)
 
 ## 🎯 Overview
 
