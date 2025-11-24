@@ -4,8 +4,6 @@ A real-time portfolio tracking system built with n8n that monitors AI stock inve
 
 ![Portfolio Dashboard](https://img.shields.io/badge/Status-Active-success)
 ![n8n](https://img.shields.io/badge/n8n-Automation-blue)
-![Built%20For-AI%20Stocks-purple)
-
 ## 📊 Overview
 
 This project is an AI-powered investment portfolio tracker built entirely in n8n workflows. It fetches live stock prices, calculates gains/losses, and displays everything in a beautiful web dashboard.
