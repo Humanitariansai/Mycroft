@@ -268,7 +268,7 @@
     {
       "parameters": {
         "operation": "write",
-        "fileName": "=/tmp/report_{{ $node['Generate HTML Report'].json.report_date }}.html",
+        "fileName": "=/home/therrshan/mycroft/regulatory_report_{{ $node['Generate HTML Report'].json.report_date }}.html",
         "dataPropertyName": "=data",
         "options": {}
       },
