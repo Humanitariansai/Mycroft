@@ -43,6 +43,7 @@ services:
       - newshelper
     volumes:
       - n8n_storage:/home/node/.n8n
+      - ./local-files:/shared-files
     depends_on:
       postgres:
         condition: service_healthy

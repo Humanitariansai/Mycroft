@@ -1,11 +1,13 @@
 from typing import Dict, List, Optional
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Depends, Request, Query
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from .utils import fetch_normalize_data, parse_article, finbert_pipeline
 import asyncio
 import logging
 import time
+from datetime import datetime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -68,9 +70,23 @@ async def health():
     return Response(status_code=200)
 
 
+class FetchRequest(BaseModel):
+    feed_url: str
+    lib: str
+    search_terms: Optional[List[str]] = None
+    last_updated: Optional[float] = None
+
+
 @app.post("/fetch")
-async def fetch(lib: str, search_terms: Optional[List[str]]):
-    return await asyncio.to_thread(fetch_normalize_data, lib, search_terms)
+async def fetch(request: FetchRequest):
+    logger.info(f"Fetch request received: {request}")
+    return await asyncio.to_thread(
+        fetch_normalize_data,
+        request.feed_url,
+        request.lib,
+        request.last_updated,
+        request.search_terms,
+    )
 
 
 @app.post("/parse")
