@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1,
       "position": [
-        -1616,
-        32
+        0,
+        0
       ],
-      "id": "02fe016e-67b3-4371-b58a-a942ebca56a5"
+      "id": "dae948e1-72d7-49b0-99ad-12ff6b2c67de"
     },
     {
       "parameters": {
@@ -24,10 +24,10 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1,
       "position": [
-        -1616,
-        224
+        0,
+        192
       ],
-      "id": "720f508b-37e3-4afc-9651-b0d75216d1aa"
+      "id": "8d490ec8-2850-4f24-adb4-659489a282b2"
     },
     {
       "parameters": {
@@ -38,10 +38,10 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1,
       "position": [
-        -1616,
-        416
+        0,
+        384
       ],
-      "id": "4cd387c9-31e2-45a0-bb9c-e5650e30fd6e"
+      "id": "767456db-1cc1-4061-a119-12faa8109760"
     },
     {
       "parameters": {
@@ -52,10 +52,10 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1,
       "position": [
-        -1616,
-        608
+        0,
+        576
       ],
-      "id": "6e5a10ac-9f32-44ee-a027-001c23dad9ab"
+      "id": "a48f88e7-f49c-4e47-b3b1-612e8a5676c7"
     },
     {
       "parameters": {
@@ -66,10 +66,10 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1,
       "position": [
-        -1616,
-        800
+        0,
+        768
       ],
-      "id": "fd6b5a91-51f7-4a0f-bd09-0b9571603271"
+      "id": "3c41ce1e-1447-4f89-9a79-4e8e9f974e6c"
     },
     {
       "parameters": {
@@ -78,10 +78,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -1392,
-        368
+        224,
+        336
       ],
-      "id": "4cf107f7-53ae-42d4-a300-43c768762464",
+      "id": "9d1622bb-8a45-427b-97bb-45d2d9196cc4",
       "name": "Merge All Sources"
     },
     {
@@ -92,10 +92,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1168,
-        416
+        448,
+        384
       ],
-      "id": "924fe219-f9b6-48fa-b1f7-a6611063eca5"
+      "id": "d9054a2d-38ab-4f04-a7d1-4fd35b25740d"
     },
     {
       "parameters": {
@@ -116,10 +116,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -944,
-        416
+        672,
+        384
       ],
-      "id": "6da4e470-dcc9-4998-bf6e-d5a467ae015f"
+      "id": "16147768-ea61-4ab5-9fc3-425b5c8b9727"
     },
     {
       "parameters": {
@@ -131,10 +131,10 @@
       "type": "n8n-nodes-base.removeDuplicates",
       "typeVersion": 1,
       "position": [
-        -720,
-        416
+        896,
+        384
       ],
-      "id": "b8465b52-8097-4935-9aca-2396fcd2cf6c"
+      "id": "b20487d0-e61d-48a5-9618-5632c61c3e45"
     },
     {
       "parameters": {
@@ -144,10 +144,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -496,
-        416
+        1120,
+        384
       ],
-      "id": "7972e646-86de-4b8b-b607-f8665b782870"
+      "id": "70ee0907-6aaf-4272-ac83-e236a6155840"
     },
     {
       "parameters": {
@@ -157,10 +157,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -272,
-        608
+        1344,
+        576
       ],
-      "id": "1f3232d4-4ca8-427d-bfa9-b0fafdf828eb"
+      "id": "c9e89359-1d12-479c-81a7-7082451c680d"
     },
     {
       "parameters": {
@@ -189,10 +189,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -272,
-        416
+        1344,
+        384
       ],
-      "id": "0e63cdf3-9ce0-4fea-8df3-b5bcda6461f5"
+      "id": "516887f6-b289-44a4-af25-71b9663af9af"
     },
     {
       "parameters": {
@@ -206,10 +206,10 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        624,
-        512
+        2240,
+        480
       ],
-      "id": "fe948ae8-7695-4d24-899e-bdfc1f22ed96",
+      "id": "9d22b1c3-59d4-400b-9dcd-016b34328965",
       "webhookId": "73dbdd8b-1175-4d71-a99d-6cbda8787ba1",
       "credentials": {
         "smtp": {
@@ -221,17 +221,17 @@
     {
       "parameters": {
         "operation": "write",
-        "fileName": "=/tmp/report_{{ $node['Generate HTML Report'].json.report_date }}.html",
+        "fileName": "=/home/therrshan/mycroft/report_{{ $node['Generate HTML Report'].json.report_date }}.html",
         "dataPropertyName": "=data",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        -48,
-        608
+        1568,
+        576
       ],
-      "id": "d029822f-e514-49a9-b849-7c7316e29469",
+      "id": "5dee7548-8e80-4e40-b6d2-272b3ce41444",
       "name": "Read/Write Files from Disk"
     },
     {
@@ -262,10 +262,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        400,
-        416
+        2016,
+        384
       ],
-      "id": "755f0db2-ac42-4d43-8b4f-7ee5f67c5b4d",
+      "id": "b960ea71-37d7-40d7-b328-7a928fa591eb",
       "name": "If"
     },
     {
@@ -279,10 +279,10 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        624,
-        320
+        2240,
+        288
       ],
-      "id": "81a902a4-5ae4-493a-a8ee-a719d6a4bb6d",
+      "id": "457c08fd-614d-4833-a8c0-971d1c163030",
       "name": "Send email",
       "webhookId": "189c3e06-3834-4ff7-be6a-21be895e047b",
       "credentials": {
@@ -306,10 +306,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1840,
-        416
+        -224,
+        384
       ],
-      "id": "ddb28f52-8471-4d7a-a054-d14a1a6f71e2"
+      "id": "e41fd7bc-123b-41c1-8346-29062d07c79e"
     },
     {
       "parameters": {
@@ -318,10 +318,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -272,
-        224
+        1344,
+        192
       ],
-      "id": "f808b0ce-3c05-42da-bc64-e770a3dd984b",
+      "id": "487f2119-a593-4fd1-9081-4d28c37140e3",
       "name": "Prepare Data"
     },
     {
@@ -333,10 +333,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -48,
-        224
+        1568,
+        192
       ],
-      "id": "5e32a4c6-2cca-4ce1-a6f8-ceea9b161af1",
+      "id": "837198db-c62c-4fc8-ab59-a73ceb2d6066",
       "name": "Insert data into DB",
       "credentials": {
         "postgres": {
@@ -354,10 +354,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -48,
-        416
+        1568,
+        384
       ],
-      "id": "4581ecf3-8659-4f14-afb3-72ad86cd6331",
+      "id": "38ae922b-0f0f-4030-88ec-46c4a92fce52",
       "name": "Fetch new items",
       "credentials": {
         "postgres": {
@@ -368,15 +368,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const newItems = $input.all();\n\nconst hasData = newItems && newItems.length > 1 && newItems[0].json && Object.keys(newItems[0].json).length > 1;\n\nif (!hasData) {\n  return [{\n    json: {\n      has_items: false,\n      item_count: 0,\n      items: []\n    }\n  }];\n}\n\n// If no new high priority items, return empty to skip email\nif (newItems.length === 0) {\n  return [];\n}\n\nconst highPriority = newItems.filter(i => i.json.urgency_score > 7);\nconst criticalItems = newItems.filter(i => i.json.impact_level === 'Critical');\nconst highItems = newItems.filter(i => i.json.impact_level === 'High');\n\nconst htmlEmail = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n</head>\n<body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5;\">\n  <div style=\"background: white; max-width: 800px; margin: 20px auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);\">\n    \n    <!-- Header -->\n    <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center;\">\n      <h1 style=\"margin: 0 0 10px 0; font-size: 28px; font-weight: 700;\">🚨 Mycroft Regulatory Intelligence</h1>\n      <p style=\"margin: 0; font-size: 16px; opacity: 0.95;\">New High Priority Alerts</p>\n    </div>\n    \n    <!-- Summary Stats -->\n    <table style=\"width: 100%; background: #f8f9fa; border-collapse: collapse;\">\n      <tr>\n        <td style=\"padding: 25px 20px; text-align: center; border-right: 1px solid #e0e0e0;\">\n          <div style=\"font-size: 36px; font-weight: 700; color: #667eea; margin: 0 0 8px 0;\">${newItems.length}</div>\n          <div style=\"font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">New Items</div>\n        </td>\n        <td style=\"padding: 25px 20px; text-align: center; border-right: 1px solid #e0e0e0;\">\n          <div style=\"font-size: 36px; font-weight: 700; color: #dc2626; margin: 0 0 8px 0;\">${criticalItems.length}</div>\n          <div style=\"font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">Critical</div>\n        </td>\n        <td style=\"padding: 25px 20px; text-align: center;\">\n          <div style=\"font-size: 36px; font-weight: 700; color: #ea580c; margin: 0 0 8px 0;\">${highItems.length}</div>\n          <div style=\"font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">High Priority</div>\n        </td>\n      </tr>\n    </table>\n    \n    ${criticalItems.length > 0 ? `\n    <!-- Critical Items Section -->\n    <div style=\"padding: 30px;\">\n      <div style=\"display: flex; align-items: center; margin: 0 0 20px 0; padding-bottom: 15px; border-bottom: 3px solid #dc2626;\">\n        <h2 style=\"font-size: 20px; font-weight: 700; margin: 0; color: #333;\">🔴 Critical Priority Items</h2>\n        <span style=\"margin-left: auto; background: #dc2626; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;\">${criticalItems.length}</span>\n      </div>\n      \n      ${criticalItems.map((item, idx) => `\n        <div style=\"background: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0;\">\n          <div style=\"margin-bottom: 12px;\">\n            <span style=\"display: inline-block; background: #dc2626; color: white; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 14px; margin-right: 12px;\">${idx + 1}</span>\n            <strong style=\"font-size: 16px; color: #1f2937;\">${item.json.title}</strong>\n          </div>\n          <div style=\"margin: 8px 0; font-size: 13px; color: #666;\">\n            <span style=\"display: inline-block; background: #fee2e2; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">📍 ${item.json.source_feed}</span>\n            <span style=\"display: inline-block; background: #fee2e2; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">⚡ Urgency: ${item.json.urgency_score}/10</span>\n            ${item.json.categories && item.json.categories.length > 0 ? item.json.categories.map(cat => \n              `<span style=\"display: inline-block; background: #dbeafe; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">🏷️ ${cat}</span>`\n            ).join('') : ''}\n          </div>\n          <div style=\"margin-top: 12px;\">\n            <a href=\"${item.json.link}\" style=\"color: #dc2626; text-decoration: none; font-weight: 600; font-size: 14px;\">Read Full Update →</a>\n          </div>\n        </div>\n      `).join('')}\n    </div>\n    ` : ''}\n    \n    ${highItems.length > 0 ? `\n    <!-- High Priority Items Section -->\n    <div style=\"padding: 30px; background: #fafafa;\">\n      <div style=\"display: flex; align-items: center; margin: 0 0 20px 0; padding-bottom: 15px; border-bottom: 3px solid #ea580c;\">\n        <h2 style=\"font-size: 20px; font-weight: 700; margin: 0; color: #333;\">🟠 High Priority Items</h2>\n        <span style=\"margin-left: auto; background: #ea580c; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;\">${highItems.length}</span>\n      </div>\n      \n      ${highItems.slice(0, 10).map((item, idx) => `\n        <div style=\"background: white; border-left: 4px solid #ea580c; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0;\">\n          <div style=\"margin-bottom: 12px;\">\n            <span style=\"display: inline-block; background: #ea580c; color: white; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 14px; margin-right: 12px;\">${idx + 1}</span>\n            <strong style=\"font-size: 16px; color: #1f2937;\">${item.json.title}</strong>\n          </div>\n          <div style=\"margin: 8px 0; font-size: 13px; color: #666;\">\n            <span style=\"display: inline-block; background: #fff7ed; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">📍 ${item.json.source_feed}</span>\n            <span style=\"display: inline-block; background: #fff7ed; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">⚡ Urgency: ${item.json.urgency_score}/10</span>\n          </div>\n          <div style=\"margin-top: 12px;\">\n            <a href=\"${item.json.link}\" style=\"color: #ea580c; text-decoration: none; font-weight: 600; font-size: 14px;\">Read Full Update →</a>\n          </div>\n        </div>\n      `).join('')}\n      \n      ${highItems.length > 10 ? `\n        <div style=\"text-align: center; padding: 20px; color: #666; font-style: italic;\">\n          ... and ${highItems.length - 10} more high priority items\n        </div>\n      ` : ''}\n    </div>\n    ` : ''}\n    \n    <!-- Footer -->\n    <div style=\"background: #1f2937; color: #9ca3af; padding: 30px; text-align: center;\">\n      <p style=\"margin: 0 0 10px 0; font-size: 14px;\">📄 <strong style=\"color: white;\">Full HTML report available locally</strong></p>\n      <p style=\"margin: 0; font-size: 12px; opacity: 0.7;\">Generated by Mycroft Financial Intelligence System</p>\n      <p style=\"margin: 5px 0 0 0; font-size: 11px; opacity: 0.6;\">⏰ ${new Date().toLocaleString()}</p>\n    </div>\n    \n  </div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    html_email: htmlEmail,\n    total_new: newItems.length,\n    critical_count: criticalItems.length,\n    high_count: highItems.length,\n    item_ids: newItems.map(i => i.json.id), // Track which IDs were sent\n    has_items: true\n  }\n}];"
+        "jsCode": "const newItems = $(\"Fetch new items\").all();\n\nconst hasData = newItems && newItems.length > 1 && newItems[0].json && Object.keys(newItems[0].json).length > 1;\n\nif (!hasData) {\n  return [{\n    json: {\n      has_items: false,\n      item_count: 0,\n      items: []\n    }\n  }];\n}\n\n// If no new high priority items, return empty to skip email\nif (newItems.length === 0) {\n  return [];\n}\n\nconst highPriority = newItems.filter(i => i.json.urgency_score > 7);\nconst criticalItems = newItems.filter(i => i.json.impact_level === 'Critical');\nconst highItems = newItems.filter(i => i.json.impact_level === 'High');\n\nconst htmlEmail = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n</head>\n<body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5;\">\n  <div style=\"background: white; max-width: 800px; margin: 20px auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);\">\n    \n    <!-- Header -->\n    <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center;\">\n      <h1 style=\"margin: 0 0 10px 0; font-size: 28px; font-weight: 700;\">🚨 Mycroft Regulatory Intelligence</h1>\n      <p style=\"margin: 0; font-size: 16px; opacity: 0.95;\">New High Priority Alerts</p>\n    </div>\n    \n    <!-- Summary Stats -->\n    <table style=\"width: 100%; background: #f8f9fa; border-collapse: collapse;\">\n      <tr>\n        <td style=\"padding: 25px 20px; text-align: center; border-right: 1px solid #e0e0e0;\">\n          <div style=\"font-size: 36px; font-weight: 700; color: #667eea; margin: 0 0 8px 0;\">${newItems.length}</div>\n          <div style=\"font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">New Items</div>\n        </td>\n        <td style=\"padding: 25px 20px; text-align: center; border-right: 1px solid #e0e0e0;\">\n          <div style=\"font-size: 36px; font-weight: 700; color: #dc2626; margin: 0 0 8px 0;\">${criticalItems.length}</div>\n          <div style=\"font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">Critical</div>\n        </td>\n        <td style=\"padding: 25px 20px; text-align: center;\">\n          <div style=\"font-size: 36px; font-weight: 700; color: #ea580c; margin: 0 0 8px 0;\">${highItems.length}</div>\n          <div style=\"font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">High Priority</div>\n        </td>\n      </tr>\n    </table>\n    \n    ${criticalItems.length > 0 ? `\n    <!-- Critical Items Section -->\n    <div style=\"padding: 30px;\">\n      <div style=\"display: flex; align-items: center; margin: 0 0 20px 0; padding-bottom: 15px; border-bottom: 3px solid #dc2626;\">\n        <h2 style=\"font-size: 20px; font-weight: 700; margin: 0; color: #333;\">🔴 Critical Priority Items</h2>\n        <span style=\"margin-left: auto; background: #dc2626; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;\">${criticalItems.length}</span>\n      </div>\n      \n      ${criticalItems.map((item, idx) => `\n        <div style=\"background: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0;\">\n          <div style=\"margin-bottom: 12px;\">\n            <span style=\"display: inline-block; background: #dc2626; color: white; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 14px; margin-right: 12px;\">${idx + 1}</span>\n            <strong style=\"font-size: 16px; color: #1f2937;\">${item.json.title}</strong>\n          </div>\n          <div style=\"margin: 8px 0; font-size: 13px; color: #666;\">\n            <span style=\"display: inline-block; background: #fee2e2; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">📍 ${item.json.source_feed}</span>\n            <span style=\"display: inline-block; background: #fee2e2; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">⚡ Urgency: ${item.json.urgency_score}/10</span>\n            ${item.json.categories && item.json.categories.length > 0 ? item.json.categories.map(cat => \n              `<span style=\"display: inline-block; background: #dbeafe; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">🏷️ ${cat}</span>`\n            ).join('') : ''}\n          </div>\n          <div style=\"margin-top: 12px;\">\n            <a href=\"${item.json.link}\" style=\"color: #dc2626; text-decoration: none; font-weight: 600; font-size: 14px;\">Read Full Update →</a>\n          </div>\n        </div>\n      `).join('')}\n    </div>\n    ` : ''}\n    \n    ${highItems.length > 0 ? `\n    <!-- High Priority Items Section -->\n    <div style=\"padding: 30px; background: #fafafa;\">\n      <div style=\"display: flex; align-items: center; margin: 0 0 20px 0; padding-bottom: 15px; border-bottom: 3px solid #ea580c;\">\n        <h2 style=\"font-size: 20px; font-weight: 700; margin: 0; color: #333;\">🟠 High Priority Items</h2>\n        <span style=\"margin-left: auto; background: #ea580c; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;\">${highItems.length}</span>\n      </div>\n      \n      ${highItems.slice(0, 10).map((item, idx) => `\n        <div style=\"background: white; border-left: 4px solid #ea580c; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0;\">\n          <div style=\"margin-bottom: 12px;\">\n            <span style=\"display: inline-block; background: #ea580c; color: white; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 14px; margin-right: 12px;\">${idx + 1}</span>\n            <strong style=\"font-size: 16px; color: #1f2937;\">${item.json.title}</strong>\n          </div>\n          <div style=\"margin: 8px 0; font-size: 13px; color: #666;\">\n            <span style=\"display: inline-block; background: #fff7ed; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">📍 ${item.json.source_feed}</span>\n            <span style=\"display: inline-block; background: #fff7ed; padding: 4px 10px; border-radius: 4px; margin-right: 8px;\">⚡ Urgency: ${item.json.urgency_score}/10</span>\n          </div>\n          <div style=\"margin-top: 12px;\">\n            <a href=\"${item.json.link}\" style=\"color: #ea580c; text-decoration: none; font-weight: 600; font-size: 14px;\">Read Full Update →</a>\n          </div>\n        </div>\n      `).join('')}\n      \n      ${highItems.length > 10 ? `\n        <div style=\"text-align: center; padding: 20px; color: #666; font-style: italic;\">\n          ... and ${highItems.length - 10} more high priority items\n        </div>\n      ` : ''}\n    </div>\n    ` : ''}\n    \n    <!-- Footer -->\n    <div style=\"background: #1f2937; color: #9ca3af; padding: 30px; text-align: center;\">\n      <p style=\"margin: 0 0 10px 0; font-size: 14px;\">📄 <strong style=\"color: white;\">Full HTML report available locally</strong></p>\n      <p style=\"margin: 0; font-size: 12px; opacity: 0.7;\">Generated by Mycroft Financial Intelligence System</p>\n      <p style=\"margin: 5px 0 0 0; font-size: 11px; opacity: 0.6;\">⏰ ${new Date().toLocaleString()}</p>\n    </div>\n    \n  </div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    html_email: htmlEmail,\n    total_new: newItems.length,\n    critical_count: criticalItems.length,\n    high_count: highItems.length,\n    item_ids: newItems.map(i => i.json.id), // Track which IDs were sent\n    has_items: true\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        176,
-        416
+        1792,
+        384
       ],
-      "id": "70288b64-0382-42b3-a872-61157c137052",
+      "id": "d7b19900-e4f3-4c24-84fd-c2274abc6a03",
       "name": "Generate Email"
     },
     {
@@ -388,10 +388,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        848,
-        512
+        2464,
+        480
       ],
-      "id": "831abc7f-17cd-4370-9b8a-a7cbaa5d9c95",
+      "id": "449a4917-8693-4b22-b431-eed666a0dcc1",
       "name": "Mark email sent",
       "credentials": {
         "postgres": {
@@ -639,34 +639,33 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "23864318-a924-4f5f-893e-7ad01ccf600b",
+  "versionId": "0e221a3b-940d-4443-bb7b-193a761a9756",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "cd9255a6b77cecfa2a0113f9e18af5c705ea1be9dbd097a2fe10c53df63bf753"
   },
-  "id": "teJw3w2XmIhqVLjP",
+  "id": "TbMYOcPmzxt4YWbd",
   "tags": [
     {
-      "name": "regulatory-intelligence",
-      "id": "4J5a4pxME9u7Mw2c",
       "updatedAt": "2025-11-28T15:31:54.134Z",
-      "createdAt": "2025-11-28T15:31:54.134Z"
+      "createdAt": "2025-11-28T15:31:54.134Z",
+      "id": "4J5a4pxME9u7Mw2c",
+      "name": "regulatory-intelligence"
     },
     {
-      "name": "production-ready",
-      "id": "EGDxP9ehRsaU1tfM",
       "updatedAt": "2025-11-28T16:08:42.193Z",
-      "createdAt": "2025-11-28T16:08:42.193Z"
+      "createdAt": "2025-11-28T16:08:42.193Z",
+      "id": "EGDxP9ehRsaU1tfM",
+      "name": "production-ready"
     },
     {
-      "name": "financial-compliance",
-      "id": "lBKvuLokkttVRGwI",
       "updatedAt": "2025-11-28T15:31:54.146Z",
-      "createdAt": "2025-11-28T15:31:54.146Z"
+      "createdAt": "2025-11-28T15:31:54.146Z",
+      "id": "lBKvuLokkttVRGwI",
+      "name": "financial-compliance"
     }
   ]
 }
