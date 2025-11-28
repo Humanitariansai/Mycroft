@@ -6,10 +6,15 @@ import newspaper
 import uuid
 from transformers import pipeline
 import tomllib
+from time import mktime
+from datetime import datetime
 
 
 def fetch_normalize_data(
-    lib: str, search_terms: List[str] = ["Artificial Intelligence"]
+    feed_url: str,
+    lib: str,
+    last_updated: float = None,
+    search_terms: List[str] = ["Artificial Intelligence"],
 ):
     def add_tag(item: Dict, source: str):
         # Add source tag for traceability
@@ -27,14 +32,32 @@ def fetch_normalize_data(
             raise e
     elif lib == "feedparser":
         try:
-            sources = get_sources(lib)
             entries = []
-            for feed_url in sources:
-                news_feed = feedparser.parse(feed_url)
+            # for feed_url in sources:
+            news_feed = feedparser.parse(feed_url)
+            feed_updated = news_feed.feed.get("updated_parsed") or news_feed.feed.get(
+                "published_parsed"
+            )
+            print("Feed updated:", feed_updated, type(feed_updated))
+            if last_updated and feed_updated:
+                # Make sure feed_updated exists and is newer than last_updated
+                if mktime(feed_updated) > last_updated:
+                    entries.extend(news_feed.get("entries", []))
+            else:
+                # No last_updated given or feed_updated not available → always include entries
                 entries.extend(news_feed.get("entries", []))
-            return [
-                add_tag(normalize_data(item), f"{lib}/{feed_url}") for item in entries
-            ]
+            return {
+                "articles": [
+                    add_tag(normalize_data(item), f"{lib}/{feed_url}")
+                    for item in entries
+                ],
+                "last_updated": (
+                    (mktime(feed_updated))
+                    if feed_updated
+                    else mktime(datetime.now().timetuple())
+                ),
+                "feed_url": feed_url,
+            }
         except Exception as e:
             raise e
 
