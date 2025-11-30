@@ -9,7 +9,7 @@ Sprint 2 builds on the foundation from Sprint 1 and introduces major upgrades ac
 
 <img width="468" height="220" alt="image" src="https://github.com/user-attachments/assets/8a026c84-5b09-4e8a-98f1-1d8e09c498b6" />
 
-✅ 1. Fixed Investor Profile Query
+🔹 1. Fixed Investor Profile Query
 
 - Rewrote SQL using a WITH clause
 
@@ -29,7 +29,7 @@ Sprint 2 builds on the foundation from Sprint 1 and introduces major upgrades ac
 
 Result: Investor profiles (e.g., Sequoia Capital, a16z, Microsoft) now return accurate data.
 
-✅ 2. Top Investors Logic (Fully Working)
+🔹 2. Top Investors Logic (Fully Working)
 
 - Added new SQL query to rank investors by:
 
@@ -48,7 +48,7 @@ Output Example:
 1. Sequoia — 12 deals, $1.4B invested
    • Startups: OpenAI, Anthropic, HuggingFace, …
 
-✅ 3. Unified Chatbot Formatter (Major Upgrade)
+🔹 3. Unified Chatbot Formatter (Major Upgrade)
 
 The formatting engine now:
 
@@ -70,7 +70,7 @@ The formatting engine now:
 
 - suggested_followups
 
-✅ 4. Improved Routing Layer
+🔹 4. Improved Routing Layer
 
 - Updated the "Route by Query Type" node to support:
 
@@ -84,10 +84,7 @@ The formatting engine now:
 
 - Routing is now precise and bug-free.
 
-✅ 5. Added New UI File for Testing
-
-Sprint2_investor.html
-Updated UI with:
+🔹 5. Updated UI with:
 
 - Cleaner formatting
 
@@ -95,7 +92,7 @@ Updated UI with:
 
 - Better display of multi-section JSON
 
-##🧠 Key Improvements Over Sprint 1
+## 🧠 Key Improvements Over Sprint 1
 🔹 More Accurate SQL Queries
 
 All investor, startup, and funding SQL queries were rebuilt to return normalized fields.
@@ -111,16 +108,6 @@ Now supports:
 - Rich formatting
 
 - Dynamic follow-up suggestions
-
-🔹 Fully Functional Investor Intelligence Flow
-
-All 4 query types now return correct data:
-
--  Profile
-
-- Startup → Investors
-
-- Top Investors
 
 - Recent Funding
 
