@@ -57,9 +57,11 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
                │ POST /extract-finance
                ▼
 ┌──────────────────────────┐
-│         n8n API          │
-│  Webhook → Gemini Call   │
-│  → JSON Parsing → DB     │
+│     n8n Workflow (POST)  │
+│  Webhook Trigger         │
+│  → Gemini API Call       │
+│  → JSON Parsing          │
+│  → Insert into DB        │
 └──────────────┬───────────┘
                │ INSERT
                ▼
@@ -72,6 +74,16 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
 │  - created_at            │
 └──────────────┬───────────┘
                │ SELECT
+               │
+               │ GET /get-finance-history
+               ▼
+┌──────────────────────────┐
+│     n8n Workflow (GET)   │
+│  Webhook Trigger         │
+│  → PostgreSQL Query      │
+│  → Return JSON Array     │
+└──────────────┬───────────┘
+               │ JSON Response
                ▼
 ┌──────────────────────────┐
 │  React History Dashboard │
@@ -83,7 +95,7 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
 
 ## 🎯Key Components:
 
-### 1️⃣ Data Intake Layer (React → n8n Webhook)
+### 1️⃣ Data Intake Layer (React → n8n Webhook):
 #### Responsibilities:
 - Accepts user input from the UI
 - Sends POST request to n8n webhook
@@ -96,7 +108,7 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
 }
 ```
 
-### 2️⃣ Gemini AI Phrase Extraction
+### 2️⃣ Gemini AI Phrase Extraction:
 #### Method:
 - Pure JSON extraction
 - No commentary → only "key_phrases": [...]
@@ -123,13 +135,42 @@ Text:
 }
 ```
 
-### 3️⃣ JSON Cleaning & Validation
+### 3️⃣ JSON Cleaning & Validation:
 **n8n Set Node performs:**
 - Parses safely using regex
 - Fixes malformed quotes
 - Removing invalid characters
 
-### 4️⃣ PostgreSQL Storage
+### 4️⃣ PostgreSQL Storage:
+#### 🗄️ How to Create a Database in pgAdmin (Step-by-Step)
+Follow these exact steps:
+
+#### 🔧 Step 1 — Open pgAdmin
+- Launch pgAdmin 4 from your system.
+- Login with your PostgreSQL master password.
+
+#### 🔧 Step 2 — Connect to Your PostgreSQL Server
+In the left sidebar, expand:
+Servers → PostgreSQL 18
+If it asks for a password → enter your PostgreSQL user password.
+
+### 🔧 Step 3 — Create a New Database
+1. Right-click Databases
+2. Click Create → Database
+3. Fill the form:
+  - Database name: finance_ai
+  - Owner:	postgres
+4. Click Save
+
+🎉 PostgreSQL database is now created.
+
+#### Create the finance_phrases Table: 
+1. Select the database you created:
+```nginx
+Databases → finance_ai
+```
+2. Right-click → Query Tool
+3. Paste the table schema:
 #### Schema:
 ```sql
 CREATE TABLE finance_phrases (
@@ -139,14 +180,28 @@ CREATE TABLE finance_phrases (
     created_at TIMESTAMP DEFAULT NOW()
 );
 ```
+4. Click ▶ Run (or press F5)
 
-#### Insert example:
+🎉 Table created successfully!
+
+#### Insert Example Data using Query Tool:
 ```sql
 INSERT INTO finance_phrases (input_text, phrases)
 VALUES ('EPS grew 15%', ARRAY['EPS', '15%']);
 ```
+✔ This inserts one extraction example
+✔ PostgreSQL TEXT[] allows storing phrase arrays
 
-### 5️⃣ React Frontend
+#### Verify Data Was Inserted:
+```sql
+SELECT * FROM finance_phrases;
+```
+##### ✅ Expected Output:
+| id | input_text      | phrases      | created_at              |
+|----|-----------------|--------------|--------------------------|
+| 1  | EPS grew 15%    | {EPS,15%}    | 2025-12-02 10:22:11      |
+
+### 5️⃣ React Frontend:
 #### Finance Extractor Page:
 - Inputs text
 - Shows extracted phrase bullets
@@ -193,19 +248,19 @@ The company expects FY25 EPS in the range of $3.20–$3.40 with capex reductions
 | Deployment  | Local / Cloud           |
 
 ## 🔧 Installation & Setup
-### 1️⃣ Clone Repository
+### 1️⃣ Clone Repository:
 ```bash
 git clone https://github.com/SharvariMore/finance-phrase-extractor.git
 cd finance-phrase-extractor
 ```
 
-### 2️⃣ Configure Environment Variables
+### 2️⃣ Configure Environment Variables:
 Create .env inside React folder:
 ```ini
 REACT_APP_API_BASE=http://localhost:5678
 ```
 
-### 3️⃣ Set Up PostgreSQL
+### 3️⃣ Set Up PostgreSQL:
 ```sql
 CREATE TABLE finance_phrases (
     id SERIAL PRIMARY KEY,
@@ -215,7 +270,7 @@ CREATE TABLE finance_phrases (
 );
 ```
 
-### 4️⃣ Import n8n Workflow
+### 4️⃣ Import n8n Workflow:
 **Steps:**
 1. Webhook (POST) – receives text
 2. HTTP Request – sends prompt to Gemini
@@ -228,7 +283,7 @@ Import the JSON file into n8n:
 n8n → Workflows → Import → Paste JSON
 ```
 
-### 5️⃣ Start React App
+### 5️⃣ Start React App:
 ```bash
 npm install
 npm start
@@ -284,6 +339,6 @@ npm start
 ## 📨 Contact / Support
 
 ### Developer:
-#### Tejas Sathe
+#### Sharvari More
 - 📧 **Email:** sharvarimore90@gmail.com
 - 🐙 **GitHub:** https://github.com/SharvariMore
