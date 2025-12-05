@@ -250,8 +250,8 @@ The company expects FY25 EPS in the range of $3.20–$3.40 with capex reductions
 ## 🔧 Installation & Setup
 ### 1️⃣ Clone Repository:
 ```bash
-git clone https://github.com/SharvariMore/finance-phrase-extractor.git
-cd finance-phrase-extractor
+git clone https://github.com/SharvariMore/Finance-Phrase-Extractor.git
+cd Finance-Phrase-Extractor
 ```
 
 ### 2️⃣ Configure Environment Variables:
