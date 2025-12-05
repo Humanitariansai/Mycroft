@@ -1,182 +1,100 @@
-# Database Setup Guide
+# Mycroft Database Setup
 
-Complete PostgreSQL database schema and setup instructions for the Mycroft Financial Regulatory Intelligence System.
+> PostgreSQL database schema for the Mycroft Regulatory Intelligence System
 
-## Table of Contents
-- [Prerequisites](#prerequisites)
-- [Database Schema](#database-schema)
-- [Setup Instructions](#setup-instructions)
-- [Indexes](#indexes)
-- [Maintenance](#maintenance)
-- [Troubleshooting](#troubleshooting)
+## Quick Setup
 
-## Prerequisites
+```bash
+# 1. Log in to PostgreSQL
+sudo -u postgres psql
 
-- PostgreSQL 12 or higher
-- JSONB support enabled (default in PostgreSQL 9.4+)
-- Database user with CREATE TABLE privileges
+# 2. Create database and user
+CREATE DATABASE mycroft_intelligence;
+CREATE USER mycroft_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE mycroft_intelligence TO mycroft_user;
+\q
 
-## Database Schema
+# 3. Connect and create table
+psql -U mycroft_user -d mycroft_intelligence -h localhost
+```
 
-### Main Table: `regulatory_feeds`
+## Table Schema
 
 ```sql
-CREATE TABLE IF NOT EXISTS regulatory_feeds (
-    -- Primary Key
+CREATE TABLE regulatory_feeds (
+    -- Identity
     id SERIAL PRIMARY KEY,
     
-    -- Source Information
-    source_feed VARCHAR(255) NOT NULL,
-    source VARCHAR(255) NOT NULL,
+    -- Source Info
+    source_feed VARCHAR(255) NOT NULL,  -- Which RSS feed (e.g., "SEC Press Releases")
+    source VARCHAR(255) NOT NULL,        -- Original author/creator
     
-    -- Content Fields
-    title TEXT NOT NULL,
-    link TEXT NOT NULL UNIQUE,
-    published TIMESTAMP WITH TIME ZONE NOT NULL,
-    content TEXT,
+    -- Document Content
+    title TEXT NOT NULL,                 -- Document title
+    link TEXT NOT NULL,                  -- URL to full document
+    published TIMESTAMP NOT NULL,        -- When it was published
+    content TEXT,                        -- Full text content
     
-    -- Analysis Results
+    -- Analysis Scores
     urgency_score INTEGER NOT NULL CHECK (urgency_score >= 1 AND urgency_score <= 10),
     impact_level VARCHAR(20) NOT NULL CHECK (impact_level IN ('Critical', 'High', 'Medium', 'Low')),
     
-    -- Keyword Analysis (JSONB for flexible querying)
-    keyword_matches JSONB NOT NULL DEFAULT '{}',
-    categories JSONB NOT NULL DEFAULT '[]',
+    -- Categorization (Stored as JSON)
+    keyword_matches JSONB DEFAULT '{}',  -- Which keywords matched: {"crypto": true, "fraud": false}
+    categories JSONB DEFAULT '[]',       -- Categories: ["enforcement", "crypto"]
     
     -- Metadata
-    word_count INTEGER,
-    has_deadline BOOLEAN DEFAULT FALSE,
-    is_enforcement BOOLEAN DEFAULT FALSE,
+    word_count INTEGER,                  -- Document length
+    has_deadline BOOLEAN DEFAULT FALSE,  -- Contains compliance deadline?
+    is_enforcement BOOLEAN DEFAULT FALSE, -- Enforcement action?
     
     -- Email Tracking
-    email_sent BOOLEAN DEFAULT FALSE,
-    email_sent_at TIMESTAMP WITH TIME ZONE,
+    email_sent BOOLEAN DEFAULT FALSE,    -- Has alert been sent?
+    email_sent_at TIMESTAMP,             -- When was alert sent?
     
     -- Timestamps
-    scraped_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    scraped_at TIMESTAMP NOT NULL,       -- When we collected it
+    created_at TIMESTAMP DEFAULT NOW(),  -- When inserted to DB
+    updated_at TIMESTAMP DEFAULT NOW()   -- Last modified
 );
 ```
 
-### Field Descriptions
+## The Key Feature: Smart Deduplication
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | SERIAL | Auto-incrementing primary key |
-| `source_feed` | VARCHAR(255) | Identified feed source (e.g., "SEC Press Releases") |
-| `source` | VARCHAR(255) | Original creator/author from RSS feed |
-| `title` | TEXT | Article/regulation title |
-| `link` | TEXT | Unique URL (used for deduplication) |
-| `published` | TIMESTAMPTZ | Original publication date from feed |
-| `content` | TEXT | Full content/description from feed |
-| `urgency_score` | INTEGER | Calculated priority score (1-10) |
-| `impact_level` | VARCHAR(20) | Classification: Critical, High, Medium, Low |
-| `keyword_matches` | JSONB | Boolean flags for each category match |
-| `categories` | JSONB | Array of matched category names |
-| `word_count` | INTEGER | Content length in words |
-| `has_deadline` | BOOLEAN | Whether item mentions compliance deadline |
-| `is_enforcement` | BOOLEAN | Whether item is enforcement-related |
-| `email_sent` | BOOLEAN | Email notification status |
-| `email_sent_at` | TIMESTAMPTZ | Timestamp of email notification |
-| `scraped_at` | TIMESTAMPTZ | When item was collected by workflow |
-| `created_at` | TIMESTAMPTZ | Database insertion timestamp |
-| `updated_at` | TIMESTAMPTZ | Last update timestamp |
-
-### JSONB Field Structures
-
-#### `keyword_matches` Example
-```json
-{
-  "enforcement": true,
-  "compliance": false,
-  "crypto": false,
-  "securities": true,
-  "derivatives": false,
-  "fraud": false
-}
-```
-
-#### `categories` Example
-```json
-["enforcement", "securities"]
-```
-
-## Setup Instructions
-
-### Step 1: Create Database
+**The unique constraint that makes everything work:**
 
 ```sql
--- Create database (if not exists)
-CREATE DATABASE mycroft_intelligence;
-
--- Connect to database
-\c mycroft_intelligence
+CREATE UNIQUE INDEX idx_regulatory_feeds_title_date 
+ON regulatory_feeds (title, DATE(published));
 ```
 
-### Step 2: Create Table
+**Why this matters:**
+- Same title + same date = duplicate document
+- Google News changes URLs constantly, but title+date stays the same
+- PostgreSQL automatically prevents duplicates
+- No complex JavaScript filtering needed
+
+## Required Indexes
 
 ```sql
--- Create main table
-CREATE TABLE IF NOT EXISTS regulatory_feeds (
-    id SERIAL PRIMARY KEY,
-    source_feed VARCHAR(255) NOT NULL,
-    source VARCHAR(255) NOT NULL,
-    title TEXT NOT NULL,
-    link TEXT NOT NULL UNIQUE,
-    published TIMESTAMP WITH TIME ZONE NOT NULL,
-    content TEXT,
-    urgency_score INTEGER NOT NULL CHECK (urgency_score >= 1 AND urgency_score <= 10),
-    impact_level VARCHAR(20) NOT NULL CHECK (impact_level IN ('Critical', 'High', 'Medium', 'Low')),
-    keyword_matches JSONB NOT NULL DEFAULT '{}',
-    categories JSONB NOT NULL DEFAULT '[]',
-    word_count INTEGER,
-    has_deadline BOOLEAN DEFAULT FALSE,
-    is_enforcement BOOLEAN DEFAULT FALSE,
-    email_sent BOOLEAN DEFAULT FALSE,
-    email_sent_at TIMESTAMP WITH TIME ZONE,
-    scraped_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
+-- Deduplication (MUST HAVE)
+CREATE UNIQUE INDEX idx_regulatory_feeds_title_date 
+ON regulatory_feeds (title, DATE(published));
 
-### Step 3: Create Indexes
-
-```sql
--- Index on link for fast duplicate checking
-CREATE UNIQUE INDEX idx_regulatory_feeds_link ON regulatory_feeds(link);
-
--- Index on urgency and impact for priority queries
-CREATE INDEX idx_regulatory_feeds_urgency ON regulatory_feeds(urgency_score DESC);
-CREATE INDEX idx_regulatory_feeds_impact ON regulatory_feeds(impact_level);
-
--- Index on email tracking for unsent items query
-CREATE INDEX idx_regulatory_feeds_email_sent ON regulatory_feeds(email_sent, created_at DESC)
-WHERE email_sent = FALSE;
-
--- Index on timestamps for date-range queries
+-- Performance indexes
 CREATE INDEX idx_regulatory_feeds_created_at ON regulatory_feeds(created_at DESC);
-CREATE INDEX idx_regulatory_feeds_published ON regulatory_feeds(published DESC);
+CREATE INDEX idx_regulatory_feeds_urgency ON regulatory_feeds(urgency_score DESC);
+CREATE INDEX idx_regulatory_feeds_email_sent ON regulatory_feeds(email_sent, created_at DESC) WHERE email_sent = FALSE;
 
--- Index on enforcement flag for filtering
-CREATE INDEX idx_regulatory_feeds_enforcement ON regulatory_feeds(is_enforcement)
-WHERE is_enforcement = TRUE;
-
--- GIN index on JSONB fields for fast keyword queries
-CREATE INDEX idx_regulatory_feeds_keyword_matches ON regulatory_feeds USING GIN (keyword_matches);
+-- JSONB indexes for fast category searches
 CREATE INDEX idx_regulatory_feeds_categories ON regulatory_feeds USING GIN (categories);
-
--- Composite index for priority email queries
-CREATE INDEX idx_regulatory_feeds_priority_unsent 
-ON regulatory_feeds(urgency_score DESC, impact_level, created_at DESC)
-WHERE email_sent = FALSE;
+CREATE INDEX idx_regulatory_feeds_keyword_matches ON regulatory_feeds USING GIN (keyword_matches);
 ```
 
-### Step 4: Create Update Trigger
+## Auto-Update Trigger
 
 ```sql
--- Function to automatically update updated_at timestamp
+-- Automatically update 'updated_at' timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -185,250 +103,164 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger to call function on updates
 CREATE TRIGGER update_regulatory_feeds_updated_at
 BEFORE UPDATE ON regulatory_feeds
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 ```
 
-### Step 5: Create Helper Views (Optional)
+## Field Explanations
+
+### Why JSONB for Categories?
+
+**Instead of this (complex):**
+```sql
+-- Would require 3 tables and JOINs
+CREATE TABLE categories (id, name);
+CREATE TABLE document_categories (doc_id, category_id);
+```
+
+**We use this (simple):**
+```sql
+categories JSONB  -- Store ["enforcement", "crypto", "securities"]
+```
+
+**Benefits:**
+- One table, no JOINs needed
+- Add new categories without schema changes
+- Fast queries with GIN indexes
+- Flexible structure
+
+**Query examples:**
+```sql
+-- Find documents with 'crypto' category
+SELECT * FROM regulatory_feeds WHERE categories @> '["crypto"]';
+
+-- Find documents with crypto OR enforcement
+SELECT * FROM regulatory_feeds WHERE categories ?| ARRAY['crypto', 'enforcement'];
+```
+
+### Why Timestamp Without Timezone?
 
 ```sql
--- View for high priority items
-CREATE VIEW high_priority_feeds AS
-SELECT * FROM regulatory_feeds
-WHERE urgency_score > 7 OR impact_level IN ('Critical', 'High')
-ORDER BY urgency_score DESC, created_at DESC;
-
--- View for unsent high priority items
-CREATE VIEW unsent_priority_alerts AS
-SELECT * FROM regulatory_feeds
-WHERE (urgency_score > 7 OR impact_level IN ('Critical', 'High'))
-  AND email_sent = FALSE
-  AND created_at >= NOW() - INTERVAL '1 day'
-ORDER BY urgency_score DESC, created_at DESC;
-
--- View for enforcement actions
-CREATE VIEW enforcement_actions AS
-SELECT * FROM regulatory_feeds
-WHERE is_enforcement = TRUE
-ORDER BY created_at DESC;
-
--- View for items with deadlines
-CREATE VIEW deadline_items AS
-SELECT * FROM regulatory_feeds
-WHERE has_deadline = TRUE
-ORDER BY created_at DESC;
+published TIMESTAMP WITHOUT TIME ZONE
 ```
 
-## Indexes
-
-### Performance Optimization
-
-The indexes are designed for common query patterns:
-
-1. **Link Uniqueness**: Prevents duplicate entries efficiently
-2. **Priority Queries**: Fast retrieval of high-urgency items
-3. **Email Tracking**: Optimizes unsent items lookup
-4. **Date Ranges**: Efficient filtering by time periods
-5. **JSONB Queries**: Fast keyword category searches
-6. **Composite Indexes**: Optimized for multi-condition queries
-
-### Index Maintenance
+All RSS feeds report in UTC/GMT, so we don't need timezone complexity. Makes date math simpler:
 
 ```sql
--- Check index usage statistics
-SELECT 
-    schemaname,
-    tablename,
-    indexname,
-    idx_scan,
-    idx_tup_read,
-    idx_tup_fetch
-FROM pg_stat_user_indexes
-WHERE tablename = 'regulatory_feeds'
-ORDER BY idx_scan DESC;
+-- Last 7 days
+SELECT * FROM regulatory_feeds WHERE published > NOW() - INTERVAL '7 days';
 
--- Rebuild indexes if needed
-REINDEX TABLE regulatory_feeds;
+-- Group by date
+SELECT DATE(published), COUNT(*) FROM regulatory_feeds GROUP BY DATE(published);
 ```
 
-## Maintenance
-
-### Vacuum and Analyze
+### Why Check Constraints?
 
 ```sql
--- Regular maintenance (run weekly)
-VACUUM ANALYZE regulatory_feeds;
-
--- Full vacuum (run monthly, requires table lock)
-VACUUM FULL regulatory_feeds;
+urgency_score INTEGER CHECK (urgency_score >= 1 AND urgency_score <= 10)
+impact_level VARCHAR(20) CHECK (impact_level IN ('Critical', 'High', 'Medium', 'Low'))
 ```
 
-### Data Retention Policy
+**Database rejects invalid data automatically:**
+- Can't insert urgency_score = 15 (rejected)
+- Can't insert impact_level = "Super High" (rejected)
+- No need for application-level validation
+
+## Using with n8n
+
+**In your INSERT query, use:**
 
 ```sql
--- Example: Delete items older than 2 years
-DELETE FROM regulatory_feeds
-WHERE created_at < NOW() - INTERVAL '2 years';
-
--- Or archive to another table
-CREATE TABLE regulatory_feeds_archive AS
-SELECT * FROM regulatory_feeds
-WHERE created_at < NOW() - INTERVAL '2 years';
-
-DELETE FROM regulatory_feeds
-WHERE created_at < NOW() - INTERVAL '2 years';
+INSERT INTO regulatory_feeds (
+  source_feed, source, title, link, published, content,
+  urgency_score, impact_level, keyword_matches, categories,
+  word_count, has_deadline, is_enforcement, scraped_at
+) VALUES (
+  '{{ $json.source_feed }}',
+  '{{ $json.source }}',
+  '{{ $json.title }}',
+  '{{ $json.link }}',
+  '{{ $json.published }}',
+  '{{ $json.content }}',
+  {{ $json.urgency_score }},
+  '{{ $json.impact_level }}',
+  '{{ $json.keyword_matches_str }}'::jsonb,
+  '{{ $json.categories_str }}'::jsonb,
+  {{ $json.word_count }},
+  {{ $json.has_deadline }},
+  {{ $json.is_enforcement }},
+  '{{ $json.scraped_at }}'
+)
+ON CONFLICT (title, DATE(published)) DO NOTHING
+RETURNING *;
 ```
 
-### Backup Strategy
+**The magic part:** `ON CONFLICT DO NOTHING RETURNING *`
+- Tries to insert
+- If duplicate (same title+date), skips it
+- Returns ONLY successfully inserted rows
+- Zero JavaScript filtering needed!
 
-```bash
-# Backup database
-pg_dump -U your_user -d mycroft_intelligence -F c -b -v -f "mycroft_backup_$(date +%Y%m%d).backup"
-
-# Restore from backup
-pg_restore -U your_user -d mycroft_intelligence -v "mycroft_backup_20240115.backup"
-```
-
-## Useful Queries
-
-### Query Examples
+## Common Queries
 
 ```sql
 -- Get today's high priority items
-SELECT source_feed, title, urgency_score, impact_level, link
-FROM regulatory_feeds
+SELECT * FROM regulatory_feeds
 WHERE created_at >= CURRENT_DATE
-  AND (urgency_score > 7 OR impact_level IN ('Critical', 'High'))
+  AND urgency_score > 7
 ORDER BY urgency_score DESC;
 
--- Count items by source feed
-SELECT source_feed, COUNT(*) as item_count
-FROM regulatory_feeds
-GROUP BY source_feed
-ORDER BY item_count DESC;
+-- Find crypto enforcement actions
+SELECT * FROM regulatory_feeds
+WHERE categories @> '["crypto"]'
+  AND is_enforcement = TRUE;
 
--- Find enforcement actions in last 7 days
-SELECT title, source_feed, published, link
-FROM regulatory_feeds
-WHERE is_enforcement = TRUE
-  AND created_at >= NOW() - INTERVAL '7 days'
-ORDER BY published DESC;
+-- Unsent email alerts
+SELECT * FROM regulatory_feeds
+WHERE email_sent = FALSE
+  AND urgency_score > 7
+  AND created_at >= NOW() - INTERVAL '1 day';
+```
 
--- Get items matching specific keyword category
-SELECT title, categories, urgency_score
-FROM regulatory_feeds
-WHERE keyword_matches->>'crypto' = 'true'
-  AND created_at >= NOW() - INTERVAL '30 days'
-ORDER BY urgency_score DESC;
+## Backup
 
--- Email notification statistics
-SELECT 
-    DATE(created_at) as date,
-    COUNT(*) as total_items,
-    SUM(CASE WHEN email_sent THEN 1 ELSE 0 END) as emailed_items,
-    AVG(urgency_score) as avg_urgency
-FROM regulatory_feeds
-WHERE created_at >= NOW() - INTERVAL '30 days'
-GROUP BY DATE(created_at)
-ORDER BY date DESC;
+```bash
+# Backup
+pg_dump -U mycroft_user -d mycroft_intelligence -F c -f "backup.dump"
 
--- Top categories by frequency
-SELECT 
-    jsonb_array_elements_text(categories) as category,
-    COUNT(*) as frequency
-FROM regulatory_feeds
-WHERE created_at >= NOW() - INTERVAL '90 days'
-GROUP BY category
-ORDER BY frequency DESC;
+# Restore
+pg_restore -U mycroft_user -d mycroft_intelligence -v "backup.dump"
 ```
 
 ## Troubleshooting
 
-### Common Issues
+**"Duplicate key violation" error:**
+- This is GOOD - it means duplicates are being prevented
+- Make sure your n8n query uses `ON CONFLICT DO NOTHING`
 
-#### Issue: Duplicate Key Error
+**Can't connect:**
+```bash
+# Check PostgreSQL is running
+sudo systemctl status postgresql
+
+# Reset password
+sudo -u postgres psql
+ALTER USER mycroft_user WITH PASSWORD 'new_password';
 ```
-ERROR: duplicate key value violates unique constraint "idx_regulatory_feeds_link"
-```
 
-**Solution**: The workflow handles this with `ON CONFLICT (link) DO UPDATE`. Ensure the n8n workflow uses this upsert pattern.
-
-#### Issue: JSONB Query Not Using Index
+**Slow queries:**
 ```sql
--- Bad (doesn't use GIN index)
-SELECT * FROM regulatory_feeds WHERE keyword_matches::text LIKE '%enforcement%';
+-- Check if indexes exist
+\di
 
--- Good (uses GIN index)
-SELECT * FROM regulatory_feeds WHERE keyword_matches->>'enforcement' = 'true';
-```
-
-#### Issue: Slow Priority Queries
-
-**Solution**: Ensure composite index exists:
-```sql
-CREATE INDEX IF NOT EXISTS idx_regulatory_feeds_priority_unsent 
-ON regulatory_feeds(urgency_score DESC, impact_level, created_at DESC)
-WHERE email_sent = FALSE;
-```
-
-#### Issue: Table Bloat
-
-**Solution**: Run VACUUM FULL during maintenance window:
-```sql
-VACUUM FULL regulatory_feeds;
-```
-
-### Connection Testing
-
-```sql
--- Test database connection
-SELECT version();
-
--- Verify table exists
-SELECT COUNT(*) FROM regulatory_feeds;
-
--- Check recent inserts
-SELECT id, title, created_at 
-FROM regulatory_feeds 
-ORDER BY created_at DESC 
-LIMIT 5;
-```
-
-## Security Considerations
-
-### Recommended Permissions
-
-```sql
--- Create read-only user for reporting
-CREATE USER mycroft_readonly WITH PASSWORD 'your_secure_password';
-GRANT CONNECT ON DATABASE mycroft_intelligence TO mycroft_readonly;
-GRANT SELECT ON regulatory_feeds TO mycroft_readonly;
-
--- Create application user with limited permissions
-CREATE USER mycroft_app WITH PASSWORD 'your_secure_password';
-GRANT CONNECT ON DATABASE mycroft_intelligence TO mycroft_app;
-GRANT SELECT, INSERT, UPDATE ON regulatory_feeds TO mycroft_app;
-GRANT USAGE, SELECT ON SEQUENCE regulatory_feeds_id_seq TO mycroft_app;
-```
-
-### SSL Connection
-
-Configure PostgreSQL to require SSL connections:
-```
-# In postgresql.conf
-ssl = on
-ssl_cert_file = 'server.crt'
-ssl_key_file = 'server.key'
-
-# In pg_hba.conf
-hostssl all all 0.0.0.0/0 md5
+-- Rebuild indexes
+REINDEX TABLE regulatory_feeds;
 ```
 
 ---
 
-**Database Version**: PostgreSQL 12+  
-**Schema Version**: 1.0.0  
-**Last Updated**: 2025
+**Database Version:** PostgreSQL 12+  
+**Author:** Darshan Rajopadhye  
+**Contact:** rajopadhye.d@northeastern.edu
