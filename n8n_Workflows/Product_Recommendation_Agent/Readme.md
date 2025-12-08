@@ -6,24 +6,6 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-316192?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-AI-4285F4?style=for-the-badge&logo=google)](https://ai.google.dev/)
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Technologies Used](#technologies-used)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Usage](#usage)
-- [Workflow Breakdown](#workflow-breakdown)
-- [Database Schema](#database-schema)
-- [Sprint 1 Deliverables](#sprint-1-deliverables)
-- [Future Enhancements (Sprint 2+)](#future-enhancements-sprint-2)
-- [Demo](#demo)
-- [Contributing](#contributing)
-- [License](#license)
-
----
 
 ## 🎯 Overview
 
