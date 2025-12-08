@@ -1,4 +1,4 @@
-#  AI-Powered Product Recommendation Agent
+#  Product Recommendation Agent
 
 > An intelligent, industry-specific product recommendation system built with n8n, PostgreSQL, and Google Gemini AI
 
