@@ -47,50 +47,69 @@ It replicates a production-grade AI pipeline used in financial research, regulat
 Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON Response
 
 ```pgsql
-┌──────────────────────────┐
-│      React Frontend      │
-│  - Input text            │
-│  - Live extraction       │
-│  - Copy phrases          │
-│  - History dashboard     │
-└──────────────┬───────────┘
-               │ POST /extract-finance
-               ▼
-┌──────────────────────────┐
-│     n8n Workflow (POST)  │
-│  Webhook Trigger         │
-│  → Gemini API Call       │
-│  → JSON Parsing          │
-│  → Insert into DB        │
-└──────────────┬───────────┘
-               │ INSERT
-               ▼
-┌──────────────────────────┐
-│      PostgreSQL DB       │
-│ finance_phrases table    │
-│  - id                    │
-│  - input_text            │
-│  - phrases (TEXT[])      │
-│  - created_at            │
-└──────────────┬───────────┘
-               │ SELECT
-               │
-               │ GET /get-finance-history
-               ▼
-┌──────────────────────────┐
-│     n8n Workflow (GET)   │
-│  Webhook Trigger         │
-│  → PostgreSQL Query      │
-│  → Return JSON Array     │
-└──────────────┬───────────┘
-               │ JSON Response
-               ▼
-┌──────────────────────────┐
-│  React History Dashboard │
-│  - Search, filter, sort  │
-│  - Pagination            │
-│  - Highlight matches     │
-└──────────────────────────┘
+┌───────────────────────────────────────┐
+│           React Frontend               │
+│                                       │
+│  - Input financial text               │
+│  - Live phrase extraction             │
+│  - Copy-to-clipboard                  │
+│  - History dashboard                  │
+│  - Analytics dashboard                │
+│                                       │
+└───────────────┬───────────────────────┘
+                │ POST /extract-finance
+                ▼
+┌───────────────────────────────────────┐
+│         n8n Workflow (POST)            │
+│                                       │
+│  Webhook Trigger                      │
+│   → Gemini AI API                     │
+│   → JSON Cleaning & Validation        │
+│   → PostgreSQL Insert                 │
+│   → Webhook Response (phrases[])      │
+│                                       │
+└───────────────┬───────────────────────┘
+                │ INSERT
+                ▼
+┌───────────────────────────────────────┐
+│           PostgreSQL Database          │
+│                                       │
+│  Table: finance_phrases               │
+│   - id (SERIAL PK)                    │
+│   - input_text (TEXT)                 │
+│   - phrases (TEXT[])                  │
+│   - created_at (TIMESTAMP)            │
+│                                       │
+└───────────────┬───────────────────────┘
+                │ SELECT
+                │ GET /get-finance-history
+                ▼
+┌───────────────────────────────────────┐
+│         n8n Workflow (GET)             │
+│                                       │
+│  Webhook Trigger                      │
+│   → PostgreSQL Query                  │
+│   → Return JSON Array                 │
+│                                       │
+└───────────────┬───────────────────────┘
+                │ JSON Response
+                ▼
+┌───────────────────────────────────────┐
+│     React History & Analytics UI       │
+│                                       │
+│  History View                         │
+│   - Search / filter / sort             │
+│   - Pagination                        │
+│   - Highlighted matches               │
+│                                       │
+│  Analytics View                       │
+│   - KPI cards                         │
+│   - Phrase frequency analysis         │
+│   - Extraction trends over time       │
+│   - Date range filtering              │
+│   - Export reports (PDF / Excel)      │
+│                                       │
+└───────────────────────────────────────┘
 ```
 
 ## 🎯Key Components:
@@ -209,6 +228,7 @@ SELECT * FROM finance_phrases;
 - Side-by-side panels (input vs. extracted results)
 - Animated Transitions
 - Responsive Design
+- Export extracted result (PDF / Excel)
 
 #### History Dashboard:
 - Displays full extraction history
@@ -217,6 +237,31 @@ SELECT * FROM finance_phrases;
 - Search bar with keyword highlighting
 - Pagination controls
 - Flexible table layout with column separators
+- Export history (PDF / Excel)
+
+#### Analytics Dashboard:
+- Displays Analytics Dashboard with **Recharts**
+- Shows date range filtering for charts
+- Displays 3 KPI cards including total extraction, unique phrases and most frequent phrase
+- Displays interactive charts with clean visualization (labels, tooltips)
+    - Bar chart → Phrase frequency
+    - Line chart → Extraction activity over time
+- Export analytics report (PDF / Excel)
+    - PDF with KPIs + charts
+    - Excel with multiple sheets:
+        - Summary
+        - Phrase frequency
+        - Usage over time
+
+## 🔐 Authentication (Latest Work)
+- Integrated **Clerk** Authentication
+- Navbar-level auth controls  
+### Public:
+  - Home page
+### Protected:
+  - History
+  - Analytics
+- Ready for multi-user analytics isolation
 
 ## 📊 Sample Extraction Output
 ### Input:
@@ -240,10 +285,13 @@ The company expects FY25 EPS in the range of $3.20–$3.40 with capex reductions
 ## 🛠 Technology Stack
 | Component   | Technology             |
 |-------------|-------------------------|
-| AI Model    | Gemini 1.5              |
+| AI Model    | Gemini 2.5              |
 | Workflow    | n8n Automation Engine   |
 | Database    | PostgreSQL (TEXT[])     |
 | Frontend    | React + Tailwind CSS    |
+| Charts      | Recharts                |
+| Auth        | Clerk                   |
+| Export      | jsPDF, html2canvas, XLSX|
 | API Layer   | n8n Webhooks (JSON)     |
 | Deployment  | Local / Cloud           |
 
@@ -323,9 +371,9 @@ npm start
 ## 🔮 Future Enhancements
 | Phase   | Features                                                   |
 |---------|-------------------------------------------------------------|
-| Phase 1 | Categorize phrases (Performance, Risk, Guidance)           |
-| Phase 2 | AI-generated summaries, numeric KPI extraction |
-| Phase 3 | Multi-user auth, predictive KPI analysis, exporting     |
+| Phase 1 | Testing & Quality Assurance          |
+| Phase 2 | Accessibility (A11y) with WCAG 2.1 Compliance |
+| Phase 3 | Mobile Responsiveness & UX     |
 
 
 ## 🐛 Troubleshooting
