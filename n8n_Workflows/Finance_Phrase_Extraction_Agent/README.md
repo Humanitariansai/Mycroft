@@ -48,8 +48,7 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
 
 ```pgsql
 ┌───────────────────────────────────────┐
-│           React Frontend               │
-│                                       │
+│         React Frontend                │
 │  - Input financial text               │
 │  - Live phrase extraction             │
 │  - Copy-to-clipboard                  │
@@ -60,8 +59,7 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
                 │ POST /extract-finance
                 ▼
 ┌───────────────────────────────────────┐
-│         n8n Workflow (POST)            │
-│                                       │
+│         n8n Workflow (POST)           |  
 │  Webhook Trigger                      │
 │   → Gemini AI API                     │
 │   → JSON Cleaning & Validation        │
@@ -72,8 +70,7 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
                 │ INSERT
                 ▼
 ┌───────────────────────────────────────┐
-│           PostgreSQL Database          │
-│                                       │
+│           PostgreSQL Database         │
 │  Table: finance_phrases               │
 │   - id (SERIAL PK)                    │
 │   - input_text (TEXT)                 │
@@ -85,8 +82,7 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
                 │ GET /get-finance-history
                 ▼
 ┌───────────────────────────────────────┐
-│         n8n Workflow (GET)             │
-│                                       │
+│         n8n Workflow (GET)            │
 │  Webhook Trigger                      │
 │   → PostgreSQL Query                  │
 │   → Return JSON Array                 │
@@ -95,10 +91,9 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
                 │ JSON Response
                 ▼
 ┌───────────────────────────────────────┐
-│     React History & Analytics UI       │
-│                                       │
+│     React History & Analytics UI      │
 │  History View                         │
-│   - Search / filter / sort             │
+│   - Search / filter / sort            │
 │   - Pagination                        │
 │   - Highlighted matches               │
 │                                       │
@@ -144,7 +139,7 @@ Return ONLY:
 }
 
 Text:
-"{{ $json.text }}"
+"{{ $json.body.text }}"
 ```
 
 #### Example output:
@@ -256,12 +251,11 @@ SELECT * FROM finance_phrases;
 ## 🔐 Authentication
 - Integrated **Clerk** Authentication
 - Navbar-level auth controls  
-#### Public:
+1. **Public Route:**
   - Home page
-#### Protected:
+2. **Protected Routes:**
   - History
   - Analytics
-- Ready for multi-user analytics isolation
 
 ## 📊 Sample Extraction Output
 ### Input:
