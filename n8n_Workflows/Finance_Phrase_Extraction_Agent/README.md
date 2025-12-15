@@ -61,7 +61,7 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
 ┌───────────────────────────────────────┐
 │         n8n Workflow (POST)           |  
 │  Webhook Trigger                      │
-│   → Gemini AI API                     │
+│   → Gemini API call                   │
 │   → JSON Cleaning & Validation        │
 │   → PostgreSQL Insert                 │
 │   → Webhook Response (phrases[])      │
@@ -95,7 +95,8 @@ Financial Text → Gemini Agent → JSON Cleaner → PostgreSQL Insert → JSON 
 │  History View                         │
 │   - Search / filter / sort            │
 │   - Pagination                        │
-│   - Highlighted matches               │
+│   - Highlighted matches               |
+|   - Export history (PDF / Excel)      │
 │                                       │
 │  Analytics View                       │
 │   - KPI cards                         │
@@ -216,7 +217,7 @@ SELECT * FROM finance_phrases;
 | 1  | EPS grew 15%    | {EPS,15%}    | 2025-12-02 10:22:11      |
 
 ### 5️⃣ React Frontend:
-#### Finance Extractor Page:
+#### 1. Finance Extractor Page:
 - Inputs text
 - Shows extracted phrase bullets
 - Copy-to-clipboard functionality
@@ -225,7 +226,7 @@ SELECT * FROM finance_phrases;
 - Responsive Design
 - Export extracted result (PDF / Excel)
 
-#### History Dashboard:
+#### 2. History Dashboard:
 - Displays full extraction history
 - Shows ID, input text, extracted phrases, and timestamp
 - Sort by ID & date
@@ -234,7 +235,7 @@ SELECT * FROM finance_phrases;
 - Flexible table layout with column separators
 - Export history (PDF / Excel)
 
-#### Analytics Dashboard:
+#### 3. Analytics Dashboard:
 - Displays Analytics Dashboard with **Recharts**
 - Shows date range filtering for charts
 - Displays 3 KPI cards including total extraction, unique phrases and most frequent phrase
@@ -252,10 +253,10 @@ SELECT * FROM finance_phrases;
 - Integrated **Clerk** Authentication
 - Navbar-level auth controls  
 1. **Public Route:**
-  - Home page
+      - Home page
 2. **Protected Routes:**
-  - History
-  - Analytics
+      - History
+      - Analytics
 
 ## 📊 Sample Extraction Output
 ### Input:
