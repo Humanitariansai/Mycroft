@@ -244,8 +244,8 @@ SELECT * FROM finance_phrases;
 - Shows date range filtering for charts
 - Displays 3 KPI cards including total extraction, unique phrases and most frequent phrase
 - Displays interactive charts with clean visualization (labels, tooltips)
-    - Bar chart → Phrase frequency
-    - Line chart → Extraction activity over time
+    - **Bar chart** → Phrase frequency
+    - **Line chart** → Extraction activity over time
 - Export analytics report (PDF / Excel)
     - PDF with KPIs + charts
     - Excel with multiple sheets:
@@ -253,12 +253,12 @@ SELECT * FROM finance_phrases;
         - Phrase frequency
         - Usage over time
 
-## 🔐 Authentication (Latest Work)
+## 🔐 Authentication
 - Integrated **Clerk** Authentication
 - Navbar-level auth controls  
-### Public:
+#### Public:
   - Home page
-### Protected:
+#### Protected:
   - History
   - Analytics
 - Ready for multi-user analytics isolation
@@ -345,6 +345,7 @@ npm start
 4. n8n stores the results in PostgreSQL
 5. Results appear in UI instantly
 6. Visit "History" page for full extraction logs
+7. Visit "Analytics" page for analytics reports
 
 ## 📬 API Endpoints
 | Endpoint                          | Method | Description                              | Returns                     |
