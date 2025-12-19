@@ -4,6 +4,7 @@
     {
       "parameters": {
         "options": {}
+        
       },
       "id": "e82e279c-22ea-4fc5-83ee-526c0ed82d0b",
       "name": "When chat message received",
