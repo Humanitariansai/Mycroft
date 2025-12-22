@@ -8,7 +8,7 @@ This agent helps small businesses discover the most suitable SaaS tools based on
 
 ## 📌 Current Status
 
- **Latest Version:** **Sprint 2 — Real-time Web Enriched Recommendations**
+ **Latest Version:** **Sprint 2 - Real-time Web Enriched Recommendations**
 
 Sprint 2 is the **active and recommended version**, enhanced with live web signals to produce more current and explainable recommendations.
 
@@ -26,7 +26,7 @@ Sprint 2 is the **active and recommended version**, enhanced with live web signa
 ---
 ## 🏃‍♂️ Available Versions
 
-### 🔹 Sprint 1 — Core Recommendation Engine
+### 🔹 Sprint 1 - Core Recommendation Engine
 **Focus:** Foundational recommendation logic
 
 **Capabilities:**
@@ -41,7 +41,7 @@ Sprint 2 is the **active and recommended version**, enhanced with live web signa
 
 ---
 
-### 🔹 Sprint 2 — Real-Time Enriched Recommendations (Latest)
+### 🔹 Sprint 2 - Real-Time Enriched Recommendations (Latest)
 **Focus:** Industry readiness & real-time relevance
 
 **Enhancements over Sprint 1:**
