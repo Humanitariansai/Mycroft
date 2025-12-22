@@ -46,8 +46,7 @@ class RegulatoryRAG:
             response.raise_for_status()
             
             soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Remove script, style, nav, footer elements
+  
             for element in soup(['script', 'style', 'nav', 'footer', 'header', 'aside']):
                 element.decompose()
             

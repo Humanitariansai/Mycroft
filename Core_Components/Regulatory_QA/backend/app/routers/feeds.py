@@ -12,24 +12,66 @@ settings = get_settings()
 @router.post("/fetch", response_model=FetchTriggerResponse)
 async def trigger_feed_fetch():
     """Trigger n8n workflow to fetch new RSS feeds"""
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.post(settings.n8n_webhook_url)
-            
-            if response.status_code == 200:
-                return FetchTriggerResponse(
-                    status="success",
-                    message="Feed fetching workflow triggered successfully",
-                    workflow_triggered=True
-                )
-            else:
-                raise HTTPException(status_code=500, detail="Failed to trigger workflow")
     
-    except httpx.RequestError as e:
+    # Method 1: Via Webhook (if you added webhook trigger)
+    if settings.n8n_webhook_url:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.post(settings.n8n_webhook_url)
+                
+                if response.status_code in [200, 201]:
+                    return FetchTriggerResponse(
+                        status="success",
+                        message="Feed fetching workflow triggered via webhook",
+                        workflow_triggered=True
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=500, 
+                        detail=f"n8n webhook returned status {response.status_code}"
+                    )
+        
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Could not connect to n8n webhook: {str(e)}"
+            )
+    
+    # Method 2: Via n8n API (if you have workflow ID)
+    elif settings.n8n_workflow_id:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                # Trigger workflow execution via API
+                response = await client.post(
+                    f"{settings.n8n_api_url}/workflows/{settings.n8n_workflow_id}/execute",
+                    json={}
+                )
+                
+                if response.status_code in [200, 201]:
+                    return FetchTriggerResponse(
+                        status="success",
+                        message="Feed fetching workflow triggered via API",
+                        workflow_triggered=True
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"n8n API returned status {response.status_code}: {response.text}"
+                    )
+        
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Could not connect to n8n API: {str(e)}"
+            )
+    
+    # No configuration found
+    else:
         raise HTTPException(
-            status_code=503,
-            detail=f"Could not connect to n8n workflow: {str(e)}"
+            status_code=501,
+            detail="n8n trigger not configured. Set N8N_WEBHOOK_URL or N8N_WORKFLOW_ID in .env"
         )
+
 
 @router.get("/stats")  # ← MOVE THIS BEFORE /{feed_id}
 async def get_stats():
