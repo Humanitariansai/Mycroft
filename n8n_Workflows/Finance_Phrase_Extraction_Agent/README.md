@@ -260,7 +260,7 @@ SELECT * FROM finance_phrases;
 
 ## 🧪 Testing
  ### Unit Testing (Jest + React Testing Library)
-- Implemented stable unit test coverage for the Finance Extractor page.
+- Implemented stable unit test coverage for the **Finance Extractor**, **History**, and **Analytics** pages.
 - Installed testing dependencies:
   
 ```bash
@@ -273,22 +273,22 @@ npm i -D @testing-library/react @testing-library/jest-dom @testing-library/user-
     - ResizeObserver mock (for chart/layout stability)
 
 - Added stable data-testid attributes across key UI elements:
-    - finance-input
-    - extract-btn
-    - error-msg
-    - phrases-list
-    - export-btn
+    - **Extractor:** finance-input, extract-btn, error-msg, phrases-list, export-btn
+    - **History:** history-search, history-table/history-cards, history-export-btn, history-empty-state
+    - **Analytics:** date-range, kpi-total, kpi-unique, kpi-top, chart-frequency, chart-trends, analytics-export-btn
 
 - Mocked heavy libraries in tests to keep unit tests fast and stable:
     - jspdf
     - xlsx
     - file-saver
 
-✅ FinanceExtractor unit tests cover:
+✅ Unit test coverage includes:
 - Empty input validation error
 - Successful extraction rendering phrases
 - Export button disabled/enabled logic
 - Error state when API fails
+- History page render, search/filter behavior, and export readiness
+- Analytics page KPI rendering, chart presence, and date-range filtering behavior
 
 Run tests:
 ```bash
@@ -298,13 +298,51 @@ npm test -- --watchAll=false
 ### End-to-End Testing (Cypress)
 - Added Cypress E2E specs for realistic workflow coverage:
      - Extraction flow tests
-     - History and analytics page tests (mocked API responses)
+     - History and Analytics page tests (mocked API responses)
      - Auth-safe handling to prevent protected routes from blocking E2E runs
 
-Run Cypress:
+Run Cypress in headless mode:
 ```bash
 npx cypress run
 ```
+Run Cypress in interactive UI mode (recommended for debugging):
+```bash
+npx cypress open
+```
+
+#### How npx cypress open is used (workflow):
+##### 1. Run your app first:
+```bash
+npx start
+```
+##### 2. In a new terminal, launch Cypress:
+```bash
+npx cypress open
+```
+##### 3. Cypress opens a UI:
+- Choose E2E Testing, it will create cypress/ folder
+- Select a browser (Electron/Chrome/Edge)
+- Click a spec file to run it (example: extraction.cy.js, history.cy.js, analytics.cy.js)
+##### ⚙️ Cypress Base URL Configuration
+Configured Cypress to use a stable `baseUrl` so tests can call `cy.visit("/")` without repeating the full URL.
+
+Created/updated: **cypress.config.js**
+```js
+const { defineConfig } = require("cypress");
+
+module.exports = defineConfig({
+  e2e: {
+    baseUrl: "http://localhost:3000",
+    setupNodeEvents(on, config) {
+      // no-op
+    },
+  },
+});
+```
+##### 4. Use time-travel debugging:
+- Inspect DOM snapshots
+- View network intercepts (cy.intercept)
+- Debug failing selectors and route mocks quickly
 
 ## 📊 Sample Extraction Output
 ### Input:
@@ -416,7 +454,7 @@ npm start
 ## 🔮 Future Enhancements
 | Phase   | Features                                                   |
 |---------|-------------------------------------------------------------|
-| Phase 1 | Testing & Quality Assurance          |
+| Phase 1 | Quality Assurance          |
 | Phase 2 | Accessibility (A11y) with WCAG 2.1 Compliance |
 | Phase 3 | Mobile Responsiveness & UX     |
 
