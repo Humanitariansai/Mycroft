@@ -258,6 +258,54 @@ SELECT * FROM finance_phrases;
       - History
       - Analytics
 
+## 🧪 Testing
+ ### Unit Testing (Jest + React Testing Library)
+- Implemented stable unit test coverage for the Finance Extractor page.
+- Installed testing dependencies:
+  
+```bash
+npm i -D @testing-library/react @testing-library/jest-dom @testing-library/user-event whatwg-fetch
+```
+
+- Added setupTests.js polyfills and browser mocks:
+    - TextEncoder/TextDecoder (required by jsPDF in Jest)
+    - fetch support
+    - ResizeObserver mock (for chart/layout stability)
+
+- Added stable data-testid attributes across key UI elements:
+    - finance-input
+    - extract-btn
+    - error-msg
+    - phrases-list
+    - export-btn
+
+- Mocked heavy libraries in tests to keep unit tests fast and stable:
+    - jspdf
+    - xlsx
+    - file-saver
+
+✅ FinanceExtractor unit tests cover:
+- Empty input validation error
+- Successful extraction rendering phrases
+- Export button disabled/enabled logic
+- Error state when API fails
+
+Run tests:
+```bash
+npm test -- --watchAll=false
+```
+
+### End-to-End Testing (Cypress)
+- Added Cypress E2E specs for realistic workflow coverage:
+     - Extraction flow tests
+     - History and analytics page tests (mocked API responses)
+     - Auth-safe handling to prevent protected routes from blocking E2E runs
+
+Run Cypress:
+```bash
+npx cypress run
+```
+
 ## 📊 Sample Extraction Output
 ### Input:
 ```pgsql
@@ -288,6 +336,7 @@ The company expects FY25 EPS in the range of $3.20–$3.40 with capex reductions
 | Auth        | Clerk                   |
 | Export      | jsPDF, html2canvas, XLSX|
 | API Layer   | n8n Webhooks (JSON)     |
+| Testing     | Jest + React Testing Library, Cypress | 
 | Deployment  | Local / Cloud           |
 
 ## 🔧 Installation & Setup
@@ -379,6 +428,7 @@ npm start
 | Duplicate ID = 0              | Reset sequence using setval()                |
 | Empty extraction result       | Fix Set node regex                            |
 | DB rejects insert             | Ensure TEXT[] format: ARRAY[...]             |
+| Jest TextEncoder error        | Add TextEncoder/TextDecoder polyfill in setupTests.js |
 
 ## 📨 Contact / Support
 
