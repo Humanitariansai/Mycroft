@@ -1,0 +1,127 @@
+2026-01-09 11:25:52,644 - INFO - ================================================================================
+2026-01-09 11:25:52,644 - INFO - Starting Capitol Trades scraper
+2026-01-09 11:25:52,644 - INFO - ================================================================================
+2026-01-09 11:25:52,644 - INFO - Configuration:
+2026-01-09 11:25:52,644 - INFO -   - RECENT_DAYS: 45
+2026-01-09 11:25:52,644 - INFO -   - MIN_TRADE_SIZE: $5,000
+2026-01-09 11:25:52,644 - INFO -   - USE_MAX_RANGE: True
+2026-01-09 11:25:52,644 - INFO -   - PAGES_TO_SCRAPE: 7
+2026-01-09 11:25:52,644 - INFO - ================================================================================
+2026-01-09 11:25:52,860 - INFO - WebDriver initialized successfully
+2026-01-09 11:25:52,860 - INFO - Loaded 0 previously checked trades
+2026-01-09 11:25:52,861 - INFO - 
+################################################################################
+2026-01-09 11:25:52,861 - INFO - Scraping page 1 (1/7)
+2026-01-09 11:25:52,861 - INFO - ################################################################################
+2026-01-09 11:25:52,861 - INFO - Fetching page 1: https://www.capitoltrades.com/trades
+2026-01-09 11:25:57,468 - INFO - Found 12 trades on page 1
+2026-01-09 11:25:57,468 - INFO - ✓ Trade 20003794342 matches: David Rouzer - Boeing Co
+2026-01-09 11:25:57,468 - INFO - ✓ Trade 20003794339 matches: Tim Moore - Cracker Barrel Old Country Store Inc
+2026-01-09 11:25:57,468 - INFO - ✓ Trade 20003794340 matches: Tim Moore - GENPREX INC
+2026-01-09 11:25:57,468 - INFO - ✓ Trade 20003794341 matches: Tim Moore - Harley-Davidson Inc
+2026-01-09 11:25:57,469 - INFO - ✓ Trade 20003794332 matches: Byron Donalds - Abbott Laboratories
+2026-01-09 11:25:57,469 - INFO - ✓ Trade 20003794333 matches: Byron Donalds - Abbott Laboratories
+2026-01-09 11:25:57,469 - INFO - ✓ Trade 20003794334 matches: Byron Donalds - BITCOIN
+2026-01-09 11:25:57,469 - INFO - ✓ Trade 20003794335 matches: Byron Donalds - Comfort Systems USA Inc
+2026-01-09 11:25:57,469 - INFO - ✓ Trade 20003794336 matches: Byron Donalds - Comfort Systems USA Inc
+2026-01-09 11:25:57,469 - INFO - ✓ Trade 10000064377 matches: Gary Peters - Intel Corp
+2026-01-09 11:25:57,469 - INFO - Page 1 complete: Found 10 matching trades
+2026-01-09 11:25:59,471 - INFO - 
+################################################################################
+2026-01-09 11:25:59,472 - INFO - Scraping page 2 (2/7)
+2026-01-09 11:25:59,472 - INFO - ################################################################################
+2026-01-09 11:25:59,472 - INFO - Fetching page 2: https://www.capitoltrades.com/trades?page=2
+2026-01-09 11:26:02,678 - INFO - Found 12 trades on page 2
+2026-01-09 11:26:02,678 - INFO - ✓ Trade 20003794332 matches: Byron Donalds - Abbott Laboratories
+2026-01-09 11:26:02,678 - INFO - ✓ Trade 20003794333 matches: Byron Donalds - Abbott Laboratories
+2026-01-09 11:26:02,679 - INFO - ✓ Trade 20003794334 matches: Byron Donalds - BITCOIN
+2026-01-09 11:26:02,679 - INFO - ✓ Trade 20003794335 matches: Byron Donalds - Comfort Systems USA Inc
+2026-01-09 11:26:02,679 - INFO - ✓ Trade 20003794336 matches: Byron Donalds - Comfort Systems USA Inc
+2026-01-09 11:26:02,679 - INFO - ✓ Trade 10000064377 matches: Gary Peters - Intel Corp
+2026-01-09 11:26:02,679 - INFO - ✓ Trade 10000064378 matches: Gary Peters - Verizon Communications Inc
+2026-01-09 11:26:02,679 - INFO - ✓ Trade 10000064375 matches: John Hickenlooper - Formula One Group - The Liberty Media Group
+2026-01-09 11:26:02,680 - INFO - ✓ Trade 10000064376 matches: John Hickenlooper - Formula One Group - The Liberty Media Group
+2026-01-09 11:26:02,680 - INFO - ✓ Trade 10000064374 matches: John Fetterman - Steel Dynamics Inc
+2026-01-09 11:26:02,680 - INFO - Page 2 complete: Found 10 matching trades
+2026-01-09 11:26:04,682 - INFO - 
+################################################################################
+2026-01-09 11:26:04,682 - INFO - Scraping page 3 (3/7)
+2026-01-09 11:26:04,682 - INFO - ################################################################################
+2026-01-09 11:26:04,682 - INFO - Fetching page 3: https://www.capitoltrades.com/trades?page=3
+2026-01-09 11:26:07,995 - INFO - Found 12 trades on page 3
+2026-01-09 11:26:07,996 - INFO - ✓ Trade 10000064372 matches: Lindsey Graham - iShares iBonds Dec 2025 Term Corporate ETF
+2026-01-09 11:26:07,997 - INFO - ✓ Trade 10000064365 matches: Shelley Moore Capito - Kellogg Co
+2026-01-09 11:26:07,997 - INFO - ✓ Trade 10000064366 matches: Shelley Moore Capito - Microsoft Corp
+2026-01-09 11:26:07,997 - INFO - ✓ Trade 10000064367 matches: Shelley Moore Capito - Apple Inc
+2026-01-09 11:26:07,997 - INFO - ✓ Trade 10000064368 matches: Shelley Moore Capito - Alphabet Inc
+2026-01-09 11:26:07,998 - INFO - ✓ Trade 20003794313 matches: April McClain Delaney - Bio-Techne Corp
+2026-01-09 11:26:07,998 - INFO - ✓ Trade 20003794314 matches: April McClain Delaney - Bio-Techne Corp
+2026-01-09 11:26:07,998 - INFO - ✓ Trade 20003794315 matches: April McClain Delaney - Brown & Brown Inc
+2026-01-09 11:26:07,998 - INFO - Page 3 complete: Found 8 matching trades
+2026-01-09 11:26:10,003 - INFO - 
+################################################################################
+2026-01-09 11:26:10,003 - INFO - Scraping page 4 (4/7)
+2026-01-09 11:26:10,003 - INFO - ################################################################################
+2026-01-09 11:26:10,003 - INFO - Fetching page 4: https://www.capitoltrades.com/trades?page=4
+2026-01-09 11:26:13,280 - INFO - Found 12 trades on page 4
+2026-01-09 11:26:13,281 - INFO - ✓ Trade 20003794316 matches: April McClain Delaney - Brown & Brown Inc
+2026-01-09 11:26:13,281 - INFO - ✓ Trade 20003794317 matches: April McClain Delaney - CDW Corp
+2026-01-09 11:26:13,281 - INFO - ✓ Trade 20003794318 matches: April McClain Delaney - CDW Corp
+2026-01-09 11:26:13,281 - INFO - ✓ Trade 20003794319 matches: April McClain Delaney - Clean Harbors Inc
+2026-01-09 11:26:13,281 - INFO - ✓ Trade 20003794320 matches: April McClain Delaney - IDEXX Laboratories Inc
+2026-01-09 11:26:13,281 - INFO - ✓ Trade 20003794321 matches: April McClain Delaney - Live Nation Entertainment Inc
+2026-01-09 11:26:13,281 - INFO - ✓ Trade 20003794322 matches: April McClain Delaney - Martin Marietta Materials Inc
+2026-01-09 11:26:13,282 - INFO - ✓ Trade 20003794323 matches: April McClain Delaney - PTC Inc
+2026-01-09 11:26:13,282 - INFO - ✓ Trade 20003794324 matches: April McClain Delaney - PTC Inc
+2026-01-09 11:26:13,282 - INFO - ✓ Trade 20003794325 matches: April McClain Delaney - Quanta Services Inc
+2026-01-09 11:26:13,282 - INFO - ✓ Trade 20003794326 matches: April McClain Delaney - Teledyne Technologies Inc
+2026-01-09 11:26:13,282 - INFO - ✓ Trade 20003794327 matches: April McClain Delaney - Tractor Supply Co
+2026-01-09 11:26:13,282 - INFO - Page 4 complete: Found 12 matching trades
+2026-01-09 11:26:15,285 - INFO - 
+################################################################################
+2026-01-09 11:26:15,285 - INFO - Scraping page 5 (5/7)
+2026-01-09 11:26:15,285 - INFO - ################################################################################
+2026-01-09 11:26:15,285 - INFO - Fetching page 5: https://www.capitoltrades.com/trades?page=5
+2026-01-09 11:26:18,573 - INFO - Found 12 trades on page 5
+2026-01-09 11:26:18,573 - INFO - ✓ Trade 20003794328 matches: April McClain Delaney - Tractor Supply Co
+2026-01-09 11:26:18,573 - INFO - ✓ Trade 20003794329 matches: Virginia Foxx - ELLINGTON FINANCIAL INC
+2026-01-09 11:26:18,573 - INFO - ✓ Trade 20003794302 matches: Lloyd Doggett - The Coca-Cola Co
+2026-01-09 11:26:18,574 - INFO - ✓ Trade 20003794303 matches: Lloyd Doggett - The Home Depot Inc
+2026-01-09 11:26:18,574 - INFO - ✓ Trade 20003794304 matches: Lloyd Doggett - International Business Machines Corp
+2026-01-09 11:26:18,574 - INFO - ✓ Trade 20003794305 matches: Lloyd Doggett - Johnson & Johnson
+2026-01-09 11:26:18,574 - INFO - ✓ Trade 20003794306 matches: Lloyd Doggett - PPG Industries Inc
+2026-01-09 11:26:18,575 - INFO - Page 5 complete: Found 7 matching trades
+2026-01-09 11:26:20,577 - INFO - 
+################################################################################
+2026-01-09 11:26:20,577 - INFO - Scraping page 6 (6/7)
+2026-01-09 11:26:20,577 - INFO - ################################################################################
+2026-01-09 11:26:20,577 - INFO - Fetching page 6: https://www.capitoltrades.com/trades?page=6
+2026-01-09 11:26:23,818 - INFO - Found 12 trades on page 6
+2026-01-09 11:26:23,818 - INFO - ✓ Trade 20003794297 matches: Jefferson Shreve - JPMorgan Chase & Co
+2026-01-09 11:26:23,818 - INFO - ✓ Trade 20003794298 matches: Jefferson Shreve - Prudential Financial Inc
+2026-01-09 11:26:23,819 - INFO - ✓ Trade 20003794296 matches: Jefferson Shreve - Prudential PLC
+2026-01-09 11:26:23,819 - INFO - ✓ Trade 20003794287 matches: Josh Gottheimer - BHP Group Ltd
+2026-01-09 11:26:23,819 - INFO - ✓ Trade 20003794288 matches: Josh Gottheimer - CSW INDUSTRIALS INC
+2026-01-09 11:26:23,819 - INFO - ✓ Trade 20003794289 matches: Josh Gottheimer - Dassault Systemes SA
+2026-01-09 11:26:23,819 - INFO - ✓ Trade 20003794290 matches: Josh Gottheimer - Edwards Lifesciences Corp
+2026-01-09 11:26:23,819 - INFO - Page 6 complete: Found 7 matching trades
+2026-01-09 11:26:25,822 - INFO - 
+################################################################################
+2026-01-09 11:26:25,822 - INFO - Scraping page 7 (7/7)
+2026-01-09 11:26:25,822 - INFO - ################################################################################
+2026-01-09 11:26:25,822 - INFO - Fetching page 7: https://www.capitoltrades.com/trades?page=7
+2026-01-09 11:26:29,552 - INFO - Found 12 trades on page 7
+2026-01-09 11:26:29,552 - INFO - ✓ Trade 20003794291 matches: Josh Gottheimer - Fidelity National Information Services Inc
+2026-01-09 11:26:29,553 - INFO - ✓ Trade 20003794292 matches: Josh Gottheimer - The Home Depot Inc
+2026-01-09 11:26:29,553 - INFO - ✓ Trade 20003794293 matches: Josh Gottheimer - HubSpot Inc
+2026-01-09 11:26:29,553 - INFO - ✓ Trade 20003794294 matches: Josh Gottheimer - KKR & Co Inc
+2026-01-09 11:26:29,554 - INFO - ✓ Trade 10000064357 matches: Dave McCormick - BITWISE BITCOIN ETF
+2026-01-09 11:26:29,554 - INFO - Page 7 complete: Found 5 matching trades
+2026-01-09 11:26:29,554 - INFO - 
+================================================================================
+2026-01-09 11:26:29,554 - INFO - SCRAPING COMPLETE
+2026-01-09 11:26:29,554 - INFO - Total pages scraped: 7
+2026-01-09 11:26:29,554 - INFO - Total matching trades found: 59
+2026-01-09 11:26:29,554 - INFO - ================================================================================
+2026-01-09 11:26:29,627 - INFO - WebDriver closed
+2026-01-09 11:26:29,628 - INFO - Results saved to filtered_trades_20260109_112629.txt
