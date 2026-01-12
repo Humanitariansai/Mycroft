@@ -325,7 +325,8 @@ Built with ❤️ by the Mycroft community
 
 Special thanks to:
 - Professor Nik Bear Brown, PhD, MBA - Project Vision
-- Anshika Khandelwal - Implementation & Testing
+- Anshika Khandelwal - Implementation & Testing - 
+- Anshika Khandelwal - Linkedin- https://www.linkedin.com/in/anshika-khandelwal/
 
 ---
 
