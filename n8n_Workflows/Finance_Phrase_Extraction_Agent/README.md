@@ -344,6 +344,45 @@ module.exports = defineConfig({
 - View network intercepts (cy.intercept)
 - Debug failing selectors and route mocks quickly
 
+## ♿ Accessibility (Lighthouse + WCAG)
+- Ran Lighthouse audits with a focus on Accessibility, targeting WCAG 2.1 improvements.
+- Fixed “Buttons do not have an accessible name” by adding:
+    - aria-label for icon-only or ambiguous buttons
+    - proper aria-haspopup, aria-expanded, aria-controls for dropdown menus
+    - role="menu" + role="menuitem" for export menus
+    - aria-hidden="true" for decorative icons
+    - role="status" + aria-live="polite" for loading announcements
+
+### Running Lighthouse (recommended)
+#### Option 1 (Chrome DevTools):
+- Open Chrome DevTools → Lighthouse
+- Select Accessibility
+- Generate report
+
+#### Option 2 (CLI via npx):
+```bash
+npx lighthouse http://localhost:3000 --only-categories=accessibility --view
+```
+Note: On Windows PowerShell, if script execution is blocked, use npx lighthouse (above) or run Lighthouse from Chrome DevTools.
+
+
+## ✅ ESLint Quality Assurance
+- Integrated ESLint checks to enforce consistent quality and prevent regressions.
+- Fixed lint errors in unit tests (e.g., testing-library/no-wait-for-multiple-assertions) by splitting assertions into separate waitFor calls or using direct findBy... queries where applicable.
+
+Run lint:
+```
+npm run lint
+```
+
+## 📱 Mobile Responsiveness
+- Improved mobile usability across Extractor, History, and Analytics dashboards:
+    - Responsive layout for dashboard grids and chart containers
+    - Better spacing and stacking behavior on smaller screens
+    - Export menus made mobile-friendly (full-width on mobile where needed)
+    - Adjusted CTA placement for small screens
+    - Hamburger menu for mobile screens
+
 ## 📊 Sample Extraction Output
 ### Input:
 ```pgsql
@@ -375,6 +414,7 @@ The company expects FY25 EPS in the range of $3.20–$3.40 with capex reductions
 | Export      | jsPDF, html2canvas, XLSX|
 | API Layer   | n8n Webhooks (JSON)     |
 | Testing     | Jest + React Testing Library, Cypress | 
+| Quality     | ESLint, Lighthouse Accessibility |
 | Deployment  | Local / Cloud           |
 
 ## 🔧 Installation & Setup
@@ -467,6 +507,7 @@ npm start
 | Empty extraction result       | Fix Set node regex                            |
 | DB rejects insert             | Ensure TEXT[] format: ARRAY[...]             |
 | Jest TextEncoder error        | Add TextEncoder/TextDecoder polyfill in setupTests.js |
+| Lighthouse PowerShell blocked | Use npx lighthouse ... or run Lighthouse via Chrome DevTools |
 
 ## 📨 Contact / Support
 
