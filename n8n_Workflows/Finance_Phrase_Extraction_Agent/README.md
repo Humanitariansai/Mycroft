@@ -547,7 +547,7 @@ npm start
 |-------------------------------|---------------|
 | Average Extraction Time       | 0.8 seconds   |
 | End-to-End API Response Time  | 1.3 seconds   |
-| DB Insert Time                | 20–30 ms      |
+| DB Insert Time                | 20-30 ms      |
 | JSON Validation Reliability   | 100%          |
 | Total Test Sentences          | 300+          |
 
