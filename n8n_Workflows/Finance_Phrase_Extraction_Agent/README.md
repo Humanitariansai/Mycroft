@@ -323,6 +323,7 @@ npx cypress open
 - Choose E2E Testing, it will create cypress/ folder
 - Select a browser (Electron/Chrome/Edge)
 - Click a spec file to run it (example: extraction.cy.js, history.cy.js, analytics.cy.js)
+
 ##### ⚙️ Cypress Base URL Configuration
 Configured Cypress to use a stable `baseUrl` so tests can call `cy.visit("/")` without repeating the full URL.
 
@@ -346,7 +347,7 @@ module.exports = defineConfig({
 
 ## ♿ Accessibility (Lighthouse + WCAG)
 - Ran Lighthouse audits with a focus on Accessibility, targeting WCAG 2.1 improvements.
--Added accessible name for buttons:
+- Added accessible name for buttons:
     - aria-label for icon-only or ambiguous buttons
     - proper aria-haspopup, aria-expanded, aria-controls for dropdown menus
     - role="menu" + role="menuitem" for export menus
@@ -381,8 +382,6 @@ npx lighthouse http://localhost:3000 --only-categories=accessibility --view
 ```
 
 Windows PowerShell note (script execution blocked)
-If you see:
-running scripts is disabled on this system
 
 Use npx:
 ```bash
@@ -390,10 +389,10 @@ npx lighthouse http://localhost:3000 --only-categories=accessibility --view
 ```
 
 ##### Or run Lighthouse from Chrome DevTools:
-    1. Open Chrome → http://localhost:3000
-    2. Press F12 → Lighthouse
-    3. Select Accessibility
-    4. Generate report
+1. Open Chrome → http://localhost:3000
+2. Press F12 → Lighthouse
+3. Select Accessibility
+4. Generate report
 
 
 ## ✅ ESLint Quality Assurance
@@ -426,7 +425,7 @@ In package.json:
 ```
 
 #### Run lint:
-```
+```bash
 npm run lint
 ```
 
@@ -442,6 +441,7 @@ npx eslint "src/**/*.{js,jsx}" --fix
     - Export menus made mobile-friendly (full-width on mobile where needed)
     - Adjusted CTA placement for small screens
     - Hamburger menu for mobile screens
+
 
 ## 📊 Sample Extraction Output
 ### Input:
@@ -554,9 +554,9 @@ npm start
 ## 🔮 Future Enhancements
 | Phase   | Features                                                   |
 |---------|-------------------------------------------------------------|
-| Phase 1 | Quality Assurance          |
-| Phase 2 | Accessibility (A11y) with WCAG 2.1 Compliance |
-| Phase 3 | Mobile Responsiveness & UX     |
+| Phase 1 | Containerized Architecture with Docker          |
+| Phase 2 | AWS Cloud Deployment |
+| Phase 3 | Observability & Reliability     |
 
 
 ## 🐛 Troubleshooting
