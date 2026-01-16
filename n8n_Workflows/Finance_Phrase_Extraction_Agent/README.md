@@ -346,33 +346,93 @@ module.exports = defineConfig({
 
 ## ♿ Accessibility (Lighthouse + WCAG)
 - Ran Lighthouse audits with a focus on Accessibility, targeting WCAG 2.1 improvements.
-- Fixed “Buttons do not have an accessible name” by adding:
+-Added accessible name for buttons:
     - aria-label for icon-only or ambiguous buttons
     - proper aria-haspopup, aria-expanded, aria-controls for dropdown menus
     - role="menu" + role="menuitem" for export menus
     - aria-hidden="true" for decorative icons
     - role="status" + aria-live="polite" for loading announcements
 
-### Running Lighthouse (recommended)
-#### Option 1 (Chrome DevTools):
-- Open Chrome DevTools → Lighthouse
-- Select Accessibility
-- Generate report
-
-#### Option 2 (CLI via npx):
+### Install Lighthouse
+#### Option A (recommended): Run via npx (no global install)
 ```bash
 npx lighthouse http://localhost:3000 --only-categories=accessibility --view
 ```
-Note: On Windows PowerShell, if script execution is blocked, use npx lighthouse (above) or run Lighthouse from Chrome DevTools.
+
+#### Option B: Install globally (optional)
+```bash
+npm i -g lighthouse
+```
+
+Then run:
+```bash
+lighthouse http://localhost:3000 --only-categories=accessibility --view
+```
+
+### Running Lighthouse (recommended workflow)
+Start the React app:
+```bash
+npm start
+```
+
+In a new terminal, run:
+```bash
+npx lighthouse http://localhost:3000 --only-categories=accessibility --view
+```
+
+Windows PowerShell note (script execution blocked)
+If you see:
+running scripts is disabled on this system
+
+Use npx:
+```bash
+npx lighthouse http://localhost:3000 --only-categories=accessibility --view
+```
+
+##### Or run Lighthouse from Chrome DevTools:
+    1. Open Chrome → http://localhost:3000
+    2. Press F12 → Lighthouse
+    3. Select Accessibility
+    4. Generate report
 
 
 ## ✅ ESLint Quality Assurance
 - Integrated ESLint checks to enforce consistent quality and prevent regressions.
 - Fixed lint errors in unit tests (e.g., testing-library/no-wait-for-multiple-assertions) by splitting assertions into separate waitFor calls or using direct findBy... queries where applicable.
 
-Run lint:
+### Install ESLint plugins (optional but recommended):
+  If you use Testing Library lint rules, install:
+```bash
+npm i -D eslint-plugin-testing-library eslint-plugin-jest-dom
+```
+
+### ESLint config (optional)
+Create or update .eslintrc.json
+```json
+{
+  "extends": ["react-app", "react-app/jest"],
+  "plugins": ["testing-library", "jest-dom"]
+}
+```
+
+### Add lint script
+In package.json:
+```json
+{
+  "scripts": {
+    "lint": "eslint \"src/**/*.{js,jsx}\""
+  }
+}
+```
+
+#### Run lint:
 ```
 npm run lint
+```
+
+#### Auto-fix (optional)
+```bash
+npx eslint "src/**/*.{js,jsx}" --fix
 ```
 
 ## 📱 Mobile Responsiveness
