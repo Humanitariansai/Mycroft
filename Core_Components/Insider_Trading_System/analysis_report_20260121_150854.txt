@@ -1,0 +1,1203 @@
+
+====================================================================================================
+CONGRESSIONAL TRADING ANALYSIS REPORT
+Generated: 2026-01-21 15:08:54
+Total Trades Analyzed: 63
+====================================================================================================
+
+
+TRADE #1
+--------------------------------------------------------------------------------
+Politician: Kelly Morrison (Democrat)
+Transaction: exchange
+Ticker: ASHGY:US
+Trade Date: 9 Dec2025
+Filed After: 41 days
+
+PRICE ANALYSIS:
+  Trade Price: $63.34
+  Price Change (30 days before): -0.51%
+  Price Change (30 days after): +18.68%
+  Volatility: 2.00%
+  Volume Ratio (vs avg): 0.62x
+
+Chart: charts/ASHGY:US_Kelly_Morrison_20260121_150811.png
+Details: https://www.capitoltrades.com/trades/20003794855
+
+
+TRADE #2
+--------------------------------------------------------------------------------
+Politician: Kelly Morrison (Democrat)
+Transaction: exchange
+Ticker: ASHGY:US
+Trade Date: 9 Dec2025
+Filed After: 41 days
+
+PRICE ANALYSIS:
+  Trade Price: $63.34
+  Price Change (30 days before): -0.51%
+  Price Change (30 days after): +18.68%
+  Volatility: 2.00%
+  Volume Ratio (vs avg): 0.62x
+
+Chart: charts/ASHGY:US_Kelly_Morrison_20260121_150811.png
+Details: https://www.capitoltrades.com/trades/20003794856
+
+
+TRADE #3
+--------------------------------------------------------------------------------
+Politician: Kelly Morrison (Democrat)
+Transaction: exchange
+Ticker: ASHGY:US
+Trade Date: 9 Dec2025
+Filed After: 41 days
+
+PRICE ANALYSIS:
+  Trade Price: $63.34
+  Price Change (30 days before): -0.51%
+  Price Change (30 days after): +18.68%
+  Volatility: 2.00%
+  Volume Ratio (vs avg): 0.62x
+
+Chart: charts/ASHGY:US_Kelly_Morrison_20260121_150812.png
+Details: https://www.capitoltrades.com/trades/20003794857
+
+
+TRADE #4
+--------------------------------------------------------------------------------
+Politician: Kelly Morrison (Democrat)
+Transaction: exchange
+Ticker: ASHGY:US
+Trade Date: 9 Dec2025
+Filed After: 41 days
+
+PRICE ANALYSIS:
+  Trade Price: $63.34
+  Price Change (30 days before): -0.51%
+  Price Change (30 days after): +18.68%
+  Volatility: 2.00%
+  Volume Ratio (vs avg): 0.62x
+
+Chart: charts/ASHGY:US_Kelly_Morrison_20260121_150813.png
+Details: https://www.capitoltrades.com/trades/20003794858
+
+
+TRADE #5
+--------------------------------------------------------------------------------
+Politician: August Pfluger (Republican)
+Transaction: exchange
+Ticker: FWONK:US
+Trade Date: 15 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $94.84
+  Price Change (30 days before): -2.96%
+  Price Change (30 days after): -4.27%
+  Volatility: 1.22%
+  Volume Ratio (vs avg): 1.22x
+
+Chart: charts/FWONK:US_August_Pfluger_20260121_150813.png
+Details: https://www.capitoltrades.com/trades/20003794859
+
+
+TRADE #6
+--------------------------------------------------------------------------------
+Politician: August Pfluger (Republican)
+Transaction: exchange
+Ticker: LLYVK:US
+Trade Date: 15 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $85.12
+  Price Change (30 days before): +4.91%
+  Price Change (30 days after): -2.17%
+  Volatility: 1.56%
+  Volume Ratio (vs avg): 1.94x
+
+Chart: charts/LLYVK:US_August_Pfluger_20260121_150814.png
+Details: https://www.capitoltrades.com/trades/20003794860
+
+
+TRADE #7
+--------------------------------------------------------------------------------
+Politician: Gary Peters (Democrat)
+Transaction: buy
+Ticker: WPC:US
+Trade Date: 11 Jan2026
+Filed After: 8 days
+
+PRICE ANALYSIS:
+  Trade Price: $66.78
+  Price Change (30 days before): +4.19%
+  Price Change (30 days after): +4.08%
+  Volatility: 1.08%
+  Volume Ratio (vs avg): 0.67x
+
+Chart: charts/WPC:US_Gary_Peters_20260121_150815.png
+Details: https://www.capitoltrades.com/trades/10000064455
+
+
+TRADE #8
+--------------------------------------------------------------------------------
+Politician: Gary Peters (Democrat)
+Transaction: buy
+Ticker: SWK:US
+Trade Date: 11 Jan2026
+Filed After: 8 days
+
+PRICE ANALYSIS:
+  Trade Price: $82.41
+  Price Change (30 days before): +8.89%
+  Price Change (30 days after): +1.46%
+  Volatility: 2.12%
+  Volume Ratio (vs avg): 0.79x
+
+Chart: charts/SWK:US_Gary_Peters_20260121_150815.png
+Details: https://www.capitoltrades.com/trades/10000064456
+
+
+TRADE #9
+--------------------------------------------------------------------------------
+Politician: Thomas Kean Jr (Republican)
+Transaction: exchange
+Ticker: LLYVK:US
+Trade Date: 15 Dec2025
+Filed After: 31 days
+
+PRICE ANALYSIS:
+  Trade Price: $85.12
+  Price Change (30 days before): +4.91%
+  Price Change (30 days after): -2.17%
+  Volatility: 1.56%
+  Volume Ratio (vs avg): 1.94x
+
+Chart: charts/LLYVK:US_Thomas_Kean_Jr_20260121_150816.png
+Details: https://www.capitoltrades.com/trades/20003794835
+
+
+TRADE #10
+--------------------------------------------------------------------------------
+Politician: Thomas Kean Jr (Republican)
+Transaction: exchange
+Ticker: LLYVK:US
+Trade Date: 15 Dec2025
+Filed After: 31 days
+
+PRICE ANALYSIS:
+  Trade Price: $85.12
+  Price Change (30 days before): +4.91%
+  Price Change (30 days after): -2.17%
+  Volatility: 1.56%
+  Volume Ratio (vs avg): 1.94x
+
+Chart: charts/LLYVK:US_Thomas_Kean_Jr_20260121_150817.png
+Details: https://www.capitoltrades.com/trades/20003794836
+
+
+TRADE #11
+--------------------------------------------------------------------------------
+Politician: Cleo Fields (Democrat)
+Transaction: buy
+Ticker: GOOGL:US
+Trade Date: 25 Dec2025
+Filed After: 21 days
+
+PRICE ANALYSIS:
+  Trade Price: $314.09
+  Price Change (30 days before): -2.83%
+  Price Change (30 days after): +5.05%
+  Volatility: 1.36%
+  Volume Ratio (vs avg): 0.26x
+
+Chart: charts/GOOGL:US_Cleo_Fields_20260121_150817.png
+Details: https://www.capitoltrades.com/trades/20003794830
+
+
+TRADE #12
+--------------------------------------------------------------------------------
+Politician: Cleo Fields (Democrat)
+Transaction: sell
+Ticker: FIG:US
+Trade Date: 25 Dec2025
+Filed After: 21 days
+
+PRICE ANALYSIS:
+  Trade Price: $38.86
+  Price Change (30 days before): +9.46%
+  Price Change (30 days after): -29.16%
+  Volatility: 3.03%
+  Volume Ratio (vs avg): 0.31x
+
+Chart: charts/FIG:US_Cleo_Fields_20260121_150818.png
+Details: https://www.capitoltrades.com/trades/20003794831
+
+
+TRADE #13
+--------------------------------------------------------------------------------
+Politician: Cleo Fields (Democrat)
+Transaction: sell
+Ticker: FIG:US
+Trade Date: 25 Dec2025
+Filed After: 21 days
+
+PRICE ANALYSIS:
+  Trade Price: $38.86
+  Price Change (30 days before): +9.46%
+  Price Change (30 days after): -29.16%
+  Volatility: 3.03%
+  Volume Ratio (vs avg): 0.31x
+
+Chart: charts/FIG:US_Cleo_Fields_20260121_150819.png
+Details: https://www.capitoltrades.com/trades/20003794832
+
+
+TRADE #14
+--------------------------------------------------------------------------------
+Politician: Cleo Fields (Democrat)
+Transaction: sell
+Ticker: IREN:US
+Trade Date: 25 Dec2025
+Filed After: 21 days
+
+PRICE ANALYSIS:
+  Trade Price: $41.98
+  Price Change (30 days before): -11.57%
+  Price Change (30 days after): +29.97%
+  Volatility: 6.62%
+  Volume Ratio (vs avg): 0.30x
+
+Chart: charts/IREN:US_Cleo_Fields_20260121_150819.png
+Details: https://www.capitoltrades.com/trades/20003794833
+
+
+TRADE #15
+--------------------------------------------------------------------------------
+Politician: Cleo Fields (Democrat)
+Transaction: sell
+Ticker: OPEN:US
+Trade Date: 25 Dec2025
+Filed After: 21 days
+
+PRICE ANALYSIS:
+  Trade Price: $6.28
+  Price Change (30 days before): -18.86%
+  Price Change (30 days after): +3.58%
+  Volatility: 5.28%
+  Volume Ratio (vs avg): 0.27x
+
+Chart: charts/OPEN:US_Cleo_Fields_20260121_150820.png
+Details: https://www.capitoltrades.com/trades/20003794834
+
+
+TRADE #16
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: CAT:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $577.26
+  Price Change (30 days before): +0.49%
+  Price Change (30 days after): +11.51%
+  Volatility: 2.08%
+  Volume Ratio (vs avg): 1.04x
+
+Chart: charts/CAT:US_Markwayne_Mullin_20260121_150821.png
+Details: https://www.capitoltrades.com/trades/10000064424
+
+
+TRADE #17
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: LLY:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $1078.73
+  Price Change (30 days before): +0.30%
+  Price Change (30 days after): -0.03%
+  Volatility: 1.81%
+  Volume Ratio (vs avg): 0.52x
+
+Chart: charts/LLY:US_Markwayne_Mullin_20260121_150821.png
+Details: https://www.capitoltrades.com/trades/10000064425
+
+
+TRADE #18
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: JPM:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $322.3
+  Price Change (30 days before): +3.41%
+  Price Change (30 days after): -5.85%
+  Volatility: 1.72%
+  Volume Ratio (vs avg): 0.89x
+
+Chart: charts/JPM:US_Markwayne_Mullin_20260121_150822.png
+Details: https://www.capitoltrades.com/trades/10000064426
+
+
+TRADE #19
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: COF:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $245.75
+  Price Change (30 days before): +12.18%
+  Price Change (30 days after): -5.66%
+  Volatility: 1.85%
+  Volume Ratio (vs avg): 0.67x
+
+Chart: charts/COF:US_Markwayne_Mullin_20260121_150823.png
+Details: https://www.capitoltrades.com/trades/10000064427
+
+
+TRADE #20
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: RTX:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $184.42
+  Price Change (30 days before): +5.44%
+  Price Change (30 days after): +7.21%
+  Volatility: 1.47%
+  Volume Ratio (vs avg): 0.44x
+
+Chart: charts/RTX:US_Markwayne_Mullin_20260121_150823.png
+Details: https://www.capitoltrades.com/trades/10000064428
+
+
+TRADE #21
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: GOOGL:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $313.56
+  Price Change (30 days before): -2.00%
+  Price Change (30 days after): +5.25%
+  Volatility: 1.38%
+  Volume Ratio (vs avg): 0.60x
+
+Chart: charts/GOOGL:US_Markwayne_Mullin_20260121_150824.png
+Details: https://www.capitoltrades.com/trades/10000064429
+
+
+TRADE #22
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: ICE:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $163.98
+  Price Change (30 days before): +4.56%
+  Price Change (30 days after): +5.57%
+  Volatility: 1.29%
+  Volume Ratio (vs avg): 0.49x
+
+Chart: charts/ICE:US_Markwayne_Mullin_20260121_150825.png
+Details: https://www.capitoltrades.com/trades/10000064430
+
+
+TRADE #23
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: DE:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $468.62
+  Price Change (30 days before): +1.24%
+  Price Change (30 days after): +12.48%
+  Volatility: 1.76%
+  Volume Ratio (vs avg): 0.67x
+
+Chart: charts/DE:US_Markwayne_Mullin_20260121_150825.png
+Details: https://www.capitoltrades.com/trades/10000064431
+
+
+TRADE #24
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: BSX:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $95.76
+  Price Change (30 days before): -5.73%
+  Price Change (30 days after): -3.83%
+  Volatility: 1.52%
+  Volume Ratio (vs avg): 0.58x
+
+Chart: charts/BSX:US_Markwayne_Mullin_20260121_150826.png
+Details: https://www.capitoltrades.com/trades/10000064432
+
+
+TRADE #25
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: MSFT:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $487.1
+  Price Change (30 days before): -1.00%
+  Price Change (30 days after): -8.44%
+  Volatility: 1.15%
+  Volume Ratio (vs avg): 0.46x
+
+Chart: charts/MSFT:US_Markwayne_Mullin_20260121_150827.png
+Details: https://www.capitoltrades.com/trades/10000064433
+
+
+TRADE #26
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: GS:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $892.18
+  Price Change (30 days before): +8.54%
+  Price Change (30 days after): +8.10%
+  Volatility: 1.76%
+  Volume Ratio (vs avg): 0.76x
+
+Chart: charts/GS:US_Markwayne_Mullin_20260121_150827.png
+Details: https://www.capitoltrades.com/trades/10000064434
+
+
+TRADE #27
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: LRCX:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $175.87
+  Price Change (30 days before): +12.92%
+  Price Change (30 days after): +31.61%
+  Volatility: 3.28%
+  Volume Ratio (vs avg): 0.64x
+
+Chart: charts/LRCX:US_Markwayne_Mullin_20260121_150828.png
+Details: https://www.capitoltrades.com/trades/10000064435
+
+
+TRADE #28
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: KO:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $70.16
+  Price Change (30 days before): -3.37%
+  Price Change (30 days after): +2.44%
+  Volatility: 1.01%
+  Volume Ratio (vs avg): 0.59x
+
+Chart: charts/KO:US_Markwayne_Mullin_20260121_150829.png
+Details: https://www.capitoltrades.com/trades/10000064436
+
+
+TRADE #29
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: AMZN:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $232.07
+  Price Change (30 days before): -0.49%
+  Price Change (30 days after): -0.28%
+  Volatility: 1.45%
+  Volume Ratio (vs avg): 0.53x
+
+Chart: charts/AMZN:US_Markwayne_Mullin_20260121_150829.png
+Details: https://www.capitoltrades.com/trades/10000064437
+
+
+TRADE #30
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: NVDA:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $188.22
+  Price Change (30 days before): +6.34%
+  Price Change (30 days after): -1.79%
+  Volatility: 1.90%
+  Volume Ratio (vs avg): 0.70x
+
+Chart: charts/NVDA:US_Markwayne_Mullin_20260121_150830.png
+Details: https://www.capitoltrades.com/trades/10000064438
+
+
+TRADE #31
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: CRM:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $266.23
+  Price Change (30 days before): +15.67%
+  Price Change (30 days after): -16.31%
+  Volatility: 2.24%
+  Volume Ratio (vs avg): 0.50x
+
+Chart: charts/CRM:US_Markwayne_Mullin_20260121_150831.png
+Details: https://www.capitoltrades.com/trades/10000064439
+
+
+TRADE #32
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: IQV:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $227.11
+  Price Change (30 days before): -1.26%
+  Price Change (30 days after): +5.98%
+  Volatility: 1.40%
+  Volume Ratio (vs avg): 0.33x
+
+Chart: charts/IQV:US_Markwayne_Mullin_20260121_150832.png
+Details: https://www.capitoltrades.com/trades/10000064440
+
+
+TRADE #33
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: ELV:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $348.38
+  Price Change (30 days before): +3.52%
+  Price Change (30 days after): +5.79%
+  Volatility: 1.71%
+  Volume Ratio (vs avg): 1.04x
+
+Chart: charts/ELV:US_Markwayne_Mullin_20260121_150832.png
+Details: https://www.capitoltrades.com/trades/10000064441
+
+
+TRADE #34
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: AXP:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $374.49
+  Price Change (30 days before): +2.75%
+  Price Change (30 days after): -3.47%
+  Volatility: 1.63%
+  Volume Ratio (vs avg): 0.69x
+
+Chart: charts/AXP:US_Markwayne_Mullin_20260121_150833.png
+Details: https://www.capitoltrades.com/trades/10000064442
+
+
+TRADE #35
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: CVX:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $150.99
+  Price Change (30 days before): -0.09%
+  Price Change (30 days after): +10.55%
+  Volatility: 1.62%
+  Volume Ratio (vs avg): 0.66x
+
+Chart: charts/CVX:US_Markwayne_Mullin_20260121_150834.png
+Details: https://www.capitoltrades.com/trades/10000064443
+
+
+TRADE #36
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: AAPL:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $273.76
+  Price Change (30 days before): -1.83%
+  Price Change (30 days after): -8.30%
+  Volatility: 0.97%
+  Volume Ratio (vs avg): 0.54x
+
+Chart: charts/AAPL:US_Markwayne_Mullin_20260121_150834.png
+Details: https://www.capitoltrades.com/trades/10000064444
+
+
+TRADE #37
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: META:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $658.69
+  Price Change (30 days before): +1.74%
+  Price Change (30 days after): -6.43%
+  Volatility: 1.43%
+  Volume Ratio (vs avg): 0.53x
+
+Chart: charts/META:US_Markwayne_Mullin_20260121_150835.png
+Details: https://www.capitoltrades.com/trades/10000064445
+
+
+TRADE #38
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: MA:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $577.03
+  Price Change (30 days before): +4.97%
+  Price Change (30 days after): -8.46%
+  Volatility: 1.37%
+  Volume Ratio (vs avg): 0.48x
+
+Chart: charts/MA:US_Markwayne_Mullin_20260121_150836.png
+Details: https://www.capitoltrades.com/trades/10000064446
+
+
+TRADE #39
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: HLT:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $292.36
+  Price Change (30 days before): +2.57%
+  Price Change (30 days after): +1.07%
+  Volatility: 1.44%
+  Volume Ratio (vs avg): 0.61x
+
+Chart: charts/HLT:US_Markwayne_Mullin_20260121_150836.png
+Details: https://www.capitoltrades.com/trades/10000064447
+
+
+TRADE #40
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: AMAT:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $263.05
+  Price Change (30 days before): +4.28%
+  Price Change (30 days after): +24.47%
+  Volatility: 2.71%
+  Volume Ratio (vs avg): 0.39x
+
+Chart: charts/AMAT:US_Markwayne_Mullin_20260121_150837.png
+Details: https://www.capitoltrades.com/trades/10000064448
+
+
+TRADE #41
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: COST:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $867.84
+  Price Change (30 days before): -5.01%
+  Price Change (30 days after): +13.95%
+  Volatility: 1.35%
+  Volume Ratio (vs avg): 0.60x
+
+Chart: charts/COST:US_Markwayne_Mullin_20260121_150838.png
+Details: https://www.capitoltrades.com/trades/10000064449
+
+
+TRADE #42
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: ISRG:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $575.4
+  Price Change (30 days before): +0.33%
+  Price Change (30 days after): -8.83%
+  Volatility: 1.46%
+  Volume Ratio (vs avg): 0.45x
+
+Chart: charts/ISRG:US_Markwayne_Mullin_20260121_150838.png
+Details: https://www.capitoltrades.com/trades/10000064450
+
+
+TRADE #43
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: HD:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $347.45
+  Price Change (30 days before): -2.02%
+  Price Change (30 days after): +10.58%
+  Volatility: 1.40%
+  Volume Ratio (vs avg): 0.80x
+
+Chart: charts/HD:US_Markwayne_Mullin_20260121_150839.png
+Details: https://www.capitoltrades.com/trades/10000064451
+
+
+TRADE #44
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: INTU:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $672.91
+  Price Change (30 days before): +6.32%
+  Price Change (30 days after): -21.73%
+  Volatility: 2.07%
+  Volume Ratio (vs avg): 0.50x
+
+Chart: charts/INTU:US_Markwayne_Mullin_20260121_150840.png
+Details: https://www.capitoltrades.com/trades/10000064452
+
+
+TRADE #45
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: NOW:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $154.58
+  Price Change (30 days before): -4.86%
+  Price Change (30 days after): -18.97%
+  Volatility: 2.49%
+  Volume Ratio (vs avg): 0.73x
+
+Chart: charts/NOW:US_Markwayne_Mullin_20260121_150841.png
+Details: https://www.capitoltrades.com/trades/10000064453
+
+
+TRADE #46
+--------------------------------------------------------------------------------
+Politician: Markwayne Mullin (Republican)
+Transaction: buy
+Ticker: COP:US
+Trade Date: 28 Dec2025
+Filed After: 18 days
+
+PRICE ANALYSIS:
+  Trade Price: $92.63
+  Price Change (30 days before): +4.44%
+  Price Change (30 days after): +4.91%
+  Volatility: 2.27%
+  Volume Ratio (vs avg): 0.72x
+
+Chart: charts/COP:US_Markwayne_Mullin_20260121_150841.png
+Details: https://www.capitoltrades.com/trades/10000064454
+
+
+TRADE #47
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: sell
+Ticker: GOOGL:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $320.21
+  Price Change (30 days before): +10.45%
+  Price Change (30 days after): +1.63%
+  Volatility: 1.84%
+  Volume Ratio (vs avg): 0.75x
+
+Chart: charts/GOOGL:US_Dan_Newhouse_20260121_150842.png
+Details: https://www.capitoltrades.com/trades/20003794807
+
+
+TRADE #48
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: BX:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $156.6
+  Price Change (30 days before): +8.52%
+  Price Change (30 days after): -0.83%
+  Volatility: 1.76%
+  Volume Ratio (vs avg): 1.22x
+
+Chart: charts/BX:US_Dan_Newhouse_20260121_150843.png
+Details: https://www.capitoltrades.com/trades/20003794808
+
+
+TRADE #49
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: sell
+Ticker: AVGO:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $412.18
+  Price Change (30 days before): +15.23%
+  Price Change (30 days after): -19.34%
+  Volatility: 3.36%
+  Volume Ratio (vs avg): 1.35x
+
+Chart: charts/AVGO:US_Dan_Newhouse_20260121_150843.png
+Details: https://www.capitoltrades.com/trades/20003794809
+
+
+TRADE #50
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: BR:US
+Trade Date: 30 Dec2025
+Filed After: 15 days
+
+PRICE ANALYSIS:
+  Trade Price: $225.24
+  Price Change (30 days before): -0.16%
+  Price Change (30 days after): -8.24%
+  Volatility: 1.13%
+  Volume Ratio (vs avg): 0.48x
+
+Chart: charts/BR:US_Dan_Newhouse_20260121_150844.png
+Details: https://www.capitoltrades.com/trades/20003794810
+
+
+TRADE #51
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: sell
+Ticker: BRO:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $77.51
+  Price Change (30 days before): -1.27%
+  Price Change (30 days after): +3.97%
+  Volatility: 1.32%
+  Volume Ratio (vs avg): 0.93x
+
+Chart: charts/BRO:US_Dan_Newhouse_20260121_150845.png
+Details: https://www.capitoltrades.com/trades/20003794811
+
+
+TRADE #52
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: SCHW:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $95.81
+  Price Change (30 days before): +0.53%
+  Price Change (30 days after): +5.77%
+  Volatility: 1.25%
+  Volume Ratio (vs avg): 0.99x
+
+Chart: charts/SCHW:US_Dan_Newhouse_20260121_150845.png
+Details: https://www.capitoltrades.com/trades/20003794812
+
+
+TRADE #53
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: sell
+Ticker: DG:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $125.36
+  Price Change (30 days before): +25.39%
+  Price Change (30 days after): +14.87%
+  Volatility: 3.08%
+  Volume Ratio (vs avg): 0.69x
+
+Chart: charts/DG:US_Dan_Newhouse_20260121_150846.png
+Details: https://www.capitoltrades.com/trades/20003794813
+
+
+TRADE #54
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: LULU:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $187.62
+  Price Change (30 days before): +10.14%
+  Price Change (30 days after): +13.08%
+  Volatility: 2.30%
+  Volume Ratio (vs avg): 1.00x
+
+Chart: charts/LULU:US_Dan_Newhouse_20260121_150847.png
+Details: https://www.capitoltrades.com/trades/20003794814
+
+
+TRADE #55
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: sell
+Ticker: MGA:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $51.1
+  Price Change (30 days before): +3.88%
+  Price Change (30 days after): +9.43%
+  Volatility: 1.66%
+  Volume Ratio (vs avg): 0.97x
+
+Chart: charts/MGA:US_Dan_Newhouse_20260121_150847.png
+Details: https://www.capitoltrades.com/trades/20003794815
+
+
+TRADE #56
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: NXPI:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $230.78
+  Price Change (30 days before): +13.01%
+  Price Change (30 days after): +3.08%
+  Volatility: 2.68%
+  Volume Ratio (vs avg): 0.72x
+
+Chart: charts/NXPI:US_Dan_Newhouse_20260121_150848.png
+Details: https://www.capitoltrades.com/trades/20003794816
+
+
+TRADE #57
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: PANW:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $192.96
+  Price Change (30 days before): -10.89%
+  Price Change (30 days after): -1.12%
+  Volatility: 2.02%
+  Volume Ratio (vs avg): 0.74x
+
+Chart: charts/PANW:US_Dan_Newhouse_20260121_150849.png
+Details: https://www.capitoltrades.com/trades/20003794817
+
+
+TRADE #58
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: RCL:US
+Trade Date: 30 Dec2025
+Filed After: 15 days
+
+PRICE ANALYSIS:
+  Trade Price: $281.7
+  Price Change (30 days before): +6.02%
+  Price Change (30 days after): -1.98%
+  Volatility: 2.67%
+  Volume Ratio (vs avg): 0.40x
+
+Chart: charts/RCL:US_Dan_Newhouse_20260121_150849.png
+Details: https://www.capitoltrades.com/trades/20003794818
+
+
+TRADE #59
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: sell
+Ticker: SBUX:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $83.85
+  Price Change (30 days before): -0.17%
+  Price Change (30 days after): +5.16%
+  Volatility: 1.91%
+  Volume Ratio (vs avg): 1.13x
+
+Chart: charts/SBUX:US_Dan_Newhouse_20260121_150850.png
+Details: https://www.capitoltrades.com/trades/20003794819
+
+
+TRADE #60
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: SNPS:US
+Trade Date: 30 Dec2025
+Filed After: 15 days
+
+PRICE ANALYSIS:
+  Trade Price: $474.49
+  Price Change (30 days before): +8.26%
+  Price Change (30 days after): +10.28%
+  Volatility: 2.01%
+  Volume Ratio (vs avg): 0.35x
+
+Chart: charts/SNPS:US_Dan_Newhouse_20260121_150851.png
+Details: https://www.capitoltrades.com/trades/20003794820
+
+
+TRADE #61
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: TXT:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $85.08
+  Price Change (30 days before): +3.70%
+  Price Change (30 days after): +7.79%
+  Volatility: 1.23%
+  Volume Ratio (vs avg): 1.24x
+
+Chart: charts/TXT:US_Dan_Newhouse_20260121_150852.png
+Details: https://www.capitoltrades.com/trades/20003794822
+
+
+TRADE #62
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: buy
+Ticker: TMUS:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $195.32
+  Price Change (30 days before): -4.65%
+  Price Change (30 days after): +1.33%
+  Volatility: 1.16%
+  Volume Ratio (vs avg): 1.70x
+
+Chart: charts/TMUS:US_Dan_Newhouse_20260121_150852.png
+Details: https://www.capitoltrades.com/trades/20003794823
+
+
+TRADE #63
+--------------------------------------------------------------------------------
+Politician: Dan Newhouse (Republican)
+Transaction: sell
+Ticker: TFC:US
+Trade Date: 10 Dec2025
+Filed After: 35 days
+
+PRICE ANALYSIS:
+  Trade Price: $49.56
+  Price Change (30 days before): +11.12%
+  Price Change (30 days after): +2.80%
+  Volatility: 1.03%
+  Volume Ratio (vs avg): 1.39x
+
+Chart: charts/TFC:US_Dan_Newhouse_20260121_150853.png
+Details: https://www.capitoltrades.com/trades/20003794824
