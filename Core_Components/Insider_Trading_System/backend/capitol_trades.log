@@ -1,0 +1,318 @@
+2026-01-21 16:40:01,809 - INFO - ================================================================================
+2026-01-21 16:40:01,809 - INFO - Starting Capitol Trades scraper
+2026-01-21 16:40:01,809 - INFO - ================================================================================
+2026-01-21 16:40:01,809 - INFO - Configuration:
+2026-01-21 16:40:01,809 - INFO -   - RECENT_DAYS: 45
+2026-01-21 16:40:01,810 - INFO -   - MIN_TRADE_SIZE: $5,000
+2026-01-21 16:40:01,810 - INFO -   - USE_MAX_RANGE: True
+2026-01-21 16:40:01,810 - INFO -   - PAGES_TO_SCRAPE: 7
+2026-01-21 16:40:01,810 - INFO - ================================================================================
+2026-01-21 16:40:03,073 - INFO - WebDriver initialized successfully
+2026-01-21 16:40:03,073 - INFO - Loaded 0 previously checked trades
+2026-01-21 16:40:03,073 - INFO - 
+################################################################################
+2026-01-21 16:40:03,073 - INFO - Scraping page 1 (1/7)
+2026-01-21 16:40:03,073 - INFO - ################################################################################
+2026-01-21 16:40:03,073 - INFO - Fetching page 1: https://www.capitoltrades.com/trades
+2026-01-21 16:40:07,794 - INFO - Found 12 trades on page 1
+2026-01-21 16:40:07,794 - INFO - ✓ Trade 20003794855 matches: Kelly Morrison - Ashtead Group PLC
+2026-01-21 16:40:07,794 - INFO - ✓ Trade 20003794856 matches: Kelly Morrison - Ashtead Group PLC
+2026-01-21 16:40:07,795 - INFO - ✓ Trade 20003794857 matches: Kelly Morrison - Ashtead Group PLC
+2026-01-21 16:40:07,795 - INFO - ✓ Trade 20003794858 matches: Kelly Morrison - Ashtead Group PLC
+2026-01-21 16:40:07,795 - INFO - ✓ Trade 20003794859 matches: August Pfluger - Formula One Group - The Liberty Media Group
+2026-01-21 16:40:07,795 - INFO - ✓ Trade 20003794860 matches: August Pfluger - LIBERTY MEDIA LIBERTY LIVE
+2026-01-21 16:40:07,796 - INFO - ✓ Trade 10000064455 matches: Gary Peters - W. P. Carey Inc
+2026-01-21 16:40:07,796 - INFO - ✓ Trade 10000064456 matches: Gary Peters - Stanley Black & Decker Inc
+2026-01-21 16:40:07,796 - INFO - ✓ Trade 20003794835 matches: Thomas Kean Jr - LIBERTY MEDIA LIBERTY LIVE
+2026-01-21 16:40:07,796 - INFO - ✓ Trade 20003794836 matches: Thomas Kean Jr - LIBERTY MEDIA LIBERTY LIVE
+2026-01-21 16:40:07,796 - INFO - Page 1 complete: Found 10 matching trades
+2026-01-21 16:40:09,798 - INFO - 
+################################################################################
+2026-01-21 16:40:09,798 - INFO - Scraping page 2 (2/7)
+2026-01-21 16:40:09,798 - INFO - ################################################################################
+2026-01-21 16:40:09,799 - INFO - Fetching page 2: https://www.capitoltrades.com/trades?page=2
+2026-01-21 16:40:13,104 - INFO - Found 12 trades on page 2
+2026-01-21 16:40:13,106 - INFO - Page 2 complete: Found 0 matching trades
+2026-01-21 16:40:15,108 - INFO - 
+################################################################################
+2026-01-21 16:40:15,108 - INFO - Scraping page 3 (3/7)
+2026-01-21 16:40:15,108 - INFO - ################################################################################
+2026-01-21 16:40:15,108 - INFO - Fetching page 3: https://www.capitoltrades.com/trades?page=3
+2026-01-21 16:40:18,413 - INFO - Found 12 trades on page 3
+2026-01-21 16:40:18,414 - INFO - ✓ Trade 20003794830 matches: Cleo Fields - Alphabet Inc
+2026-01-21 16:40:18,414 - INFO - ✓ Trade 20003794831 matches: Cleo Fields - FIGMA INC
+2026-01-21 16:40:18,415 - INFO - ✓ Trade 20003794832 matches: Cleo Fields - FIGMA INC
+2026-01-21 16:40:18,415 - INFO - ✓ Trade 20003794833 matches: Cleo Fields - IREN LIMITED
+2026-01-21 16:40:18,415 - INFO - ✓ Trade 20003794834 matches: Cleo Fields - OPENDOOR TECHNOLOGIES INC
+2026-01-21 16:40:18,415 - INFO - ✓ Trade 10000064424 matches: Markwayne Mullin - Caterpillar Inc
+2026-01-21 16:40:18,415 - INFO - ✓ Trade 10000064425 matches: Markwayne Mullin - Eli Lilly and Co
+2026-01-21 16:40:18,415 - INFO - ✓ Trade 10000064426 matches: Markwayne Mullin - JPMorgan Chase & Co
+2026-01-21 16:40:18,415 - INFO - Page 3 complete: Found 8 matching trades
+2026-01-21 16:40:20,418 - INFO - 
+################################################################################
+2026-01-21 16:40:20,418 - INFO - Scraping page 4 (4/7)
+2026-01-21 16:40:20,419 - INFO - ################################################################################
+2026-01-21 16:40:20,419 - INFO - Fetching page 4: https://www.capitoltrades.com/trades?page=4
+2026-01-21 16:40:23,741 - INFO - Found 12 trades on page 4
+2026-01-21 16:40:23,741 - INFO - ✓ Trade 10000064427 matches: Markwayne Mullin - Capital One Financial Corp
+2026-01-21 16:40:23,741 - INFO - ✓ Trade 10000064428 matches: Markwayne Mullin - RTX Corp
+2026-01-21 16:40:23,742 - INFO - ✓ Trade 10000064429 matches: Markwayne Mullin - Alphabet Inc
+2026-01-21 16:40:23,742 - INFO - ✓ Trade 10000064430 matches: Markwayne Mullin - Intercontinental Exchange Inc
+2026-01-21 16:40:23,742 - INFO - ✓ Trade 10000064431 matches: Markwayne Mullin - DEERE & COMPANY
+2026-01-21 16:40:23,742 - INFO - ✓ Trade 10000064432 matches: Markwayne Mullin - Boston Scientific Corp
+2026-01-21 16:40:23,742 - INFO - ✓ Trade 10000064433 matches: Markwayne Mullin - Microsoft Corp
+2026-01-21 16:40:23,742 - INFO - ✓ Trade 10000064434 matches: Markwayne Mullin - The Goldman Sachs Group Inc
+2026-01-21 16:40:23,743 - INFO - ✓ Trade 10000064435 matches: Markwayne Mullin - Lam Research Corp
+2026-01-21 16:40:23,743 - INFO - ✓ Trade 10000064436 matches: Markwayne Mullin - The Coca-Cola Co
+2026-01-21 16:40:23,743 - INFO - ✓ Trade 10000064437 matches: Markwayne Mullin - Amazon.com Inc
+2026-01-21 16:40:23,743 - INFO - ✓ Trade 10000064438 matches: Markwayne Mullin - NVIDIA Corporation
+2026-01-21 16:40:23,743 - INFO - Page 4 complete: Found 12 matching trades
+2026-01-21 16:40:25,748 - INFO - 
+################################################################################
+2026-01-21 16:40:25,748 - INFO - Scraping page 5 (5/7)
+2026-01-21 16:40:25,748 - INFO - ################################################################################
+2026-01-21 16:40:25,748 - INFO - Fetching page 5: https://www.capitoltrades.com/trades?page=5
+2026-01-21 16:40:29,193 - INFO - Found 12 trades on page 5
+2026-01-21 16:40:29,193 - INFO - ✓ Trade 10000064439 matches: Markwayne Mullin - salesforce.com Inc
+2026-01-21 16:40:29,194 - INFO - ✓ Trade 10000064440 matches: Markwayne Mullin - Iqvia Holdings Inc
+2026-01-21 16:40:29,195 - INFO - ✓ Trade 10000064441 matches: Markwayne Mullin - Elevance Health Inc
+2026-01-21 16:40:29,195 - INFO - ✓ Trade 10000064442 matches: Markwayne Mullin - American Express Co
+2026-01-21 16:40:29,195 - INFO - ✓ Trade 10000064443 matches: Markwayne Mullin - Chevron Corp
+2026-01-21 16:40:29,195 - INFO - ✓ Trade 10000064444 matches: Markwayne Mullin - Apple Inc
+2026-01-21 16:40:29,195 - INFO - ✓ Trade 10000064445 matches: Markwayne Mullin - Meta Platforms Inc
+2026-01-21 16:40:29,196 - INFO - ✓ Trade 10000064446 matches: Markwayne Mullin - Mastercard Inc
+2026-01-21 16:40:29,196 - INFO - ✓ Trade 10000064447 matches: Markwayne Mullin - Hilton Worldwide Holdings Inc
+2026-01-21 16:40:29,196 - INFO - ✓ Trade 10000064448 matches: Markwayne Mullin - Applied Materials Inc
+2026-01-21 16:40:29,196 - INFO - ✓ Trade 10000064449 matches: Markwayne Mullin - Costco Wholesale Corp
+2026-01-21 16:40:29,196 - INFO - ✓ Trade 10000064450 matches: Markwayne Mullin - Intuitive Surgical Inc
+2026-01-21 16:40:29,196 - INFO - Page 5 complete: Found 12 matching trades
+2026-01-21 16:40:31,198 - INFO - 
+################################################################################
+2026-01-21 16:40:31,198 - INFO - Scraping page 6 (6/7)
+2026-01-21 16:40:31,199 - INFO - ################################################################################
+2026-01-21 16:40:31,199 - INFO - Fetching page 6: https://www.capitoltrades.com/trades?page=6
+2026-01-21 16:40:34,953 - INFO - Found 12 trades on page 6
+2026-01-21 16:40:34,954 - INFO - ✓ Trade 10000064451 matches: Markwayne Mullin - The Home Depot Inc
+2026-01-21 16:40:34,954 - INFO - ✓ Trade 10000064452 matches: Markwayne Mullin - Intuit Inc
+2026-01-21 16:40:34,954 - INFO - ✓ Trade 10000064453 matches: Markwayne Mullin - ServiceNow Inc
+2026-01-21 16:40:34,954 - INFO - ✓ Trade 10000064454 matches: Markwayne Mullin - ConocoPhillips
+2026-01-21 16:40:34,955 - INFO - ✓ Trade 20003794807 matches: Dan Newhouse - Alphabet Inc
+2026-01-21 16:40:34,955 - INFO - ✓ Trade 20003794808 matches: Dan Newhouse - Blackstone Group Inc
+2026-01-21 16:40:34,955 - INFO - ✓ Trade 20003794809 matches: Dan Newhouse - Broadcom Inc
+2026-01-21 16:40:34,955 - INFO - ✓ Trade 20003794810 matches: Dan Newhouse - Broadridge Financial Solutions Inc
+2026-01-21 16:40:34,955 - INFO - ✓ Trade 20003794811 matches: Dan Newhouse - Brown & Brown Inc
+2026-01-21 16:40:34,956 - INFO - ✓ Trade 20003794812 matches: Dan Newhouse - Schwab (Charles) Corp
+2026-01-21 16:40:34,956 - INFO - Page 6 complete: Found 10 matching trades
+2026-01-21 16:40:36,958 - INFO - 
+################################################################################
+2026-01-21 16:40:36,959 - INFO - Scraping page 7 (7/7)
+2026-01-21 16:40:36,959 - INFO - ################################################################################
+2026-01-21 16:40:36,959 - INFO - Fetching page 7: https://www.capitoltrades.com/trades?page=7
+2026-01-21 16:40:40,441 - INFO - Found 12 trades on page 7
+2026-01-21 16:40:40,441 - INFO - ✓ Trade 20003794813 matches: Dan Newhouse - Dollar General Corporation
+2026-01-21 16:40:40,441 - INFO - ✓ Trade 20003794814 matches: Dan Newhouse - Lululemon Athletica Inc
+2026-01-21 16:40:40,441 - INFO - ✓ Trade 20003794815 matches: Dan Newhouse - Magna International Inc
+2026-01-21 16:40:40,442 - INFO - ✓ Trade 20003794816 matches: Dan Newhouse - NXP Semiconductors NV
+2026-01-21 16:40:40,442 - INFO - ✓ Trade 20003794817 matches: Dan Newhouse - Palo Alto Networks Inc
+2026-01-21 16:40:40,442 - INFO - ✓ Trade 20003794818 matches: Dan Newhouse - Royal Caribbean Group
+2026-01-21 16:40:40,442 - INFO - ✓ Trade 20003794819 matches: Dan Newhouse - Starbucks Corp
+2026-01-21 16:40:40,442 - INFO - ✓ Trade 20003794820 matches: Dan Newhouse - Synopsys Inc
+2026-01-21 16:40:40,442 - INFO - ✓ Trade 20003794822 matches: Dan Newhouse - Textron Inc
+2026-01-21 16:40:40,443 - INFO - ✓ Trade 20003794823 matches: Dan Newhouse - T-Mobile US Inc
+2026-01-21 16:40:40,443 - INFO - ✓ Trade 20003794824 matches: Dan Newhouse - Truist Financial Corp
+2026-01-21 16:40:40,443 - INFO - Page 7 complete: Found 11 matching trades
+2026-01-21 16:40:40,443 - INFO - 
+================================================================================
+2026-01-21 16:40:40,443 - INFO - SCRAPING COMPLETE
+2026-01-21 16:40:40,443 - INFO - Total pages scraped: 7
+2026-01-21 16:40:40,443 - INFO - Total matching trades found: 63
+2026-01-21 16:40:40,443 - INFO - ================================================================================
+2026-01-21 16:40:40,535 - INFO - WebDriver closed
+2026-01-21 16:40:40,535 - INFO - Fetching data for ASHGY from 2025-11-09 to 2026-01-08
+2026-01-21 16:41:10,577 - INFO - Fetching data for ASHGY:US from 2025-11-09 to 2026-01-08
+2026-01-21 16:41:30,710 - ERROR - Failed to get ticker 'ASHGY:US' reason: Failed to perform, curl: (28) Resolving timed out after 10000 milliseconds. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+2026-01-21 16:41:35,897 - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: ASHGY:US"}}}
+2026-01-21 16:41:35,993 - ERROR - $ASHGY:US: possibly delisted; no timezone found
+2026-01-21 16:41:35,993 - INFO - Fetching data for ASHGY from 2025-11-09 to 2026-01-08
+2026-01-21 16:41:36,138 - INFO - ✓ Found data using normalized ticker: ASHGY (original: ASHGY:US)
+2026-01-21 16:41:37,039 - INFO - Chart saved to charts/ASHGY:US_Kelly_Morrison_20260121_164136.png
+2026-01-21 16:41:37,046 - INFO - Loading cached data for ASHGY
+2026-01-21 16:41:37,703 - INFO - Chart saved to charts/ASHGY:US_Kelly_Morrison_20260121_164137.png
+2026-01-21 16:41:37,711 - INFO - Loading cached data for ASHGY
+2026-01-21 16:41:38,364 - INFO - Chart saved to charts/ASHGY:US_Kelly_Morrison_20260121_164137.png
+2026-01-21 16:41:38,369 - INFO - Loading cached data for ASHGY
+2026-01-21 16:41:39,011 - INFO - Chart saved to charts/ASHGY:US_Kelly_Morrison_20260121_164138.png
+2026-01-21 16:41:39,017 - INFO - Fetching data for FWONK from 2025-11-15 to 2026-01-14
+2026-01-21 16:41:39,071 - INFO - ✓ Found data using normalized ticker: FWONK (original: FWONK:US)
+2026-01-21 16:41:39,868 - INFO - Chart saved to charts/FWONK:US_August_Pfluger_20260121_164139.png
+2026-01-21 16:41:39,873 - INFO - Fetching data for LLYVK from 2025-11-15 to 2026-01-14
+2026-01-21 16:41:39,984 - INFO - ✓ Found data using normalized ticker: LLYVK (original: LLYVK:US)
+2026-01-21 16:41:40,653 - INFO - Chart saved to charts/LLYVK:US_August_Pfluger_20260121_164140.png
+2026-01-21 16:41:40,661 - INFO - Fetching data for WPC from 2025-12-12 to 2026-02-10
+2026-01-21 16:41:40,770 - INFO - ✓ Found data using normalized ticker: WPC (original: WPC:US)
+2026-01-21 16:41:41,408 - INFO - Chart saved to charts/WPC:US_Gary_Peters_20260121_164140.png
+2026-01-21 16:41:41,414 - INFO - Fetching data for SWK from 2025-12-12 to 2026-02-10
+2026-01-21 16:41:41,547 - INFO - ✓ Found data using normalized ticker: SWK (original: SWK:US)
+2026-01-21 16:41:42,165 - INFO - Chart saved to charts/SWK:US_Gary_Peters_20260121_164141.png
+2026-01-21 16:41:42,170 - INFO - Loading cached data for LLYVK
+2026-01-21 16:41:42,874 - INFO - Chart saved to charts/LLYVK:US_Thomas_Kean_Jr_20260121_164142.png
+2026-01-21 16:41:42,881 - INFO - Loading cached data for LLYVK
+2026-01-21 16:41:43,542 - INFO - Chart saved to charts/LLYVK:US_Thomas_Kean_Jr_20260121_164142.png
+2026-01-21 16:41:43,548 - INFO - Fetching data for GOOGL from 2025-11-25 to 2026-01-24
+2026-01-21 16:41:43,614 - INFO - ✓ Found data using normalized ticker: GOOGL (original: GOOGL:US)
+2026-01-21 16:41:44,270 - INFO - Chart saved to charts/GOOGL:US_Cleo_Fields_20260121_164143.png
+2026-01-21 16:41:44,275 - INFO - Fetching data for FIG from 2025-11-25 to 2026-01-24
+2026-01-21 16:41:44,350 - INFO - ✓ Found data using normalized ticker: FIG (original: FIG:US)
+2026-01-21 16:41:44,986 - INFO - Chart saved to charts/FIG:US_Cleo_Fields_20260121_164144.png
+2026-01-21 16:41:44,991 - INFO - Loading cached data for FIG
+2026-01-21 16:41:45,752 - INFO - Chart saved to charts/FIG:US_Cleo_Fields_20260121_164145.png
+2026-01-21 16:41:45,757 - INFO - Fetching data for IREN from 2025-11-25 to 2026-01-24
+2026-01-21 16:41:45,815 - INFO - ✓ Found data using normalized ticker: IREN (original: IREN:US)
+2026-01-21 16:41:46,469 - INFO - Chart saved to charts/IREN:US_Cleo_Fields_20260121_164145.png
+2026-01-21 16:41:46,475 - INFO - Fetching data for OPEN from 2025-11-25 to 2026-01-24
+2026-01-21 16:41:46,541 - INFO - ✓ Found data using normalized ticker: OPEN (original: OPEN:US)
+2026-01-21 16:41:47,201 - INFO - Chart saved to charts/OPEN:US_Cleo_Fields_20260121_164146.png
+2026-01-21 16:41:47,207 - INFO - Fetching data for CAT from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:47,341 - INFO - ✓ Found data using normalized ticker: CAT (original: CAT:US)
+2026-01-21 16:41:47,970 - INFO - Chart saved to charts/CAT:US_Markwayne_Mullin_20260121_164147.png
+2026-01-21 16:41:47,977 - INFO - Fetching data for LLY from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:48,103 - INFO - ✓ Found data using normalized ticker: LLY (original: LLY:US)
+2026-01-21 16:41:48,751 - INFO - Chart saved to charts/LLY:US_Markwayne_Mullin_20260121_164148.png
+2026-01-21 16:41:48,757 - INFO - Fetching data for JPM from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:48,884 - INFO - ✓ Found data using normalized ticker: JPM (original: JPM:US)
+2026-01-21 16:41:49,531 - INFO - Chart saved to charts/JPM:US_Markwayne_Mullin_20260121_164148.png
+2026-01-21 16:41:49,538 - INFO - Fetching data for COF from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:49,625 - INFO - ✓ Found data using normalized ticker: COF (original: COF:US)
+2026-01-21 16:41:50,260 - INFO - Chart saved to charts/COF:US_Markwayne_Mullin_20260121_164149.png
+2026-01-21 16:41:50,267 - INFO - Fetching data for RTX from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:50,427 - INFO - ✓ Found data using normalized ticker: RTX (original: RTX:US)
+2026-01-21 16:41:51,154 - INFO - Chart saved to charts/RTX:US_Markwayne_Mullin_20260121_164150.png
+2026-01-21 16:41:51,159 - INFO - Fetching data for GOOGL from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:51,220 - INFO - ✓ Found data using normalized ticker: GOOGL (original: GOOGL:US)
+2026-01-21 16:41:51,854 - INFO - Chart saved to charts/GOOGL:US_Markwayne_Mullin_20260121_164151.png
+2026-01-21 16:41:51,862 - INFO - Fetching data for ICE from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:51,937 - INFO - ✓ Found data using normalized ticker: ICE (original: ICE:US)
+2026-01-21 16:41:52,555 - INFO - Chart saved to charts/ICE:US_Markwayne_Mullin_20260121_164152.png
+2026-01-21 16:41:52,561 - INFO - Fetching data for DE from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:52,721 - INFO - ✓ Found data using normalized ticker: DE (original: DE:US)
+2026-01-21 16:41:53,353 - INFO - Chart saved to charts/DE:US_Markwayne_Mullin_20260121_164152.png
+2026-01-21 16:41:53,360 - INFO - Fetching data for BSX from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:53,419 - INFO - ✓ Found data using normalized ticker: BSX (original: BSX:US)
+2026-01-21 16:41:54,060 - INFO - Chart saved to charts/BSX:US_Markwayne_Mullin_20260121_164153.png
+2026-01-21 16:41:54,067 - INFO - Fetching data for MSFT from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:54,135 - INFO - ✓ Found data using normalized ticker: MSFT (original: MSFT:US)
+2026-01-21 16:41:54,775 - INFO - Chart saved to charts/MSFT:US_Markwayne_Mullin_20260121_164154.png
+2026-01-21 16:41:54,781 - INFO - Fetching data for GS from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:54,871 - INFO - ✓ Found data using normalized ticker: GS (original: GS:US)
+2026-01-21 16:41:55,514 - INFO - Chart saved to charts/GS:US_Markwayne_Mullin_20260121_164154.png
+2026-01-21 16:41:55,520 - INFO - Fetching data for LRCX from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:55,592 - INFO - ✓ Found data using normalized ticker: LRCX (original: LRCX:US)
+2026-01-21 16:41:56,246 - INFO - Chart saved to charts/LRCX:US_Markwayne_Mullin_20260121_164155.png
+2026-01-21 16:41:56,252 - INFO - Fetching data for KO from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:56,456 - INFO - ✓ Found data using normalized ticker: KO (original: KO:US)
+2026-01-21 16:41:57,210 - INFO - Chart saved to charts/KO:US_Markwayne_Mullin_20260121_164156.png
+2026-01-21 16:41:57,217 - INFO - Fetching data for AMZN from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:57,271 - INFO - ✓ Found data using normalized ticker: AMZN (original: AMZN:US)
+2026-01-21 16:41:57,920 - INFO - Chart saved to charts/AMZN:US_Markwayne_Mullin_20260121_164157.png
+2026-01-21 16:41:57,926 - INFO - Fetching data for NVDA from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:58,000 - INFO - ✓ Found data using normalized ticker: NVDA (original: NVDA:US)
+2026-01-21 16:41:58,658 - INFO - Chart saved to charts/NVDA:US_Markwayne_Mullin_20260121_164158.png
+2026-01-21 16:41:58,663 - INFO - Fetching data for CRM from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:58,722 - INFO - ✓ Found data using normalized ticker: CRM (original: CRM:US)
+2026-01-21 16:41:59,360 - INFO - Chart saved to charts/CRM:US_Markwayne_Mullin_20260121_164158.png
+2026-01-21 16:41:59,365 - INFO - Fetching data for IQV from 2025-11-28 to 2026-01-27
+2026-01-21 16:41:59,424 - INFO - ✓ Found data using normalized ticker: IQV (original: IQV:US)
+2026-01-21 16:42:00,060 - INFO - Chart saved to charts/IQV:US_Markwayne_Mullin_20260121_164159.png
+2026-01-21 16:42:00,067 - INFO - Fetching data for ELV from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:00,160 - INFO - ✓ Found data using normalized ticker: ELV (original: ELV:US)
+2026-01-21 16:42:00,792 - INFO - Chart saved to charts/ELV:US_Markwayne_Mullin_20260121_164200.png
+2026-01-21 16:42:00,798 - INFO - Fetching data for AXP from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:00,941 - INFO - ✓ Found data using normalized ticker: AXP (original: AXP:US)
+2026-01-21 16:42:01,634 - INFO - Chart saved to charts/AXP:US_Markwayne_Mullin_20260121_164201.png
+2026-01-21 16:42:01,640 - INFO - Fetching data for CVX from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:01,786 - INFO - ✓ Found data using normalized ticker: CVX (original: CVX:US)
+2026-01-21 16:42:02,429 - INFO - Chart saved to charts/CVX:US_Markwayne_Mullin_20260121_164201.png
+2026-01-21 16:42:02,435 - INFO - Fetching data for AAPL from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:02,530 - INFO - ✓ Found data using normalized ticker: AAPL (original: AAPL:US)
+2026-01-21 16:42:03,333 - INFO - Chart saved to charts/AAPL:US_Markwayne_Mullin_20260121_164202.png
+2026-01-21 16:42:03,339 - INFO - Fetching data for META from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:03,398 - INFO - ✓ Found data using normalized ticker: META (original: META:US)
+2026-01-21 16:42:04,094 - INFO - Chart saved to charts/META:US_Markwayne_Mullin_20260121_164203.png
+2026-01-21 16:42:04,100 - INFO - Fetching data for MA from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:04,173 - INFO - ✓ Found data using normalized ticker: MA (original: MA:US)
+2026-01-21 16:42:04,822 - INFO - Chart saved to charts/MA:US_Markwayne_Mullin_20260121_164204.png
+2026-01-21 16:42:04,828 - INFO - Fetching data for HLT from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:04,901 - INFO - ✓ Found data using normalized ticker: HLT (original: HLT:US)
+2026-01-21 16:42:05,561 - INFO - Chart saved to charts/HLT:US_Markwayne_Mullin_20260121_164205.png
+2026-01-21 16:42:05,567 - INFO - Fetching data for AMAT from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:05,654 - INFO - ✓ Found data using normalized ticker: AMAT (original: AMAT:US)
+2026-01-21 16:42:06,353 - INFO - Chart saved to charts/AMAT:US_Markwayne_Mullin_20260121_164205.png
+2026-01-21 16:42:06,361 - INFO - Fetching data for COST from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:06,426 - INFO - ✓ Found data using normalized ticker: COST (original: COST:US)
+2026-01-21 16:42:07,080 - INFO - Chart saved to charts/COST:US_Markwayne_Mullin_20260121_164206.png
+2026-01-21 16:42:07,085 - INFO - Fetching data for ISRG from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:07,159 - INFO - ✓ Found data using normalized ticker: ISRG (original: ISRG:US)
+2026-01-21 16:42:07,822 - INFO - Chart saved to charts/ISRG:US_Markwayne_Mullin_20260121_164207.png
+2026-01-21 16:42:07,829 - INFO - Fetching data for HD from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:07,914 - INFO - ✓ Found data using normalized ticker: HD (original: HD:US)
+2026-01-21 16:42:08,588 - INFO - Chart saved to charts/HD:US_Markwayne_Mullin_20260121_164208.png
+2026-01-21 16:42:08,594 - INFO - Fetching data for INTU from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:08,661 - INFO - ✓ Found data using normalized ticker: INTU (original: INTU:US)
+2026-01-21 16:42:09,439 - INFO - Chart saved to charts/INTU:US_Markwayne_Mullin_20260121_164208.png
+2026-01-21 16:42:09,445 - INFO - Fetching data for NOW from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:09,502 - INFO - ✓ Found data using normalized ticker: NOW (original: NOW:US)
+2026-01-21 16:42:10,136 - INFO - Chart saved to charts/NOW:US_Markwayne_Mullin_20260121_164209.png
+2026-01-21 16:42:10,142 - INFO - Fetching data for COP from 2025-11-28 to 2026-01-27
+2026-01-21 16:42:10,250 - INFO - ✓ Found data using normalized ticker: COP (original: COP:US)
+2026-01-21 16:42:10,893 - INFO - Chart saved to charts/COP:US_Markwayne_Mullin_20260121_164210.png
+2026-01-21 16:42:10,901 - INFO - Fetching data for GOOGL from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:10,957 - INFO - ✓ Found data using normalized ticker: GOOGL (original: GOOGL:US)
+2026-01-21 16:42:11,586 - INFO - Chart saved to charts/GOOGL:US_Dan_Newhouse_20260121_164211.png
+2026-01-21 16:42:11,592 - INFO - Fetching data for BX from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:11,653 - INFO - ✓ Found data using normalized ticker: BX (original: BX:US)
+2026-01-21 16:42:12,292 - INFO - Chart saved to charts/BX:US_Dan_Newhouse_20260121_164211.png
+2026-01-21 16:42:12,299 - INFO - Fetching data for AVGO from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:12,358 - INFO - ✓ Found data using normalized ticker: AVGO (original: AVGO:US)
+2026-01-21 16:42:12,991 - INFO - Chart saved to charts/AVGO:US_Dan_Newhouse_20260121_164212.png
+2026-01-21 16:42:12,997 - INFO - Fetching data for BR from 2025-11-30 to 2026-01-29
+2026-01-21 16:42:13,076 - INFO - ✓ Found data using normalized ticker: BR (original: BR:US)
+2026-01-21 16:42:13,711 - INFO - Chart saved to charts/BR:US_Dan_Newhouse_20260121_164213.png
+2026-01-21 16:42:13,719 - INFO - Fetching data for BRO from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:13,841 - INFO - ✓ Found data using normalized ticker: BRO (original: BRO:US)
+2026-01-21 16:42:14,482 - INFO - Chart saved to charts/BRO:US_Dan_Newhouse_20260121_164213.png
+2026-01-21 16:42:14,488 - INFO - Fetching data for SCHW from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:14,583 - INFO - ✓ Found data using normalized ticker: SCHW (original: SCHW:US)
+2026-01-21 16:42:15,343 - INFO - Chart saved to charts/SCHW:US_Dan_Newhouse_20260121_164214.png
+2026-01-21 16:42:15,350 - INFO - Fetching data for DG from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:15,416 - INFO - ✓ Found data using normalized ticker: DG (original: DG:US)
+2026-01-21 16:42:16,098 - INFO - Chart saved to charts/DG:US_Dan_Newhouse_20260121_164215.png
+2026-01-21 16:42:16,104 - INFO - Fetching data for LULU from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:16,169 - INFO - ✓ Found data using normalized ticker: LULU (original: LULU:US)
+2026-01-21 16:42:16,794 - INFO - Chart saved to charts/LULU:US_Dan_Newhouse_20260121_164216.png
+2026-01-21 16:42:16,799 - INFO - Fetching data for MGA from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:16,902 - INFO - ✓ Found data using normalized ticker: MGA (original: MGA:US)
+2026-01-21 16:42:17,549 - INFO - Chart saved to charts/MGA:US_Dan_Newhouse_20260121_164217.png
+2026-01-21 16:42:17,555 - INFO - Fetching data for NXPI from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:17,612 - INFO - ✓ Found data using normalized ticker: NXPI (original: NXPI:US)
+2026-01-21 16:42:18,255 - INFO - Chart saved to charts/NXPI:US_Dan_Newhouse_20260121_164217.png
+2026-01-21 16:42:18,261 - INFO - Fetching data for PANW from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:18,319 - INFO - ✓ Found data using normalized ticker: PANW (original: PANW:US)
+2026-01-21 16:42:19,020 - INFO - Chart saved to charts/PANW:US_Dan_Newhouse_20260121_164218.png
+2026-01-21 16:42:19,026 - INFO - Fetching data for RCL from 2025-11-30 to 2026-01-29
+2026-01-21 16:42:19,114 - INFO - ✓ Found data using normalized ticker: RCL (original: RCL:US)
+2026-01-21 16:42:19,787 - INFO - Chart saved to charts/RCL:US_Dan_Newhouse_20260121_164219.png
+2026-01-21 16:42:19,793 - INFO - Fetching data for SBUX from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:19,867 - INFO - ✓ Found data using normalized ticker: SBUX (original: SBUX:US)
+2026-01-21 16:42:20,550 - INFO - Chart saved to charts/SBUX:US_Dan_Newhouse_20260121_164219.png
+2026-01-21 16:42:20,555 - INFO - Fetching data for SNPS from 2025-11-30 to 2026-01-29
+2026-01-21 16:42:20,688 - INFO - ✓ Found data using normalized ticker: SNPS (original: SNPS:US)
+2026-01-21 16:42:21,451 - INFO - Chart saved to charts/SNPS:US_Dan_Newhouse_20260121_164220.png
+2026-01-21 16:42:21,458 - INFO - Fetching data for TXT from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:21,603 - INFO - ✓ Found data using normalized ticker: TXT (original: TXT:US)
+2026-01-21 16:42:22,276 - INFO - Chart saved to charts/TXT:US_Dan_Newhouse_20260121_164221.png
+2026-01-21 16:42:22,282 - INFO - Fetching data for TMUS from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:22,360 - INFO - ✓ Found data using normalized ticker: TMUS (original: TMUS:US)
+2026-01-21 16:42:23,001 - INFO - Chart saved to charts/TMUS:US_Dan_Newhouse_20260121_164222.png
+2026-01-21 16:42:23,006 - INFO - Fetching data for TFC from 2025-11-10 to 2026-01-09
+2026-01-21 16:42:23,135 - INFO - ✓ Found data using normalized ticker: TFC (original: TFC:US)
+2026-01-21 16:42:23,830 - INFO - Chart saved to charts/TFC:US_Dan_Newhouse_20260121_164223.png
