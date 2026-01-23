@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import datetime
 import logging
 import time
+import json
 from typing import List, Dict, Optional
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -358,37 +359,12 @@ class CapitolTradesScraperSelenium:
         
         return filtered_trades
     
-    def format_output(self, trades: List[Dict]) -> str:
-        """Format filtered trades into a readable report."""
-        if not trades:
-            return "No trades matched the criteria"
-        
-        output = f"\n{'='*80}\n"
-        output += f"Found {len(trades)} trade(s) matching criteria\n"
-        output += f"{'='*80}\n\n"
-        
-        for i, trade in enumerate(trades, 1):
-            output += f"Trade #{i}\n"
-            output += f"{'─'*60}\n"
-            output += f"Politician: {trade['politician']} ({trade['party']})\n"
-            output += f"Transaction: {trade['transaction_type']}\n"
-            output += f"Company: {trade['trade_issue']} ({trade['trade_ticker']})\n"
-            output += f"Size: ${trade['trade_size'][0]:,} - ${trade['trade_size'][1]:,}\n"
-            output += f"Filed After: {trade['filed_after']} days\n"
-            output += f"Traded: {trade['traded_date']}\n"
-            output += f"Published: {trade['published']}\n"
-            output += f"Price: {trade['price']}\n"
-            output += f"Link: {trade['trade_link']}\n"
-            output += "\n"
-        
-        return output
-    
-    def run(self) -> List[Dict]:
+    def run(self) -> Dict:
         """
         Main execution method with pagination support.
         
         Returns:
-            List of trades matching the filtering criteria.
+            Dict containing trades and metadata in JSON-friendly format.
         """
         logging.info("="*80)
         logging.info("Starting Capitol Trades scraper")
@@ -404,7 +380,16 @@ class CapitolTradesScraperSelenium:
         
         try:
             if not self.setup_driver():
-                return []
+                return {
+                    'success': False,
+                    'error': 'Failed to setup WebDriver',
+                    'trades': [],
+                    'metadata': {
+                        'timestamp': datetime.datetime.now().isoformat(),
+                        'pages_scraped': 0,
+                        'total_trades': 0
+                    }
+                }
             
             checked_ids = self.checker.load_checked_ids()
             logging.info(f"Loaded {len(checked_ids)} previously checked trades")
@@ -443,7 +428,33 @@ class CapitolTradesScraperSelenium:
             logging.info(f"Total matching trades found: {len(all_filtered_trades)}")
             logging.info(f"{'='*80}")
             
-            return all_filtered_trades
+            return {
+                'success': True,
+                'trades': all_filtered_trades,
+                'metadata': {
+                    'timestamp': datetime.datetime.now().isoformat(),
+                    'pages_scraped': pages_scraped,
+                    'total_trades': len(all_filtered_trades),
+                    'config': {
+                        'recent_days': self.config.RECENT_DAYS,
+                        'min_trade_size': self.config.MIN_TRADE_SIZE,
+                        'use_max_range': self.config.USE_MAX_RANGE
+                    }
+                }
+            }
+        
+        except Exception as e:
+            logging.error(f"Error during scraping: {e}", exc_info=True)
+            return {
+                'success': False,
+                'error': str(e),
+                'trades': all_filtered_trades,
+                'metadata': {
+                    'timestamp': datetime.datetime.now().isoformat(),
+                    'pages_scraped': pages_scraped if 'pages_scraped' in locals() else 0,
+                    'total_trades': len(all_filtered_trades)
+                }
+            }
         
         finally:
             if self.driver:
@@ -452,27 +463,30 @@ class CapitolTradesScraperSelenium:
 
 
 def main():
+    """Main function that returns JSON output."""
     try:
         config = Config()
         scraper = CapitolTradesScraperSelenium(config)
         
-        filtered_trades = scraper.run()
+        result = scraper.run()
         
-        output = scraper.format_output(filtered_trades)
-        print(output)
+        # Print JSON to stdout for n8n to capture
+        print(json.dumps(result, indent=2))
         
-        if filtered_trades:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"filtered_trades_{timestamp}.txt"
-            with open(filename, 'w') as f:
-                f.write(output)
-            logging.info(f"Results saved to {filename}")
-        
-        return filtered_trades
+        return result
     
     except Exception as e:
         logging.error(f"Fatal error in main: {e}", exc_info=True)
-        return []
+        error_result = {
+            'success': False,
+            'error': str(e),
+            'trades': [],
+            'metadata': {
+                'timestamp': datetime.datetime.now().isoformat()
+            }
+        }
+        print(json.dumps(error_result, indent=2))
+        return error_result
 
 
 if __name__ == "__main__":

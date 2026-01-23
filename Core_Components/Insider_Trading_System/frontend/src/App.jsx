@@ -8,23 +8,37 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle,
-  Clock,
   BarChart3,
   PieChart,
   ChevronDown,
-  ExternalLink
+  ExternalLink,
+  X,
+  Settings as SettingsIcon
 } from 'lucide-react';
-import axios from 'axios';
-import './App.css';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ReferenceLine,
+  ReferenceArea
+} from 'recharts';
 
 const API_BASE = 'http://localhost:8000';
+const N8N_WEBHOOK = 'http://localhost:5678/webhook/capitol-trades-scan'; // Configure this
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [trades, setTrades] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [currentJob, setCurrentJob] = useState(null);
+  const [webhookUrl, setWebhookUrl] = useState(N8N_WEBHOOK);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     party: '',
@@ -34,21 +48,20 @@ function App() {
   useEffect(() => {
     loadStats();
     loadTrades();
-  }, []);
-
-  useEffect(() => {
-    if (currentJob && currentJob.status !== 'completed' && currentJob.status !== 'failed') {
-      const interval = setInterval(() => {
-        checkJobStatus(currentJob.job_id);
-      }, 2000);
-      return () => clearInterval(interval);
+    
+    // Load webhook URL from localStorage if available
+    const savedWebhook = localStorage.getItem('n8n_webhook_url');
+    if (savedWebhook) {
+      setWebhookUrl(savedWebhook);
     }
-  }, [currentJob]);
+  }, []);
 
   const loadStats = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/stats`);
-      setStats(res.data);
+      const res = await fetch(`${API_BASE}/api/stats`);
+      const data = await res.json();
+      console.log('Stats data:', data); // Debug log
+      setStats(data);
     } catch (err) {
       console.error('Error loading stats:', err);
     }
@@ -56,37 +69,51 @@ function App() {
 
   const loadTrades = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/trades`);
-      setTrades(res.data.trades);
+      const res = await fetch(`${API_BASE}/api/trades`);
+      const data = await res.json();
+      console.log('Trades data:', data); // Debug log
+      setTrades(data.trades || []);
     } catch (err) {
       console.error('Error loading trades:', err);
     }
   };
 
   const startScrape = async () => {
+    if (!webhookUrl) {
+      alert('Please configure n8n webhook URL first');
+      return;
+    }
+    
     try {
       setLoading(true);
-      const res = await axios.post(`${API_BASE}/api/scrape`);
-      setCurrentJob({ job_id: res.data.job_id, status: 'pending' });
-    } catch (err) {
-      console.error('Error starting scrape:', err);
-      alert('Failed to start scraping');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const checkJobStatus = async (jobId) => {
-    try {
-      const res = await axios.get(`${API_BASE}/api/jobs/${jobId}`);
-      setCurrentJob(res.data);
       
-      if (res.data.status === 'completed') {
+      // Call n8n webhook to trigger the workflow
+      const res = await fetch(webhookUrl, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trigger: 'scan',
+          timestamp: new Date().toISOString()
+        })
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to trigger workflow');
+      }
+      
+      alert('Scan started! The workflow will scrape and analyze trades. Refresh the page in a few minutes to see results.');
+      
+      // Reload data after a delay
+      setTimeout(() => {
         loadStats();
         loadTrades();
-      }
+      }, 5000);
+      
     } catch (err) {
-      console.error('Error checking job:', err);
+      console.error('Error starting scrape:', err);
+      alert('Failed to start scraping. Make sure n8n webhook URL is correct.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,20 +130,20 @@ function App() {
   });
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f1419', color: '#e4e6eb' }}>
       {/* Sidebar */}
-      <aside className="w-64 bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)] flex flex-col">
-        <div className="p-6 border-b border-[var(--color-border)]">
-          <div className="flex items-center gap-3">
-            <TrendingUp size={24} className="text-[var(--color-accent-blue)]" />
+      <aside style={{ width: '200px', background: '#1a1f2e', borderRight: '1px solid #2d3748', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '24px 16px', borderBottom: '1px solid #2d3748' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <TrendingUp size={20} style={{ color: '#3b82f6' }} />
             <div>
-              <h1 className="text-base font-semibold">Capitol Trades</h1>
-              <p className="text-xs text-[var(--color-text-tertiary)]">Analytics</p>
+              <h1 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '2px' }}>Capitol Trades</h1>
+              <p style={{ fontSize: '11px', color: '#6b7280' }}>Analytics</p>
             </div>
           </div>
         </div>
         
-        <nav className="flex-1 p-4 space-y-1">
+        <nav style={{ flex: 1, padding: '12px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
           <NavItem 
             icon={BarChart3} 
             label="Dashboard" 
@@ -135,70 +162,70 @@ function App() {
             active={activeTab === 'analytics'}
             onClick={() => setActiveTab('analytics')}
           />
+          <NavItem 
+            icon={SettingsIcon} 
+            label="Settings" 
+            active={activeTab === 'settings'}
+            onClick={() => setActiveTab('settings')}
+          />
         </nav>
 
-        <div className="p-4 border-t border-[var(--color-border)]">
+        <div style={{ padding: '12px', borderTop: '1px solid #2d3748' }}>
           <button 
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-accent-blue)] text-white rounded-lg font-medium hover:bg-[var(--color-accent-blue)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ 
+              width: '100%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '6px', 
+              padding: '8px 12px', 
+              background: loading ? '#1e40af' : '#3b82f6', 
+              color: 'white', 
+              borderRadius: '6px', 
+              fontWeight: 500,
+              fontSize: '13px',
+              border: 'none', 
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1
+            }}
             onClick={startScrape} 
             disabled={loading}
           >
-            <RefreshCw size={16} className={loading ? 'animate-spin-slow' : ''} />
+            <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
             {loading ? 'Scanning...' : 'New Scan'}
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <header className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)] px-8 py-6">
-          <div className="flex justify-between items-center">
+      <main style={{ flex: 1, overflowY: 'auto', background: '#0f1419' }}>
+        <header style={{ background: '#1a1f2e', borderBottom: '1px solid #2d3748', padding: '20px 32px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h1 className="text-2xl font-semibold">
+              <h1 style={{ fontSize: '22px', fontWeight: 600, marginBottom: '4px' }}>
                 {activeTab === 'dashboard' ? 'Dashboard' : activeTab === 'trades' ? 'Trades' : 'Analytics'}
               </h1>
-              <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+              <p style={{ fontSize: '13px', color: '#9ca3af' }}>
                 {activeTab === 'dashboard' ? 'Congressional trading overview' : 
                  activeTab === 'trades' ? 'Detailed trade analysis' : 
                  'Trading statistics'}
               </p>
             </div>
-            <div className="flex items-center gap-3 px-4 py-2 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-lg min-w-[320px]">
-              <Search size={18} className="text-[var(--color-text-tertiary)]" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', background: '#0f1419', border: '1px solid #2d3748', borderRadius: '6px', width: '300px' }}>
+              <Search size={16} style={{ color: '#6b7280' }} />
               <input 
                 type="text" 
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 bg-transparent outline-none text-sm placeholder:text-[var(--color-text-tertiary)]"
+                style={{ flex: 1, background: 'transparent', outline: 'none', fontSize: '13px', color: '#e4e6eb', border: 'none' }}
               />
             </div>
           </div>
         </header>
 
-        {/* Job Progress */}
-        {currentJob && currentJob.status !== 'completed' && currentJob.status !== 'failed' && (
-          <div className="mx-8 mt-6 p-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg animate-slide-in">
-            <div className="flex items-center gap-4">
-              <Clock size={18} className="text-[var(--color-accent-blue)]" />
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">{currentJob.message}</span>
-                  <span className="text-xs text-[var(--color-text-secondary)]">{currentJob.progress.toFixed(0)}%</span>
-                </div>
-                <div className="h-1 bg-[var(--color-bg-tertiary)] rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-[var(--color-accent-blue)] transition-all duration-300"
-                    style={{ width: `${currentJob.progress}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Content */}
-        <div className="p-8">
+        <div style={{ padding: '32px' }}>
           {activeTab === 'dashboard' && <Dashboard stats={stats} />}
           {activeTab === 'trades' && (
             <TradesView 
@@ -208,8 +235,31 @@ function App() {
             />
           )}
           {activeTab === 'analytics' && <Analytics stats={stats} />}
+          {activeTab === 'settings' && (
+            <Settings 
+              webhookUrl={webhookUrl} 
+              setWebhookUrl={setWebhookUrl} 
+            />
+          )}
         </div>
       </main>
+
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        ::placeholder {
+          color: #6b7280;
+        }
+        select {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 12px center;
+          padding-right: 32px;
+          appearance: none;
+        }
+      `}</style>
     </div>
   );
 }
@@ -218,13 +268,35 @@ function NavItem({ icon: Icon, label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-        active 
-          ? 'bg-[var(--color-bg-tertiary)] text-white' 
-          : 'text-[var(--color-text-secondary)] hover:text-white hover:bg-[var(--color-bg-tertiary)]/50'
-      }`}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        fontSize: '13px',
+        fontWeight: 500,
+        border: 'none',
+        cursor: 'pointer',
+        background: active ? '#2d3748' : 'transparent',
+        color: active ? '#e4e6eb' : '#9ca3af',
+        transition: 'all 0.2s'
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = '#2d374850';
+          e.currentTarget.style.color = '#e4e6eb';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.color = '#9ca3af';
+        }
+      }}
     >
-      <Icon size={18} />
+      <Icon size={16} />
       {label}
     </button>
   );
@@ -232,103 +304,111 @@ function NavItem({ icon: Icon, label, active, onClick }) {
 
 function Dashboard({ stats }) {
   if (!stats) return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw size={24} className="animate-spin-slow text-[var(--color-text-tertiary)]" />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
+      <RefreshCw size={24} style={{ color: '#6b7280', animation: 'spin 1s linear infinite' }} />
     </div>
   );
 
+  console.log('Rendering dashboard with stats:', stats); // Debug log
+
   return (
-    <div className="space-y-6 animate-slide-in">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
         <StatCard 
           icon={Activity}
           label="Total Trades"
-          value={stats.total_trades}
-          color="blue"
+          value={stats.total_trades || 0}
+          color="#3b82f6"
         />
         <StatCard 
           icon={CheckCircle}
           label="Analyzed"
-          value={stats.successful_analyses}
-          color="green"
+          value={stats.analyzed_trades || 0}
+          color="#10b981"
         />
         <StatCard 
           icon={Users}
           label="Politicians"
-          value={stats.top_politicians.length}
-          color="purple"
+          value={stats.top_politicians?.length || 0}
+          color="#8b5cf6"
         />
         <StatCard 
           icon={DollarSign}
           label="Tickers"
-          value={stats.top_tickers.length}
-          color="orange"
+          value={stats.top_tickers?.length || 0}
+          color="#f59e0b"
         />
       </div>
 
       {/* Top Performers */}
-      <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Top Price Movements</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {stats.top_performers?.slice(0, 6).map((perf, idx) => (
-            <div key={idx} className="bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-lg p-4 hover:border-[var(--color-bg-hover)] transition-colors">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-semibold">{perf.ticker}</span>
-                <span className={`text-sm font-semibold ${
-                  perf.change > 0 ? 'text-[var(--color-accent-green)]' : 'text-[var(--color-accent-red)]'
-                }`}>
-                  {perf.change > 0 ? '+' : ''}{perf.change.toFixed(2)}%
-                </span>
+      {stats.best_performers && stats.best_performers.length > 0 && (
+        <div style={{ background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '8px', padding: '20px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '14px' }}>Best Performers (30 days post-trade)</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
+            {stats.best_performers.slice(0, 6).map((perf, idx) => (
+              <div key={idx} style={{ background: '#0f1419', border: '1px solid #2d3748', borderRadius: '6px', padding: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600 }}>{perf.ticker}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#10b981' }}>
+                    +{perf.change_after_trade.toFixed(2)}%
+                  </span>
+                </div>
+                <p style={{ fontSize: '11px', color: '#9ca3af' }}>{perf.politician}</p>
               </div>
-              <p className="text-xs text-[var(--color-text-secondary)]">{perf.politician}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Party Distribution */}
-      <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Party Distribution</h2>
-        <div className="space-y-4">
-          {Object.entries(stats.parties).map(([party, count]) => (
-            <div key={party}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">{party}</span>
-                <span className="text-sm text-[var(--color-text-secondary)]">{count}</span>
+      {stats.parties && stats.parties.length > 0 && (
+        <div style={{ background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '8px', padding: '20px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '14px' }}>Party Distribution</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {stats.parties.map((party) => (
+              <div key={party.party}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 500 }}>{party.party}</span>
+                  <span style={{ fontSize: '13px', color: '#9ca3af' }}>{party.count} trades</span>
+                </div>
+                <div style={{ height: '6px', background: '#0f1419', borderRadius: '9999px', overflow: 'hidden' }}>
+                  <div 
+                    style={{ 
+                      height: '100%', 
+                      borderRadius: '9999px', 
+                      transition: 'width 0.5s',
+                      background: party.party === 'Republican' ? '#dc2626' : '#2563eb',
+                      width: `${(party.count / stats.total_trades) * 100}%`
+                    }}
+                  />
+                </div>
               </div>
-              <div className="h-2 bg-[var(--color-bg-tertiary)] rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    party === 'Republican' ? 'bg-[var(--color-republican)]' : 'bg-[var(--color-democrat)]'
-                  }`}
-                  style={{ width: `${(count / stats.total_trades) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* No data message */}
+      {stats.total_trades === 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0', color: '#9ca3af' }}>
+          <AlertCircle size={36} style={{ marginBottom: '10px', opacity: 0.5 }} />
+          <p style={{ fontSize: '13px' }}>No trades analyzed yet. Click "New Scan" to start.</p>
+        </div>
+      )}
     </div>
   );
 }
 
 function StatCard({ icon: Icon, label, value, color }) {
-  const colorClasses = {
-    blue: 'text-[var(--color-accent-blue)]',
-    green: 'text-[var(--color-accent-green)]',
-    purple: 'text-[var(--color-accent-purple)]',
-    orange: 'text-[var(--color-accent-orange)]',
-  };
-
   return (
-    <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg p-5">
-      <div className="flex items-start justify-between">
+    <div style={{ background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '8px', padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
         <div>
-          <p className="text-xs text-[var(--color-text-secondary)] mb-1">{label}</p>
-          <p className="text-2xl font-semibold">{value.toLocaleString()}</p>
+          <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px' }}>{label}</p>
+          <p style={{ fontSize: '22px', fontWeight: 600 }}>{value.toLocaleString()}</p>
         </div>
-        <Icon size={20} className={colorClasses[color]} />
+        <Icon size={18} style={{ color }} />
       </div>
     </div>
   );
@@ -336,13 +416,13 @@ function StatCard({ icon: Icon, label, value, color }) {
 
 function TradesView({ trades, filters, setFilters }) {
   return (
-    <div className="space-y-4 animate-slide-in">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Filters */}
-      <div className="flex gap-3">
+      <div style={{ display: 'flex', gap: '10px' }}>
         <select 
           value={filters.party} 
           onChange={(e) => setFilters({...filters, party: e.target.value})}
-          className="px-4 py-2 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg text-sm outline-none cursor-pointer hover:border-[var(--color-bg-hover)] transition-colors"
+          style={{ padding: '8px 12px', background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '6px', fontSize: '13px', color: '#e4e6eb', cursor: 'pointer', outline: 'none' }}
         >
           <option value="">All Parties</option>
           <option value="Republican">Republican</option>
@@ -352,24 +432,24 @@ function TradesView({ trades, filters, setFilters }) {
         <select 
           value={filters.transaction_type} 
           onChange={(e) => setFilters({...filters, transaction_type: e.target.value})}
-          className="px-4 py-2 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg text-sm outline-none cursor-pointer hover:border-[var(--color-bg-hover)] transition-colors"
+          style={{ padding: '8px 12px', background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '6px', fontSize: '13px', color: '#e4e6eb', cursor: 'pointer', outline: 'none' }}
         >
           <option value="">All Types</option>
-          <option value="purchase">Purchase</option>
-          <option value="sale">Sale</option>
+          <option value="purchase">Buy</option>
+          <option value="sale">Sell</option>
         </select>
       </div>
 
       {/* Trades List */}
-      <div className="space-y-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {trades.map((trade, idx) => (
           <TradeCard key={idx} trade={trade} />
         ))}
         
         {trades.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-[var(--color-text-secondary)]">
-            <AlertCircle size={40} className="mb-3 opacity-50" />
-            <p className="text-sm">No trades found</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0', color: '#9ca3af' }}>
+            <AlertCircle size={36} style={{ marginBottom: '10px', opacity: 0.5 }} />
+            <p style={{ fontSize: '13px' }}>No trades found</p>
           </div>
         )}
       </div>
@@ -379,84 +459,441 @@ function TradesView({ trades, filters, setFilters }) {
 
 function TradeCard({ trade }) {
   const [expanded, setExpanded] = useState(false);
+  const [showChart, setShowChart] = useState(false);
+  const [stockData, setStockData] = useState(null);
+  const [loadingChart, setLoadingChart] = useState(false);
+  
   const metrics = trade.metrics || {};
   const changeAfter = metrics.change_after_trade || 0;
 
+  console.log('Trade card data:', trade); // Debug log
+
+  const loadStockData = async () => {
+    if (stockData) {
+      setShowChart(true);
+      return;
+    }
+    
+    setLoadingChart(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/trades/${trade.id}/stock-data`);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to load stock data');
+      }
+      const data = await res.json();
+      console.log('Stock data loaded:', data); // Debug log
+      setStockData(data);
+      setShowChart(true);
+    } catch (err) {
+      console.error('Error loading stock data:', err);
+      alert(`Failed to load chart data: ${err.message}`);
+    } finally {
+      setLoadingChart(false);
+    }
+  };
+
   return (
-    <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg overflow-hidden hover:border-[var(--color-bg-hover)] transition-colors">
-      <div 
-        className="p-4 flex justify-between items-center cursor-pointer"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div className="flex items-center gap-4">
-          <span className="px-3 py-1 bg-[var(--color-bg-tertiary)] rounded text-sm font-semibold">
-            {trade.ticker}
-          </span>
-          <div>
-            <h3 className="text-sm font-medium mb-1">{trade.politician}</h3>
-            <span className={`text-xs px-2 py-0.5 rounded ${
-              trade.party === 'Republican' 
-                ? 'bg-[var(--color-republican)]/10 text-[var(--color-republican)]'
-                : 'bg-[var(--color-democrat)]/10 text-[var(--color-democrat)]'
-            }`}>
-              {trade.party}
+    <>
+      <div style={{ background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '8px', overflow: 'hidden' }}>
+        <div 
+          style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+          onClick={() => setExpanded(!expanded)}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ padding: '8px 14px', background: '#0f1419', borderRadius: '6px', fontSize: '14px', fontWeight: 700, letterSpacing: '0.5px' }}>
+              {trade.ticker}
+            </div>
+            <div>
+              <h3 style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{trade.politician}</h3>
+              <span style={{ 
+                fontSize: '11px', 
+                padding: '2px 8px', 
+                borderRadius: '4px',
+                background: 'transparent',
+                color: trade.party === 'Republican' ? '#dc2626' : '#2563eb'
+              }}>
+                {trade.party}
+              </span>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ 
+              fontSize: '11px', 
+              padding: '4px 10px', 
+              borderRadius: '4px', 
+              textTransform: 'uppercase',
+              fontWeight: 600,
+              letterSpacing: '0.5px',
+              background: 'transparent',
+              color: trade.transaction_type?.toLowerCase().includes('purchase') ? '#10b981' : '#ef4444'
+            }}>
+              {trade.transaction_type}
             </span>
+            {trade.is_analyzed ? (
+              <span style={{ fontSize: '14px', fontWeight: 600, color: changeAfter > 0 ? '#10b981' : '#ef4444', minWidth: '80px', textAlign: 'right' }}>
+                {changeAfter > 0 ? '+' : ''}{changeAfter.toFixed(2)}%
+              </span>
+            ) : (
+              <span style={{ fontSize: '12px', color: '#6b7280', minWidth: '80px', textAlign: 'right' }}>
+                Not analyzed
+              </span>
+            )}
+            <ChevronDown 
+              size={14} 
+              style={{ color: '#6b7280', transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            />
           </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <span className={`text-xs px-2 py-1 rounded uppercase ${
-            trade.transaction_type?.toLowerCase().includes('purchase')
-              ? 'bg-[var(--color-accent-green)]/10 text-[var(--color-accent-green)]'
-              : 'bg-[var(--color-accent-red)]/10 text-[var(--color-accent-red)]'
-          }`}>
-            {trade.transaction_type}
-          </span>
-          <span className={`text-sm font-semibold ${
-            changeAfter > 0 ? 'text-[var(--color-accent-green)]' : 'text-[var(--color-accent-red)]'
-          }`}>
-            {changeAfter > 0 ? '+' : ''}{changeAfter.toFixed(2)}%
-          </span>
-          <ChevronDown 
-            size={16} 
-            className={`text-[var(--color-text-tertiary)] transition-transform ${expanded ? 'rotate-180' : ''}`}
-          />
-        </div>
+
+        {expanded && (
+          <div style={{ borderTop: '1px solid #2d3748', padding: '20px', background: '#0f1419' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+              <DetailItem label="Trade Date" value={new Date(trade.trade_date).toLocaleDateString()} />
+              <DetailItem label="Filed After" value={`${trade.filed_after_days} days`} />
+              <DetailItem 
+                label="Trade Size" 
+                value={`${trade.size_min?.toLocaleString()} - ${trade.size_max?.toLocaleString()}`} 
+              />
+              {metrics.trade_price && <DetailItem label="Price" value={`${metrics.trade_price}`} />}
+              {metrics.change_to_trade && (
+                <DetailItem 
+                  label="30d Before" 
+                  value={`${metrics.change_to_trade > 0 ? '+' : ''}${metrics.change_to_trade.toFixed(2)}%`} 
+                />
+              )}
+              {metrics.volatility && (
+                <DetailItem label="Volatility" value={`${metrics.volatility.toFixed(2)}%`} />
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+              {trade.is_analyzed && (
+                <button
+                  onClick={loadStockData}
+                  disabled={loadingChart}
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '6px', 
+                    padding: '8px 14px', 
+                    background: '#8b5cf6', 
+                    color: 'white', 
+                    borderRadius: '6px', 
+                    fontSize: '13px', 
+                    fontWeight: 500,
+                    border: 'none',
+                    cursor: loadingChart ? 'not-allowed' : 'pointer',
+                    opacity: loadingChart ? 0.5 : 1,
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => !loadingChart && (e.currentTarget.style.background = '#7c3aed')}
+                  onMouseLeave={(e) => !loadingChart && (e.currentTarget.style.background = '#8b5cf6')}
+                >
+                  <BarChart3 size={14} />
+                  {loadingChart ? 'Loading...' : 'View Chart'}
+                </button>
+              )}
+
+              <a 
+                href={trade.trade_link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '6px', 
+                  padding: '8px 14px', 
+                  background: '#3b82f6', 
+                  color: 'white', 
+                  borderRadius: '6px', 
+                  fontSize: '13px', 
+                  fontWeight: 500, 
+                  textDecoration: 'none',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
+              >
+                View Details
+                <ExternalLink size={12} />
+              </a>
+            </div>
+
+            {!trade.is_analyzed && trade.analysis_error && (
+              <div style={{ marginTop: '12px', padding: '10px', background: '#7f1d1d', border: '1px solid #991b1b', borderRadius: '6px', fontSize: '12px', color: '#fca5a5' }}>
+                Analysis Error: {trade.analysis_error}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {expanded && (
-        <div className="border-t border-[var(--color-border)] p-4 animate-slide-in">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <DetailItem label="Trade Date" value={trade.trade_date} />
-            <DetailItem label="Filed After" value={`${trade.filed_after} days`} />
-            <DetailItem 
-              label="Trade Size" 
-              value={`$${trade.trade_size_range?.[0]?.toLocaleString()} - $${trade.trade_size_range?.[1]?.toLocaleString()}`} 
-            />
-            <DetailItem label="Price" value={`$${metrics.trade_price}`} />
+      {/* Chart Modal */}
+      {showChart && stockData && (
+        <ChartModal 
+          stockData={stockData} 
+          trade={trade}
+          onClose={() => setShowChart(false)} 
+        />
+      )}
+    </>
+  );
+}
+
+function ChartModal({ stockData, trade, onClose }) {
+  const tradeDate = new Date(stockData.trade_date).toISOString().split('T')[0];
+  
+  // Prepare data for charts
+  const priceData = stockData.data_points.map(point => ({
+    date: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    fullDate: point.date,
+    close: point.close,
+    open: point.open,
+    high: point.high,
+    low: point.low
+  }));
+
+  const volumeData = stockData.data_points.map(point => ({
+    date: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    fullDate: point.date,
+    volume: point.volume,
+    color: point.close >= point.open ? '#10b981' : '#ef4444'
+  }));
+
+  // Find trade date index
+  const tradeDateIndex = stockData.data_points.findIndex(
+    point => point.date.split('T')[0] === tradeDate
+  );
+
+  return (
+    <div 
+      style={{ 
+        position: 'fixed', 
+        inset: 0, 
+        background: 'rgba(0, 0, 0, 0.8)', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        zIndex: 1000,
+        padding: '20px'
+      }}
+      onClick={onClose}
+    >
+      <div 
+        style={{ 
+          background: '#1a1f2e', 
+          borderRadius: '12px', 
+          width: '100%', 
+          maxWidth: '1200px',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          border: '1px solid #2d3748'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #2d3748', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '4px' }}>
+              {stockData.ticker} - {trade.politician}
+            </h2>
+            <p style={{ fontSize: '13px', color: '#9ca3af' }}>
+              {trade.transaction_type} • {new Date(trade.trade_date).toLocaleDateString()}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ 
+              padding: '8px', 
+              background: '#0f1419', 
+              border: '1px solid #2d3748', 
+              borderRadius: '6px', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              color: '#9ca3af'
+            }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Charts */}
+        <div style={{ padding: '24px' }}>
+          {/* Price Chart */}
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>Price Movement</h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={priceData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
+                  stroke="#2d3748"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
+                  domain={['auto', 'auto']}
+                  stroke="#2d3748"
+                  tickFormatter={(value) => `$${value.toFixed(2)}`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#0f1419',
+                    border: '1px solid #2d3748',
+                    borderRadius: '6px',
+                    fontSize: '12px'
+                  }}
+                  formatter={(value) => [`$${value.toFixed(2)}`, 'Close']}
+                  labelStyle={{ color: '#e4e6eb' }}
+                />
+                <Legend 
+                  wrapperStyle={{ fontSize: '12px' }}
+                  iconType="line"
+                />
+                
+                {/* Shade before trade */}
+                {tradeDateIndex > 0 && (
+                  <ReferenceArea
+                    x1={priceData[0].date}
+                    x2={priceData[tradeDateIndex].date}
+                    fill="#3b82f6"
+                    fillOpacity={0.1}
+                  />
+                )}
+                
+                {/* Shade after trade */}
+                {tradeDateIndex >= 0 && tradeDateIndex < priceData.length - 1 && (
+                  <ReferenceArea
+                    x1={priceData[tradeDateIndex].date}
+                    x2={priceData[priceData.length - 1].date}
+                    fill="#10b981"
+                    fillOpacity={0.1}
+                  />
+                )}
+                
+                {/* Trade date line */}
+                {tradeDateIndex >= 0 && (
+                  <ReferenceLine
+                    x={priceData[tradeDateIndex].date}
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    label={{
+                      value: 'Trade Date',
+                      position: 'top',
+                      fill: '#ef4444',
+                      fontWeight: 'bold',
+                      fontSize: 12
+                    }}
+                  />
+                )}
+                
+                <Line
+                  type="monotone"
+                  dataKey="close"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 6, fill: '#3b82f6' }}
+                  name="Close Price"
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
-          {trade.chart_path && (
-            <div className="rounded-lg overflow-hidden border border-[var(--color-border)] mb-4">
-              <img 
-                src={`${API_BASE}/api/charts/${trade.chart_path.split('/').pop()}`} 
-                alt="Price chart"
-                className="w-full h-auto"
-              />
+          {/* Volume Chart */}
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>Trading Volume</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={volumeData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
+                  stroke="#2d3748"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
+                  stroke="#2d3748"
+                  tickFormatter={(value) => {
+                    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+                    return value.toString();
+                  }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#0f1419',
+                    border: '1px solid #2d3748',
+                    borderRadius: '6px',
+                    fontSize: '12px'
+                  }}
+                  formatter={(value) => [value.toLocaleString(), 'Volume']}
+                  labelStyle={{ color: '#e4e6eb' }}
+                />
+                
+                {/* Trade date line */}
+                {tradeDateIndex >= 0 && (
+                  <ReferenceLine
+                    x={volumeData[tradeDateIndex].date}
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                  />
+                )}
+                
+                <Bar dataKey="volume" name="Volume">
+                  {volumeData.map((entry, index) => (
+                    <rect key={`bar-${index}`} fill={entry.color} opacity={0.6} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Metrics Summary */}
+          {trade.metrics && (
+            <div style={{ marginTop: '24px', padding: '16px', background: '#0f1419', border: '1px solid #2d3748', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>Performance Metrics</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
+                <MetricItem label="Trade Price" value={`$${trade.metrics.trade_price}`} />
+                {trade.metrics.change_to_trade && (
+                  <MetricItem 
+                    label="30d Before Trade" 
+                    value={`${trade.metrics.change_to_trade > 0 ? '+' : ''}${trade.metrics.change_to_trade.toFixed(2)}%`}
+                    valueColor={trade.metrics.change_to_trade > 0 ? '#10b981' : '#ef4444'}
+                  />
+                )}
+                {trade.metrics.change_after_trade && (
+                  <MetricItem 
+                    label="30d After Trade" 
+                    value={`${trade.metrics.change_after_trade > 0 ? '+' : ''}${trade.metrics.change_after_trade.toFixed(2)}%`}
+                    valueColor={trade.metrics.change_after_trade > 0 ? '#10b981' : '#ef4444'}
+                  />
+                )}
+                {trade.metrics.volatility && (
+                  <MetricItem label="Volatility" value={`${trade.metrics.volatility.toFixed(2)}%`} />
+                )}
+                {trade.metrics.volume_ratio && (
+                  <MetricItem label="Volume Ratio" value={`${trade.metrics.volume_ratio.toFixed(2)}x`} />
+                )}
+              </div>
             </div>
           )}
-
-          <a 
-            href={trade.trade_link} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-accent-blue)] text-white rounded-lg text-sm font-medium hover:bg-[var(--color-accent-blue)]/90 transition-colors"
-          >
-            View Details
-            <ExternalLink size={14} />
-          </a>
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
+
+function MetricItem({ label, value, valueColor }) {
+  return (
+    <div>
+      <p style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>{label}</p>
+      <p style={{ fontSize: '14px', fontWeight: 600, color: valueColor || '#e4e6eb' }}>{value}</p>
     </div>
   );
 }
@@ -464,33 +901,33 @@ function TradeCard({ trade }) {
 function DetailItem({ label, value }) {
   return (
     <div>
-      <p className="text-xs text-[var(--color-text-tertiary)] mb-1">{label}</p>
-      <p className="text-sm font-medium">{value}</p>
+      <p style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>{label}</p>
+      <p style={{ fontSize: '13px', fontWeight: 500 }}>{value}</p>
     </div>
   );
 }
 
 function Analytics({ stats }) {
   if (!stats) return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw size={24} className="animate-spin-slow text-[var(--color-text-tertiary)]" />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
+      <RefreshCw size={24} style={{ color: '#6b7280', animation: 'spin 1s linear infinite' }} />
     </div>
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slide-in">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px' }}>
       {/* Most Active Politicians */}
-      <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Most Active Politicians</h2>
-        <div className="space-y-2">
+      <div style={{ background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '8px', padding: '20px' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '14px' }}>Most Active Politicians</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {stats.top_politicians.map((pol, idx) => (
-            <div key={idx} className="flex items-center gap-3 p-3 bg-[var(--color-bg-tertiary)] rounded-lg">
-              <span className="text-sm font-semibold text-[var(--color-text-secondary)] w-6">
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#0f1419', borderRadius: '6px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#6b7280', width: '20px' }}>
                 #{idx + 1}
               </span>
-              <span className="flex-1 text-sm font-medium">{pol.name}</span>
-              <span className="text-xs text-[var(--color-text-secondary)]">
-                {pol.count} trades
+              <span style={{ flex: 1, fontSize: '13px', fontWeight: 500 }}>{pol.name}</span>
+              <span style={{ fontSize: '11px', color: '#9ca3af' }}>
+                {pol.trade_count} trades
               </span>
             </div>
           ))}
@@ -498,21 +935,100 @@ function Analytics({ stats }) {
       </div>
 
       {/* Most Traded Tickers */}
-      <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Most Traded Tickers</h2>
-        <div className="space-y-2">
+      <div style={{ background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '8px', padding: '20px' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '14px' }}>Most Traded Tickers</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {stats.top_tickers.map((ticker, idx) => (
-            <div key={idx} className="flex items-center gap-3 p-3 bg-[var(--color-bg-tertiary)] rounded-lg">
-              <span className="text-sm font-semibold text-[var(--color-text-secondary)] w-6">
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#0f1419', borderRadius: '6px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#6b7280', width: '20px' }}>
                 #{idx + 1}
               </span>
-              <span className="text-sm font-semibold">{ticker.ticker}</span>
-              <span className="flex-1" />
-              <span className="text-xs text-[var(--color-text-secondary)]">
-                {ticker.count} trades
+              <span style={{ fontSize: '13px', fontWeight: 600 }}>{ticker.ticker}</span>
+              <span style={{ flex: 1 }} />
+              <span style={{ fontSize: '11px', color: '#9ca3af' }}>
+                {ticker.trade_count} trades
               </span>
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Settings({ webhookUrl, setWebhookUrl }) {
+  const [tempUrl, setTempUrl] = useState(webhookUrl);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setWebhookUrl(tempUrl);
+    localStorage.setItem('n8n_webhook_url', tempUrl);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  return (
+    <div style={{ maxWidth: '600px' }}>
+      <div style={{ background: '#1a1f2e', border: '1px solid #2d3748', borderRadius: '8px', padding: '24px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>n8n Configuration</h2>
+        <p style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '20px' }}>
+          Configure your n8n webhook URL that handles scraping and analysis
+        </p>
+
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+            Webhook URL
+          </label>
+          <input
+            type="text"
+            value={tempUrl}
+            onChange={(e) => setTempUrl(e.target.value)}
+            placeholder="http://localhost:5678/webhook/capitol-trades-scan"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              background: '#0f1419',
+              border: '1px solid #2d3748',
+              borderRadius: '6px',
+              fontSize: '13px',
+              color: '#e4e6eb',
+              outline: 'none'
+            }}
+          />
+        </div>
+
+        <button
+          onClick={handleSave}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 16px',
+            background: '#3b82f6',
+            color: 'white',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: 500,
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
+        >
+          {saved ? <CheckCircle size={16} /> : null}
+          {saved ? 'Saved!' : 'Save Configuration'}
+        </button>
+
+        <div style={{ marginTop: '24px', padding: '16px', background: '#0f1419', border: '1px solid #2d3748', borderRadius: '6px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>How it works</h3>
+          <ol style={{ fontSize: '12px', color: '#9ca3af', paddingLeft: '20px', margin: 0, lineHeight: '1.8' }}>
+            <li>Set up n8n workflow with a webhook trigger</li>
+            <li>Workflow scrapes Capitol Trades website</li>
+            <li>Workflow analyzes stock data with yfinance</li>
+            <li>Workflow writes results directly to database</li>
+            <li>This frontend reads from the same database</li>
+          </ol>
         </div>
       </div>
     </div>
