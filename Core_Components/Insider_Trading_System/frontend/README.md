@@ -1,16 +1,78 @@
-# React + Vite
+# Congressional Trading Analysis - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React dashboard for monitoring congressional stock trades.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+App runs at `http://localhost:3000`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Architecture
 
-## Expanding the ESLint configuration
+```
+frontend/src/
+├── App.jsx                    # Main app, state management
+├── api.js                     # API calls to backend
+└── components/
+    ├── StatsCards.jsx         # Dashboard statistics
+    ├── TradesTable.jsx        # All trades view
+    ├── PoliticiansView.jsx    # Grouped by politician
+    ├── PoliticianCard.jsx     # Individual politician
+    ├── AnalysisDetails.jsx    # Metrics display
+    └── StockChart.jsx         # Interactive charts (Recharts)
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Features
+
+### Trades Tab
+- View all trades chronologically
+- Search by politician or ticker
+- Filter by transaction type (Buy/Sell)
+- Expand rows to see analysis details
+
+### Politicians Tab
+- Trades grouped by politician
+- Aggregate stats per politician
+- Expandable to show all trades
+
+### Analysis Display
+- Price at trade date
+- Pre-trade change (30 days before)
+- Post-trade change (30 days after)
+- Volatility metrics
+- Interactive price/volume charts
+
+## Tech Stack
+
+- **React 18** - UI framework
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Recharts** - Charts
+- **Lucide React** - Icons
+
+## Key Components
+
+**App.jsx** - Main component with tabs, search, filters
+**TradesTable.jsx** - Table with expandable analysis rows
+**PoliticiansView.jsx** - Groups trades by politician
+**StockChart.jsx** - Line chart (price) + bar chart (volume)
+**AnalysisDetails.jsx** - Metrics cards + chart display
+
+## API Integration
+
+All API calls in `api.js`:
+- `fetchStats()` - Dashboard stats
+- `fetchTrades()` - All trades
+- `fetchAnalyses()` - All analyses
+- `startScrape()` - Trigger scraping
+- `startAnalysis()` - Trigger analysis
+
+## Notes
+
+- Charts render client-side from JSON data
+- Background tasks auto-refresh after 5 seconds
+- Modular component structure for easy editing
