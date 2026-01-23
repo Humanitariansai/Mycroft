@@ -3,490 +3,265 @@ import datetime
 import logging
 import time
 import json
+import sys
 from typing import List, Dict, Optional
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 
 
+# -----------------------------------------------------------------------------
+# Logging: stderr ONLY (stdout is reserved for JSON output for n8n)
+# -----------------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('capitol_trades.log'),
-        logging.StreamHandler()
+        logging.StreamHandler(sys.stderr)
     ]
 )
 
 
+# -----------------------------------------------------------------------------
+# Configuration
+# -----------------------------------------------------------------------------
 class Config:
-    """Configuration settings for the Capitol Trades scraper."""
-    
     RECENT_DAYS = 45
     MIN_TRADE_SIZE = 5000
     USE_MAX_RANGE = True
-    
+
     URL = "https://www.capitoltrades.com/trades"
     TRADES_CHECKED_FILE = "trades_checked.txt"
     DATE_LOG_FILE = "date_log.txt"
+
     PAGE_LOAD_TIMEOUT = 30
     ELEMENT_WAIT_TIMEOUT = 10
     PAGES_TO_SCRAPE = 7
 
 
+# -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
 class TradeExtractor:
-    """Handles extraction and parsing of trade data from HTML elements."""
-    
+
     @staticmethod
     def parse_trade_size(size_str: Optional[str]) -> Optional[List[int]]:
-        """Convert trade size string (e.g., '1K-15K') to numeric range [1000, 15000]."""
         if not size_str or size_str == "N/A":
             return None
-        
+
         try:
             size_str = size_str.strip()
-            
+
             if '<' in size_str:
                 return [0, 1000]
-            
+
             parts = size_str.replace('–', '-').replace('—', '-').split('-')
             if len(parts) != 2:
                 return None
-            
-            multipliers = {'K': 1000, 'M': 1000000, 'B': 1000000000}
+
+            multipliers = {'K': 1_000, 'M': 1_000_000, 'B': 1_000_000_000}
             result = []
-            
+
             for part in parts:
-                part = part.strip()
                 numeric = ''.join(c for c in part if c.isdigit() or c == '.')
                 suffix = ''.join(c for c in part if c.isalpha())
-                
+
                 if not numeric or suffix not in multipliers:
                     return None
-                
-                value = float(numeric) * multipliers[suffix]
-                result.append(int(value))
-            
+
+                result.append(int(float(numeric) * multipliers[suffix]))
+
             return result
-        except Exception as e:
-            logging.debug(f"Error parsing trade size '{size_str}': {e}")
+
+        except Exception:
             return None
-    
+
     @staticmethod
     def parse_filed_after(filed_str: Optional[str]) -> Optional[int]:
-        """Extract number of days from filing delay string."""
         if not filed_str:
             return None
-        
-        try:
-            digits = ''.join(c for c in filed_str if c.isdigit())
-            return int(digits) if digits else None
-        except Exception as e:
-            logging.debug(f"Error parsing filed_after '{filed_str}': {e}")
-            return None
+        digits = ''.join(c for c in filed_str if c.isdigit())
+        return int(digits) if digits else None
 
 
 class TradeChecker:
-    """Manages persistence of checked trades to avoid duplicate processing."""
-    
+
     def __init__(self, filepath: str):
         self.filepath = filepath
-        self._ensure_file_exists()
-    
-    def _ensure_file_exists(self):
-        try:
-            open(self.filepath, 'a').close()
-        except Exception as e:
-            logging.error(f"Error creating trades file: {e}")
-    
+        open(self.filepath, 'a').close()
+
     def load_checked_ids(self) -> set:
         try:
             with open(self.filepath, 'r') as f:
-                return set(line.strip() for line in f if line.strip())
-        except Exception as e:
-            logging.error(f"Error loading checked trades: {e}")
+                return {line.strip() for line in f if line.strip()}
+        except Exception:
             return set()
-    
+
     def mark_as_checked(self, trade_id: str):
-        try:
-            with open(self.filepath, 'a') as f:
-                f.write(f"{trade_id}\n")
-        except Exception as e:
-            logging.error(f"Error marking trade as checked: {e}")
+        with open(self.filepath, 'a') as f:
+            f.write(f"{trade_id}\n")
 
 
+# -----------------------------------------------------------------------------
+# Scraper
+# -----------------------------------------------------------------------------
 class CapitolTradesScraperSelenium:
-    """
-    Selenium-based scraper for Capitol Trades website.
-    
-    Scrapes congressional stock trades and filters based on user-defined criteria
-    including filing delay, trade size, and ticker availability.
-    """
-    
+
     def __init__(self, config: Config):
         self.config = config
         self.extractor = TradeExtractor()
         self.checker = TradeChecker(config.TRADES_CHECKED_FILE)
         self.driver = None
         self.current_page = 1
-    
-    def setup_driver(self):
-        """Initialize headless Chrome WebDriver."""
+
+    def setup_driver(self) -> bool:
         try:
-            chrome_options = Options()
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            chrome_options.add_argument('--disable-gpu')
-            chrome_options.add_argument('--window-size=1920,1080')
-            chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-            
-            self.driver = webdriver.Chrome(options=chrome_options)
+            options = Options()
+            options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-gpu')
+            options.add_argument('--window-size=1920,1080')
+
+            self.driver = webdriver.Chrome(options=options)
             self.driver.set_page_load_timeout(self.config.PAGE_LOAD_TIMEOUT)
-            logging.info("WebDriver initialized successfully")
             return True
+
         except Exception as e:
-            logging.error(f"Error setting up WebDriver: {e}")
+            logging.error(f"WebDriver setup failed: {e}")
             return False
-    
-    def fetch_page(self, page_num: int = 1) -> Optional[BeautifulSoup]:
-        """Fetch and parse a specific page from Capitol Trades."""
+
+    def fetch_page(self, page_num: int):
         try:
-            if page_num == 1:
-                url = self.config.URL
-            else:
-                url = f"{self.config.URL}?page={page_num}"
-            
+            url = self.config.URL if page_num == 1 else f"{self.config.URL}?page={page_num}"
             logging.info(f"Fetching page {page_num}: {url}")
+
             self.driver.get(url)
-            
-            wait = WebDriverWait(self.driver, self.config.ELEMENT_WAIT_TIMEOUT)
-            wait.until(EC.presence_of_element_located((By.TAG_NAME, "table")))
-            time.sleep(3)
-            
-            page_source = self.driver.page_source
-            soup = BeautifulSoup(page_source, "html.parser")
-            
+            WebDriverWait(self.driver, self.config.ELEMENT_WAIT_TIMEOUT).until(
+                EC.presence_of_element_located((By.TAG_NAME, "table"))
+            )
+
+            time.sleep(2)
             self.current_page = page_num
-            self.log_run(f"Success - Page {page_num}")
-            return soup
-        
+            return BeautifulSoup(self.driver.page_source, "html.parser")
+
         except TimeoutException:
-            logging.error(f"Timeout waiting for page {page_num} to load")
+            logging.error(f"Timeout loading page {page_num}")
             return None
-        except Exception as e:
-            logging.error(f"Error fetching page {page_num}: {e}")
-            return None
-    
-    def has_next_page(self, soup: BeautifulSoup) -> bool:
-        """Check if additional pages are available."""
-        try:
-            next_button = soup.find('a', string=lambda x: x and 'next' in x.lower())
-            if next_button and not next_button.get('disabled'):
-                return True
-            
-            pagination = soup.find('div', class_=lambda x: x and 'pagination' in str(x).lower())
-            if pagination:
-                page_links = pagination.find_all('a')
-                if page_links:
-                    return True
-            
-            table = soup.find('table')
-            if table:
-                rows = table.find_all('tr')[1:]
-                if len(rows) == 0:
-                    return False
-            
-            return True
-        
-        except Exception as e:
-            logging.debug(f"Error checking for next page: {e}")
-            return False
-    
-    def log_run(self, status: str):
-        try:
-            with open(self.config.DATE_LOG_FILE, 'a') as f:
-                f.write(f"{datetime.datetime.now()} - Status: {status}\n")
-        except Exception as e:
-            logging.error(f"Error logging run: {e}")
-    
+
     def extract_trade_from_row(self, row) -> Optional[Dict]:
-        """Extract all relevant trade information from a table row."""
         try:
             cells = row.find_all('td')
-            
             if len(cells) < 9:
                 return None
-            
-            politician_cell = cells[0]
-            politician_link = politician_cell.find('a')
-            politician_name = politician_link.text.strip() if politician_link else None
-            
-            party_text = politician_cell.get_text()
-            if 'Republican' in party_text:
-                party = 'Republican'
-            elif 'Democrat' in party_text:
-                party = 'Democrat'
-            else:
-                party = 'Unknown'
-            
-            issuer_cell = cells[1]
-            issuer_link = issuer_cell.find('a')
+
+            politician_link = cells[0].find('a')
+            politician = politician_link.text.strip() if politician_link else None
+
+            issuer_link = cells[1].find('a')
             trade_issue = issuer_link.text.strip() if issuer_link else None
-            
+
             trade_ticker = "N/A"
-            if issuer_link:
-                full_text = issuer_cell.get_text(separator='\n')
-                lines = [line.strip() for line in full_text.split('\n') if line.strip()]
-                
-                if len(lines) >= 2:
-                    potential_ticker = lines[1]
-                    if potential_ticker and potential_ticker != trade_issue:
-                        trade_ticker = potential_ticker
-            
-            if trade_ticker == "N/A":
-                for text in issuer_cell.stripped_strings:
-                    text = text.strip()
-                    if text == trade_issue:
-                        continue
-                    if text and (':' in text or (text.isupper() and len(text) <= 6)):
-                        trade_ticker = text
-                        break
-            
-            published = cells[2].text.strip()
-            traded_date = cells[3].text.strip()
-            
-            filed_after_str = cells[4].text.strip()
-            filed_after = self.extractor.parse_filed_after(filed_after_str)
-            
-            owner = cells[5].text.strip()
-            transaction_type = cells[6].text.strip()
-            
-            trade_size_str = cells[7].text.strip()
-            trade_size = self.extractor.parse_trade_size(trade_size_str)
-            
-            price = cells[8].text.strip()
-            
-            detail_link = row.find('a', href=lambda x: x and '/trades/' in x)
-            if detail_link:
-                href = detail_link.get('href')
-                trade_id = ''.join(c for c in href if c.isdigit())
-                trade_link = f"https://www.capitoltrades.com{href}"
-            else:
-                return None
-            
-            return {
-                'trade_id': trade_id,
-                'trade_link': trade_link,
-                'politician': politician_name,
-                'party': party,
-                'trade_issue': trade_issue,
-                'trade_ticker': trade_ticker,
-                'published': published,
-                'traded_date': traded_date,
-                'filed_after': filed_after,
-                'owner': owner,
-                'transaction_type': transaction_type,
-                'trade_size': trade_size,
-                'price': price
-            }
-        
-        except Exception as e:
-            logging.debug(f"Error extracting trade from row: {e}")
-            return None
-    
-    def meets_criteria(self, trade_data: Dict) -> bool:
-        """Check if trade meets all filtering criteria."""
-        try:
-            if trade_data['filed_after'] is None:
-                return False
-            
-            if trade_data['filed_after'] >= self.config.RECENT_DAYS:
-                return False
-            
-            if trade_data['trade_size'] is None:
-                return False
-            
-            range_idx = 1 if self.config.USE_MAX_RANGE else 0
-            trade_size_value = trade_data['trade_size'][range_idx]
-            
-            if trade_size_value < self.config.MIN_TRADE_SIZE:
-                return False
-            
-            ticker = trade_data['trade_ticker']
-            if not ticker or ticker == "N/A" or ticker.strip() == "":
-                return False
-            
-            return True
-        
-        except Exception as e:
-            logging.debug(f"Error checking criteria: {e}")
-            return False
-    
-    def process_page(self, soup: BeautifulSoup, checked_ids: set) -> List[Dict]:
-        """Process all trades on a single page and return matching trades."""
-        filtered_trades = []
-        
-        table = soup.find('table')
-        if not table:
-            logging.error("Could not find trades table")
-            return filtered_trades
-        
-        rows = table.find_all('tr')[1:]
-        logging.info(f"Found {len(rows)} trades on page {self.current_page}")
-        
-        for idx, row in enumerate(rows):
-            trade_data = self.extract_trade_from_row(row)
-            
-            if not trade_data:
-                continue
-            
-            trade_id = trade_data['trade_id']
-            
-            if trade_id in checked_ids:
-                logging.debug(f"Trade {trade_id} already checked, skipping")
-                continue
-            
-            if self.meets_criteria(trade_data):
-                logging.info(f"✓ Trade {trade_id} matches: {trade_data['politician']} - {trade_data['trade_issue']}")
-                filtered_trades.append(trade_data)
-                self.checker.mark_as_checked(trade_id)
-            else:
-                logging.debug(f"✗ Trade {trade_id} does not meet criteria")
-        
-        return filtered_trades
-    
-    def run(self) -> Dict:
-        """
-        Main execution method with pagination support.
-        
-        Returns:
-            Dict containing trades and metadata in JSON-friendly format.
-        """
-        logging.info("="*80)
-        logging.info("Starting Capitol Trades scraper")
-        logging.info("="*80)
-        logging.info(f"Configuration:")
-        logging.info(f"  - RECENT_DAYS: {self.config.RECENT_DAYS}")
-        logging.info(f"  - MIN_TRADE_SIZE: ${self.config.MIN_TRADE_SIZE:,}")
-        logging.info(f"  - USE_MAX_RANGE: {self.config.USE_MAX_RANGE}")
-        logging.info(f"  - PAGES_TO_SCRAPE: {self.config.PAGES_TO_SCRAPE}")
-        logging.info("="*80)
-        
-        all_filtered_trades = []
-        
-        try:
-            if not self.setup_driver():
-                return {
-                    'success': False,
-                    'error': 'Failed to setup WebDriver',
-                    'trades': [],
-                    'metadata': {
-                        'timestamp': datetime.datetime.now().isoformat(),
-                        'pages_scraped': 0,
-                        'total_trades': 0
-                    }
-                }
-            
-            checked_ids = self.checker.load_checked_ids()
-            logging.info(f"Loaded {len(checked_ids)} previously checked trades")
-            
-            page_num = 1
-            pages_scraped = 0
-            
-            while pages_scraped < self.config.PAGES_TO_SCRAPE:
-                logging.info(f"\n{'#'*80}")
-                logging.info(f"Scraping page {page_num} ({pages_scraped + 1}/{self.config.PAGES_TO_SCRAPE})")
-                logging.info(f"{'#'*80}")
-                
-                soup = self.fetch_page(page_num)
-                if not soup:
-                    logging.error(f"Failed to fetch page {page_num}, stopping")
+            for text in cells[1].stripped_strings:
+                if text != trade_issue and text.isupper() and len(text) <= 6:
+                    trade_ticker = text
                     break
-                
-                page_trades = self.process_page(soup, checked_ids)
-                all_filtered_trades.extend(page_trades)
-                
-                logging.info(f"Page {page_num} complete: Found {len(page_trades)} matching trades")
-                
-                pages_scraped += 1
-                
-                if pages_scraped < self.config.PAGES_TO_SCRAPE:
-                    if not self.has_next_page(soup):
-                        logging.info("No more pages available")
-                        break
-                    
-                    page_num += 1
-                    time.sleep(2)
-            
-            logging.info(f"\n{'='*80}")
-            logging.info(f"SCRAPING COMPLETE")
-            logging.info(f"Total pages scraped: {pages_scraped}")
-            logging.info(f"Total matching trades found: {len(all_filtered_trades)}")
-            logging.info(f"{'='*80}")
-            
+
+            filed_after = self.extractor.parse_filed_after(cells[4].text.strip())
+            trade_size = self.extractor.parse_trade_size(cells[7].text.strip())
+
+            detail_link = row.find('a', href=lambda x: x and '/trades/' in x)
+            if not detail_link:
+                return None
+
+            trade_id = ''.join(c for c in detail_link['href'] if c.isdigit())
+
             return {
-                'success': True,
-                'trades': all_filtered_trades,
-                'metadata': {
-                    'timestamp': datetime.datetime.now().isoformat(),
-                    'pages_scraped': pages_scraped,
-                    'total_trades': len(all_filtered_trades),
-                    'config': {
-                        'recent_days': self.config.RECENT_DAYS,
-                        'min_trade_size': self.config.MIN_TRADE_SIZE,
-                        'use_max_range': self.config.USE_MAX_RANGE
-                    }
+                "trade_id": trade_id,
+                "politician": politician,
+                "trade_issue": trade_issue,
+                "trade_ticker": trade_ticker,
+                "filed_after": filed_after,
+                "trade_size": trade_size,
+                "trade_link": f"https://www.capitoltrades.com{detail_link['href']}"
+            }
+
+        except Exception:
+            return None
+
+    def meets_criteria(self, trade: Dict) -> bool:
+        if trade["filed_after"] is None or trade["filed_after"] >= self.config.RECENT_DAYS:
+            return False
+        if not trade["trade_size"]:
+            return False
+        if trade["trade_size"][1] < self.config.MIN_TRADE_SIZE:
+            return False
+        if not trade["trade_ticker"] or trade["trade_ticker"] == "N/A":
+            return False
+        return True
+
+    def run(self) -> Dict:
+        if not self.setup_driver():
+            return {"success": False, "error": "WebDriver init failed"}
+
+        checked = self.checker.load_checked_ids()
+        results = []
+
+        try:
+            for page in range(1, self.config.PAGES_TO_SCRAPE + 1):
+                soup = self.fetch_page(page)
+                if not soup:
+                    break
+
+                rows = soup.find_all('tr')[1:]
+                for row in rows:
+                    trade = self.extract_trade_from_row(row)
+                    if not trade:
+                        continue
+
+                    if trade["trade_id"] in checked:
+                        continue
+
+                    if self.meets_criteria(trade):
+                        results.append(trade)
+                        self.checker.mark_as_checked(trade["trade_id"])
+
+            return {
+                "success": True,
+                "trades": results,
+                "metadata": {
+                    "timestamp": datetime.datetime.now().isoformat(),
+                    "total_trades": len(results)
                 }
             }
-        
-        except Exception as e:
-            logging.error(f"Error during scraping: {e}", exc_info=True)
-            return {
-                'success': False,
-                'error': str(e),
-                'trades': all_filtered_trades,
-                'metadata': {
-                    'timestamp': datetime.datetime.now().isoformat(),
-                    'pages_scraped': pages_scraped if 'pages_scraped' in locals() else 0,
-                    'total_trades': len(all_filtered_trades)
-                }
-            }
-        
+
         finally:
             if self.driver:
                 self.driver.quit()
-                logging.info("WebDriver closed")
 
 
+# -----------------------------------------------------------------------------
+# Entry point (n8n-safe)
+# -----------------------------------------------------------------------------
 def main():
-    """Main function that returns JSON output."""
     try:
-        config = Config()
-        scraper = CapitolTradesScraperSelenium(config)
-        
+        scraper = CapitolTradesScraperSelenium(Config())
         result = scraper.run()
-        
-        # Print JSON to stdout for n8n to capture
-        print(json.dumps(result, indent=2))
-        
-        return result
-    
+
+        print(json.dumps(result))
+        sys.exit(0 if result.get("success") else 1)
+
     except Exception as e:
-        logging.error(f"Fatal error in main: {e}", exc_info=True)
-        error_result = {
-            'success': False,
-            'error': str(e),
-            'trades': [],
-            'metadata': {
-                'timestamp': datetime.datetime.now().isoformat()
-            }
-        }
-        print(json.dumps(error_result, indent=2))
-        return error_result
+        print(json.dumps({
+            "success": False,
+            "error": str(e),
+            "timestamp": datetime.datetime.now().isoformat()
+        }))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
