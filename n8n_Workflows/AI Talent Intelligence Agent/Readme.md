@@ -214,6 +214,9 @@ Creates comprehensive intelligence report with:
 - 🔥 Key Trends
 - ⚠️ Priority Alerts
 
+<img width="335" height="203" alt="image" src="https://github.com/user-attachments/assets/f5b8e4c1-61d1-4276-b888-339febb4adb8" />
+
+
 **Report Structure**:
 ```
 🚀 AI Talent Intelligence Report
