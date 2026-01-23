@@ -1,0 +1,6 @@
+beautifulsoup4
+selenium
+pandas
+requests
+matplotlib
+yfinance
