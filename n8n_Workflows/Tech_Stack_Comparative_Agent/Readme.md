@@ -54,8 +54,8 @@ Example output:
 | Microsoft   | microsoft/vscode                  | Code editor redefined                                     | 160000| 28000 | 160000   | 7000        | TypeScript | 20                 |
 
 > Note: Due to GitHub API limits, output may be split across multiple CSV files and later combined.
-
----
+<img width="640" height="170" alt="image" src="https://github.com/user-attachments/assets/7cc4b0c3-b84c-4c3b-9667-a61f2ab9544a" />
+<img width="601" height="144" alt="image" src="https://github.com/user-attachments/assets/212634db-8255-4218-ae3b-5676d53bef06" />
 
 ## Output
 - CSV files containing:
