@@ -2,6 +2,11 @@
 
 A complete AI-powered financial literacy chatbot built with n8n, Groq LLM, and intelligent tool selection for answering user questions using both PDF knowledge base and web search.
 
+<img width="380" height="150" alt="image" src="https://github.com/Humanitariansai/Mycroft/blob/main/n8n_Workflows/Financial_Literacy_Bot/knowledgebase_workflow.png" />
+
+<img width="380" height="150" alt="image" src="https://github.com/Humanitariansai/Mycroft/blob/main/n8n_Workflows/Financial_Literacy_Bot/Chatbot_workflow.png" />
+
+
 ---
 
 ## **🎯 Overview**

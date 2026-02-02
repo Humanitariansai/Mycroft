@@ -2,6 +2,8 @@
 
 An intelligent n8n workflow that provides personalized financial education by combining PDF knowledge retrieval with adaptive learning and memory-based knowledge gap analysis.
 
+<img width="380" height="150" alt="image" src="https://github.com/Humanitariansai/Mycroft/blob/main/n8n_Workflows/Financial_Literacy_Bot/BotWMemory_workflow.png" />
+
 ---
 
 ## 🎯 What This Does
