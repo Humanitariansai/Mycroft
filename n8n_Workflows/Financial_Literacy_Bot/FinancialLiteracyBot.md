@@ -546,13 +546,10 @@ MIT License - feel free to use this project for learning and commercial purposes
 
 ---
 
-## **🙏 Acknowledgments**
+## **Author**
 
-- n8n community for the amazing automation platform
-- Groq for fast, free LLM inference
-- HuggingFace for open-source embeddings
-- Pinecone for vector database
-- All open-source contributors
+- Sahiti Nallamolu (https://www.linkedin.com/in/sahitinallamolu/)
+- Humanitarians AI Fellow
 
 ---
 

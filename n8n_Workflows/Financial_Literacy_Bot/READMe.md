@@ -623,16 +623,25 @@ Bot: "Perfect timing! Given your understanding of stocks, bonds,
 
 ---
 
-## **Author**
+## 🤝 Contributing
 
-- Sahiti Nallamolu (https://www.linkedin.com/in/sahitinallamolu/)
-- Humanitarians AI Fellow
+Contributions welcome! Feel free to:
+- Submit bug reports
+- Propose new features
+- Improve documentation
+- Add example use cases
 
 ---
 
 ## 📄 License
 
 MIT License - Free for personal and commercial use
+
+---
+
+## 🙏 Acknowledgments
+
+Built with: n8n, Groq, HuggingFace, Pinecone, and PostgreSQL
 
 ---
 
