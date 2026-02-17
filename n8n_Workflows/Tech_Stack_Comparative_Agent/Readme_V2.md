@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Tech Stack Analytics Agent V2** is a major evolution of the original Tech Stack Comparative Agent. Built on n8n, this workflow analyzes and compares the open-source technology stacks of leading AI companies by pulling live data from GitHub and arXiv — and now delivers a **fully interactive HTML dashboard** instead of raw CSV exports.
+The **Tech Stack Comparative Agent V2** is a major evolution of the original Tech Stack Comparative Agent. Built on n8n, this workflow analyzes and compares the open-source technology stacks of leading AI companies by pulling live data from GitHub and arXiv — and now delivers a **fully interactive HTML dashboard** instead of raw CSV exports.
 
 This version introduces real-time language profiling, star-based company rankings, and integrated research paper discovery, all rendered in a beautiful self-contained dashboard you can open in any browser.
 
