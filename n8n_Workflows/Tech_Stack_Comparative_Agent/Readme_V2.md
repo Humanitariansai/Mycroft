@@ -1,4 +1,4 @@
-# Tech Stack Analytics Agent V2 (n8n Workflow)
+# Tech Stack Comparative Agent V2 (n8n Workflow)
 
 ## Overview
 
