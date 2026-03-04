@@ -1,81 +1,82 @@
-# Portfolio Stress Testing - Layer 1 Backend
+# Portfolio Stress Testing System — Layers 1 & 2
 
-FastAPI service that analyzes how portfolio diversification changes across market volatility regimes.
+FastAPI + Streamlit system that analyzes portfolio risk through two analytical lenses: regime-dependent diversification and historical crash simulation.
 
-## What It Does
+---
 
-Analyzes portfolio correlation structure in three different market conditions:
-- **Low VIX (<15)**: Calm markets
-- **Medium VIX (15-25)**: Normal volatility  
-- **High VIX (>25)**: Stress periods
+## Layers Overview
 
-The key insight: portfolios that look diversified in calm markets often behave like a single concentrated bet during stress.
+- **Layer 1** ✓ — Regime-Dependent Diversification
+- **Layer 2** ✓ — Historical Crash Simulation
+- **Layer 3** — Factor Exposure Decomposition *(planned)*
+- **Layer 4** — Regime-Specific Performance Analysis *(planned)*
+
+---
 
 ## Installation
 
 ```bash
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
 pip install -r requirements.txt
 
-# Run the service
+# Start the API (serves both layers)
 python -m app.main
+
+# Start the Streamlit UI (separate terminal)
+streamlit run streamlit_app.py
 ```
 
-Service runs on `http://localhost:8001`
+- API: `http://localhost:8001`
+- Streamlit: `http://localhost:8501`
+- Swagger docs: `http://localhost:8001/docs`
 
-## How It Works
+---
 
-### 1. Data Collection
-**DataFetcher** (`app/services/data_fetcher.py`)
-- Fetches historical prices from Yahoo Finance using `yfinance`
-- Gets VIX data for the same period
+## Layer 1: Regime-Dependent Diversification
+
+Analyzes how portfolio correlation structure changes across three market volatility regimes and quantifies how much diversification degrades under stress.
+
+### Regimes
+- **Low VIX (<15)**: Calm markets
+- **Medium VIX (15–25)**: Normal volatility
+- **High VIX (>25)**: Stress periods
+
+### How It Works
+
+**1. Data Collection** — `app/services/data_fetcher.py`
+- Fetches historical prices from Yahoo Finance via `yfinance`
+- Fetches VIX data for the same period
 - Applies 5-day rolling average to VIX to reduce noise
 
-### 2. Regime Classification
-**RegimeClassifier** (`app/services/regime_classifier.py`)
-- Takes VIX data and classifies each trading day into low/medium/high regime
+**2. Regime Classification** — `app/services/regime_classifier.py`
+- Classifies each trading day into low/medium/high regime
 - Filters out short regime periods (< 20 days) to avoid single-day spikes
-- Returns mapping of date → regime label
 
-### 3. Returns Calculation
-**ReturnsCalculator** (`app/services/returns_calculator.py`)
+**3. Returns Calculation** — `app/services/returns_calculator.py`
 - Converts prices to log returns: `r_t = ln(P_t / P_{t-1})`
-- Creates DataFrame with returns for all tickers
 
-### 4. Correlation Analysis
-**CorrelationAnalyzer** (`app/services/correlation_analyzer.py`)
-- Filters returns by regime (low/medium/high VIX periods)
-- Calculates Pearson correlation matrix for each regime separately
-- Computes three key metrics per regime:
-  - **Average pairwise correlation**: Portfolio-weighted mean of all correlations
-  - **Max correlation**: Highest correlation between any two holdings
-  - **Effective number of assets**: `N_eff = 1 / Σ(w_i × w_j × ρ_ij)` - accounts for both weights and correlations
+**4. Correlation Analysis** — `app/services/correlation_analyzer.py`
+- Calculates Pearson correlation matrix per regime
+- Strips timezone info from both indexes before alignment to prevent pandas misalignment errors
+- Metrics per regime:
+  - Average pairwise correlation (portfolio-weighted)
+  - Max/min correlation
+  - Effective number of assets: `N_eff = 1 / Σ(w_i × w_j × ρ_ij)`
 
-### 5. Risk Analysis
-**RiskAnalyzer** (`app/services/risk_analyzer.py`)
-- Compares low VIX vs high VIX metrics to calculate degradation:
-  - How much does correlation increase?
-  - How much does effective diversification decrease?
-- Generates risk flags based on thresholds:
-  - `SEVERE_CORRELATION_SPIKE`: >50% correlation increase
-  - `MAJOR_DIVERSIFICATION_LOSS`: >40% effective asset decrease
-  - `EXTREME_STRESS_CORRELATION`: Max correlation >0.85 during stress
-  - `ILLUSION_OF_DIVERSIFICATION`: Effective assets <3 despite many holdings
-- Creates natural language recommendations
+**5. Risk Analysis** — `app/services/risk_analyzer.py`
+- Compares low vs high VIX metrics to calculate degradation
+- Risk flags: `SEVERE_CORRELATION_SPIKE`, `MAJOR_DIVERSIFICATION_LOSS`, `EXTREME_STRESS_CORRELATION`, `ILLUSION_OF_DIVERSIFICATION`
 
-### 6. Visualization
-**Visualizer** (`app/services/visualization.py`)
-- Generates correlation heatmaps (3 side-by-side for each regime)
-- Creates degradation bar chart showing percentage changes
+**6. Visualization** — `app/services/visualization.py`
+- Side-by-side correlation heatmaps for each regime
+- Degradation bar chart
 - Returns base64-encoded PNG images
 
-## API Usage
+### API
 
-**Main Endpoint:** `POST /api/v1/analyze`
+**Endpoint:** `POST /api/v1/analyze`
 
 ```bash
 curl -X POST "http://localhost:8001/api/v1/analyze" \
@@ -83,8 +84,8 @@ curl -X POST "http://localhost:8001/api/v1/analyze" \
   -d '{
     "portfolio": [
       {"ticker": "AAPL", "shares": 100, "weight": 0.4},
-      {"ticker": "MSFT", "shares": 75, "weight": 0.3},
-      {"ticker": "GOOGL", "shares": 50, "weight": 0.3}
+      {"ticker": "MSFT", "shares": 75,  "weight": 0.3},
+      {"ticker": "GOOGL","shares": 50,  "weight": 0.3}
     ],
     "params": {
       "lookback_days": 756,
@@ -94,108 +95,110 @@ curl -X POST "http://localhost:8001/api/v1/analyze" \
   }'
 ```
 
-**Response includes:**
-- Correlation metrics for each regime
-- Degradation analysis (how much diversification breaks down)
-- Risk flags
-- Recommendations
-- Base64-encoded visualizations
+**Response includes:** correlation metrics per regime, degradation analysis, risk flags, recommendations, base64 visualizations.
 
-## Configuration
-
-Edit `.env` file to customize defaults:
-
-```bash
-DEFAULT_LOOKBACK_DAYS=756        # 3 years historical data
-DEFAULT_ROLLING_WINDOW=252       # 1 year rolling window
-VIX_LOW_THRESHOLD=15.0
-VIX_HIGH_THRESHOLD=25.0
-MIN_REGIME_DAYS=20               # Filter out short regime periods
-```
-
-## Example Output
+### Example Output
 
 ```json
 {
   "regime_metrics": {
-    "low_vix": {
-      "avg_pairwise_correlation": 0.45,
-      "max_correlation": 0.72,
-      "effective_n_assets": 2.8
-    },
-    "high_vix": {
-      "avg_pairwise_correlation": 0.78,
-      "max_correlation": 0.91,
-      "effective_n_assets": 1.6
-    }
+    "low_vix":  { "avg_pairwise_correlation": 0.45, "effective_n_assets": 2.8 },
+    "high_vix": { "avg_pairwise_correlation": 0.78, "effective_n_assets": 1.6 }
   },
   "degradation_analysis": {
     "avg_corr_pct_increase": 73.3,
     "eff_assets_pct_decrease": 42.9
   },
-  "risk_flags": ["SEVERE_CORRELATION_SPIKE"],
-  "recommendations": [
-    "Portfolio correlation increases by 73.3% during stress. Consider adding assets with low correlation to market factors."
-  ]
+  "risk_flags": ["SEVERE_CORRELATION_SPIKE"]
 }
 ```
 
-## Implementation Details
+---
 
-### Why Log Returns?
-- Time-additive: multi-period returns = sum of single-period returns
-- Approximately normal distribution (better for correlation analysis)
-- Standard in financial analysis
+## Layer 2: Historical Crash Simulation
 
-### Why 5-Day VIX Average?
-- Daily VIX is noisy with frequent spikes
-- 5-day average smooths out single-day volatility events
-- Still responsive enough to capture regime changes
+Time-travels current portfolio holdings through past market crashes to reveal structural vulnerabilities before they appear in live performance.
 
-### Why Minimum Regime Days?
-- Avoids classifying single-day VIX spikes as regime changes
-- 20-day minimum ensures we're capturing sustained volatility periods
-- Reduces noise in correlation calculations
+### Key Insight
+A portfolio that held up "relatively well" means it tracked the crash — not that it avoided loss. Flags fire on both **relative** underperformance vs benchmark and **absolute** drawdown severity.
 
-### Effective Number of Assets Formula
-Standard diversification metric that accounts for:
-- Portfolio weights (concentration)
-- Correlations between assets
-- Result: "Your 10-stock portfolio behaves like 2.3 independent assets under stress"
+### Predefined Crash Periods
 
-## Common Issues
+| Key | Name | Period | Benchmark | Context |
+|---|---|---|---|---|
+| `covid_2020` | COVID Crash | Feb 19 – Mar 23, 2020 | SPY | S&P fell ~34% in 33 days |
+| `tech_selloff_2022` | Tech Selloff 2022 | Jan 3 – Oct 12, 2022 | QQQ | NASDAQ fell ~33% over 9 months |
+| `q4_selloff_2018` | Q4 Selloff 2018 | Sep 20 – Dec 24, 2018 | SPY | Fed tightening + trade war fears |
+| `flash_crash_2015` | Flash Crash 2015 | Aug 1 – Aug 24, 2015 | SPY | China slowdown, S&P fell ~12% |
 
-**"No data found for ticker"**
-- Ticker might be invalid or delisted
-- Yahoo Finance API might be down
-- Check ticker on finance.yahoo.com first
+Custom date ranges are also supported via the UI or API.
 
-**"Analysis takes too long"**
-- Reduce `lookback_days` from 756 to 504
-- Check internet connection
-- Yahoo Finance sometimes rate-limits
+### How It Works
 
-**"Weights must sum to 1.0"**
-- Portfolio weights need to add up to exactly 1.0
-- Use 0.25, 0.25, 0.25, 0.25 not 25, 25, 25, 25
+**1. Data Fetching** — `app/services/data_fetcher.py`
+- Fetches crash window prices with a 5-day pre-period buffer (for day-1 return calculation)
+- Fetches up to 2 years of post-crash data for recovery measurement
 
-## Next Steps
+**2. Simulation** — `app/services/crash_simulator.py`
+- Computes portfolio daily log returns, weighted by position sizes
+- Calculates cumulative return: `exp(Σ log_returns) - 1`
+- Computes drawdown series: `(wealth - running_max) / running_max`
+- Measures recovery: first day post-crash where portfolio recoups full loss
+- Non-fatal: individual crash periods are skipped (with a warning) if data is unavailable, rather than failing the whole request
 
-This is Layer 1 of 4 layers:
-- **Layer 1** (this): Regime-dependent diversification ✓
-- **Layer 2** (next): Historical crash simulation
-- **Layer 3**: Factor exposure decomposition  
-- **Layer 4**: Regime-specific performance analysis
+**3. Loss Attribution** — `app/services/loss_analyzer.py`
+- Decomposes portfolio loss by holding: `contribution_i = weight_i × return_i`
+- Calculates each holding's share of total portfolio loss
+- Generates per-crash and cross-crash risk flags
 
-## Development
+**4. Visualization** — `app/services/crash_visualization.py`
+- **Drawdown Paths**: portfolio vs benchmark drawdown curves per crash
+- **Loss Attribution**: horizontal bar chart of per-holding contributions
+- **Summary Heatmap**: holdings × crashes matrix showing return (%) per cell
+
+### Risk Flags
+
+| Flag | Condition |
+|---|---|
+| `SEVERE_DRAWDOWN` | Max drawdown < -20% |
+| `SIGNIFICANT_UNDERPERFORMANCE` | Portfolio > 5% worse than benchmark |
+| `SLOW_RECOVERY` | Recovery took > 120 trading days |
+| `NOT_YET_RECOVERED` | Not recovered within 2-year observation window |
+| `CONCENTRATED_LOSS_DRIVER:<TICKER>` | Single holding drove > 15% of total loss |
+| `CONSISTENTLY_SEVERE_DRAWDOWNS` | Severe drawdown in 2+ crashes |
+| `CONSISTENT_UNDERPERFORMANCE_VS_BENCHMARK` | Underperformed benchmark in 2+ crashes |
+| `REPEAT_LOSS_CONCENTRATION` | Same ticker was a concentrated driver in 2+ crashes |
+
+### API
+
+**Endpoint:** `POST /api/v1/crash-simulation`
 
 ```bash
-# Run with auto-reload
-python -m app.main
-
-# Access API docs
-http://localhost:8001/docs
-
-# Run with Streamlit dashboard
-streamlit run streamlit_app.py
+curl -X POST "http://localhost:8001/api/v1/crash-simulation" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "portfolio": [
+      {"ticker": "AAPL", "shares": 100, "weight": 0.25},
+      {"ticker": "MSFT", "shares": 75,  "weight": 0.25},
+      {"ticker": "GOOGL","shares": 50,  "weight": 0.20},
+      {"ticker": "TSLA", "shares": 30,  "weight": 0.15},
+      {"ticker": "NVDA", "shares": 20,  "weight": 0.15}
+    ],
+    "selected_crashes": ["covid_2020", "tech_selloff_2022"],
+    "custom_crash": {
+      "key": "svb_2023",
+      "name": "SVB Crisis",
+      "start": "2023-03-01",
+      "end": "2023-05-04",
+      "benchmark_ticker": "SPY",
+      "description": "Regional banking crisis triggered by SVB collapse"
+    }
+  }'
 ```
+
+- `selected_crashes`: list of predefined keys to run; omit or pass `null` to run all four
+- `custom_crash`: optional additional window appended to the selected set
+
+**Response includes:** per-crash metrics, drawdown series, loss drivers, recovery days, risk flags, cross-crash summary, recommendations, base64 visualizations.
+
+---
