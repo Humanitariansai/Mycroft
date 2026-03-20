@@ -11,7 +11,7 @@ The Contradiction Detection Agent is the third agent in the Mycroft intelligence
 
 In plain terms: if Microsoft's engineers are building at 3x their normal pace on GitHub, but management never mentioned this on the earnings call — that gap is a contradiction. This agent finds it, flags it as HIGH severity, and routes it to a human reviewer. It never makes investment decisions. It surfaces conflicts.
 
-<img width="2475" height="836" alt="image" src="https://github.com/user-attachments/assets/8fe26712-8147-484a-a89e-ae093c2439ef" />
+<img width="2464" height="813" alt="image" src="https://github.com/user-attachments/assets/6ddb7901-44c9-41a9-9091-164843f3ee2f" />
 
 
 ---
