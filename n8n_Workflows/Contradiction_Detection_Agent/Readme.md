@@ -225,7 +225,7 @@ Before running this agent, both upstream agents must have run for the same ticke
 ## Setup Instructions
 
 ### 1. Import the workflow
-In n8n → New Workflow → `...` menu → Import from file → upload `Contradiction_Detection_Agent_ManualTrigger.json`
+ upload `Contradiction_Detection_Agent_ManualTrigger.json`
 
 ### 2. Set credentials
 - All Postgres nodes → select your **Postgres account**
