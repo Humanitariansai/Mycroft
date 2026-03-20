@@ -1,6 +1,6 @@
-# Portfolio Stress Testing System — Layers 1, 2 & 3
+# Portfolio Stress Testing System — Layers 1–4
 
-FastAPI + Streamlit system that analyzes portfolio risk through three analytical lenses: regime-dependent diversification, historical crash simulation, and factor exposure decomposition.
+FastAPI + Streamlit system that analyzes portfolio risk through four analytical lenses: regime-dependent diversification, historical crash simulation, factor exposure decomposition, and regime-specific performance analysis.
 
 ---
 
@@ -9,7 +9,7 @@ FastAPI + Streamlit system that analyzes portfolio risk through three analytical
 - **Layer 1** ✓ — Regime-Dependent Diversification
 - **Layer 2** ✓ — Historical Crash Simulation
 - **Layer 3** ✓ — Factor Exposure Decomposition
-- **Layer 4** — Regime-Specific Performance Analysis *(planned)*
+- **Layer 4** ✓ — Regime-Specific Performance Analysis
 
 ---
 
@@ -21,7 +21,7 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 
 pip install -r requirements.txt
 
-# Start the API (serves all three layers)
+# Start the API (serves all four layers)
 python -m app.main
 
 # Start the Streamlit UI (separate terminal)
@@ -32,9 +32,26 @@ streamlit run streamlit_app.py
 - Streamlit: `http://localhost:8501`
 - Swagger docs: `http://localhost:8001/docs`
 
-**Additional dependency for Layer 3:**
-```bash
-pip install statsmodels pyarrow
+---
+
+## Sample Portfolio CSV
+
+A 12-holding diversified portfolio for testing all four layers:
+
+```csv
+ticker,shares,weight
+MSFT,40,0.10
+JPM,50,0.10
+JNJ,45,0.09
+XOM,60,0.09
+AMZN,15,0.09
+UNH,20,0.08
+LMT,18,0.08
+NEE,80,0.08
+PG,55,0.08
+GLD,35,0.08
+BRK-B,25,0.07
+TLT,70,0.06
 ```
 
 ---
@@ -77,7 +94,6 @@ Analyzes how portfolio correlation structure changes across three market volatil
 **6. Visualization** — `app/services/visualization.py`
 - Side-by-side correlation heatmaps for each regime
 - Degradation bar chart
-- Returns base64-encoded PNG images
 
 ### API
 
@@ -106,6 +122,9 @@ curl -X POST "http://localhost:8001/api/v1/analyze" \
 
 Time-travels current portfolio holdings through past market crashes to reveal structural vulnerabilities before they appear in live performance.
 
+### Key Insight
+A portfolio that "held up relatively well" means it tracked the crash — not that it avoided loss. Flags fire on both relative underperformance vs benchmark and absolute drawdown severity.
+
 ### Predefined Crash Periods
 
 | Key | Name | Period | Benchmark | Context |
@@ -115,24 +134,30 @@ Time-travels current portfolio holdings through past market crashes to reveal st
 | `q4_selloff_2018` | Q4 Selloff 2018 | Sep 20 – Dec 24, 2018 | SPY | Fed tightening + trade war fears |
 | `flash_crash_2015` | Flash Crash 2015 | Aug 1 – Aug 24, 2015 | SPY | China slowdown, S&P fell ~12% |
 
+Custom date ranges are also supported via the UI or API.
+
 ### How It Works
 
 **1. Data Fetching** — `app/services/data_fetcher.py`
-- Fetches crash window prices with a 5-day pre-period buffer
+- Fetches crash window prices with a 5-day pre-period buffer for day-1 return calculation
 - Fetches up to 2 years of post-crash data for recovery measurement
 
 **2. Simulation** — `app/services/crash_simulator.py`
 - Computes portfolio daily log returns weighted by position sizes
-- Calculates cumulative return and drawdown series
+- Calculates cumulative return: `exp(Σ log_returns) - 1`
+- Computes drawdown series: `(wealth - running_max) / running_max`
 - Measures recovery: first day post-crash where portfolio recoups full loss
-- Non-fatal: individual crash periods skipped if data unavailable
+- Non-fatal: individual crash periods are skipped with a warning if data is unavailable
 
 **3. Loss Attribution** — `app/services/loss_analyzer.py`
 - Decomposes portfolio loss by holding: `contribution_i = weight_i × return_i`
+- Calculates each holding's share of total portfolio loss
 - Generates per-crash and cross-crash risk flags
 
 **4. Visualization** — `app/services/crash_visualization.py`
-- Drawdown paths, loss attribution bars, summary heatmap
+- Drawdown paths: portfolio vs benchmark curves per crash
+- Loss attribution: horizontal bar chart of per-holding contributions
+- Summary heatmap: holdings × crashes matrix
 
 ### Risk Flags
 
@@ -141,10 +166,10 @@ Time-travels current portfolio holdings through past market crashes to reveal st
 | `SEVERE_DRAWDOWN` | Max drawdown < -20% |
 | `SIGNIFICANT_UNDERPERFORMANCE` | Portfolio > 5% worse than benchmark |
 | `SLOW_RECOVERY` | Recovery took > 120 trading days |
-| `NOT_YET_RECOVERED` | Not recovered within 2-year window |
+| `NOT_YET_RECOVERED` | Not recovered within 2-year observation window |
 | `CONCENTRATED_LOSS_DRIVER:<TICKER>` | Single holding drove > 15% of total loss |
 | `CONSISTENTLY_SEVERE_DRAWDOWNS` | Severe drawdown in 2+ crashes |
-| `CONSISTENT_UNDERPERFORMANCE_VS_BENCHMARK` | Underperformed in 2+ crashes |
+| `CONSISTENT_UNDERPERFORMANCE_VS_BENCHMARK` | Underperformed benchmark in 2+ crashes |
 | `REPEAT_LOSS_CONCENTRATION` | Same ticker drove concentrated losses in 2+ crashes |
 
 ### API
@@ -162,7 +187,8 @@ curl -X POST "http://localhost:8001/api/v1/crash-simulation" \
       "name": "SVB Crisis",
       "start": "2023-03-01",
       "end": "2023-05-04",
-      "benchmark_ticker": "SPY"
+      "benchmark_ticker": "SPY",
+      "description": "Regional banking crisis triggered by SVB collapse"
     }
   }'
 ```
@@ -198,9 +224,9 @@ All factor data sourced free from the Kenneth French Data Library.
 **1. Factor Data** — `app/services/factor_fetcher.py`
 - Downloads FF5 + momentum daily ZIPs from the French library
 - Parses and merges into a single DataFrame (MKT, SMB, HML, RMW, CMA, UMD, RF)
-- Caches to `app/data/factor_cache/factor_data.parquet`
-- Refreshes weekly; falls back to stale cache if download fails
-- French library typically lags 4–6 weeks behind today — portfolio returns are automatically clipped to factor data availability
+- Caches to `app/data/factor_cache/factor_data.parquet`, refreshes weekly
+- Falls back to stale cache if download fails
+- French library typically lags 4–6 weeks — portfolio returns are automatically clipped to factor data availability
 
 **2. Static Regression** — `app/services/factor_regression.py`
 - Full-period OLS regression with statsmodels
@@ -210,14 +236,14 @@ All factor data sourced free from the Kenneth French Data Library.
 **3. Rolling Regression** — `app/services/factor_regression.py`
 - 252-day rolling OLS window, one regression per trading day
 - DataFrame slices preserve column names for correct parameter extraction
-- Detects factor drift: flags if beta range > 0.4 over the window
+- Drift flag fires when beta range > 0.4 over the window
 
 **4. Regime-Conditional Regression** — `app/services/factor_regression.py`
 - Separate OLS per VIX regime (low/medium/high)
 - Minimum 15 observations required; skipped regimes shown as N/A in heatmap
 - Reveals how factor loadings shift between calm and stress environments
 
-**5. Risk Flags** — `app/services/factor_analyzer.py`
+### Risk Flags
 
 | Flag | Condition |
 |---|---|
@@ -229,58 +255,85 @@ All factor data sourced free from the Kenneth French Data Library.
 | `FACTOR_DRIFT:<FACTOR>:range=<value>` | Rolling beta range > 0.4 |
 | `REGIME_BETA_SHIFT:<FACTOR>:<low→high>` | \|β_high_vix - β_low_vix\| > 0.4 for MKT, UMD, or SMB |
 
-**6. Visualization** — `app/services/factor_visualization.py`
-- **Factor Betas bar chart**: β coefficients with significance markers (* p<0.05, ** p<0.01), grey = insignificant
-- **Variance decomposition pie**: factor contributions to total explained variance + unexplained slice
-- **Rolling betas grid**: 6-subplot time series of each factor's rolling beta, shaded when drift flag fires
-- **Regime heatmap**: factors × VIX regimes, N/A shown in grey for insufficient data
+### API
 
+**Endpoint:** `POST /api/v1/factor-exposure`
 
-## Sample Portfolio CSV
-
-A 12-holding diversified portfolio for testing all three layers:
-
-```csv
-ticker,shares,weight
-MSFT,40,0.10
-JPM,50,0.10
-JNJ,45,0.09
-XOM,60,0.09
-AMZN,15,0.09
-UNH,20,0.08
-LMT,18,0.08
-NEE,80,0.08
-PG,55,0.08
-GLD,35,0.08
-BRK-B,25,0.07
-TLT,70,0.06
+```bash
+curl -X POST "http://localhost:8001/api/v1/factor-exposure" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "portfolio": [...],
+    "params": {
+      "lookback_days": 756,
+      "rolling_window": 252,
+      "significance_level": 0.05
+    }
+  }'
 ```
 
 ---
 
-## Configuration
+## Layer 4: Regime-Specific Performance Analysis
+
+Measures portfolio performance statistics separately for each VIX regime, detects regime transitions, and computes forward returns after each transition type. Closes the analytical loop: Layer 1 showed correlation structure, Layer 2 showed crash damage, Layer 3 showed factor mechanics — Layer 4 shows the performance consequence.
+
+### How It Works
+
+**1. Per-Regime Statistics** — `app/services/regime_performance.py`
+- Annualised return, volatility, and Sharpe ratio per regime
+- Max drawdown and average drawdown within each regime
+- Win rate (fraction of positive days) and best/worst single day
+- Cumulative return over all regime days
+
+**2. Regime Transition Analysis** — `app/services/regime_performance.py`
+- Detects every day the portfolio crosses from one VIX regime to another
+- Computes forward portfolio returns over 5 and 20 trading days after each transition
+- Summarises by transition type (Low→High, Med→High, etc.)
+- Flags dangerous transitions where average 5-day forward return is negative
+
+**3. Cumulative Return Series** — `app/services/regime_performance.py`
+- Full equity curve with each data point tagged by active VIX regime
+- Used for colour-coded equity curve chart
+
+**4. Risk-Free Rate** — sourced from the Fama-French RF column in the existing factor cache, consistent with Layer 3 Sharpe calculations. Falls back to zero RF if cache unavailable.
+
+**5. Visualization** — `app/services/regime_performance_viz.py`
+- **Regime stats bar chart**: return, volatility, Sharpe, and max drawdown side by side per regime
+- **Win rate chart**: win rate, best day, worst day per regime
+- **Transition heatmap**: avg 5-day and 20-day forward returns for each transition type, N/A on diagonal
+- **Equity curve**: full cumulative return coloured segment-by-segment by active VIX regime
+
+### Risk Flags
+
+| Flag | Condition |
+|---|---|
+| `NEGATIVE_SHARPE:<REGIME>_VIX:<value>` | Sharpe < 0 in any regime |
+| `LOW_SHARPE:<REGIME>_VIX:<value>` | Sharpe < 0.5 in any regime |
+| `REGIME_RETURN_GAP:<gap>pp` | Low vs high VIX annualised return differs by > 10pp |
+| `VOL_SPIKE_IN_STRESS:<multiplier>x` | High VIX volatility > 1.5× low VIX volatility |
+| `LOW_WIN_RATE_HIGH_VIX:<rate>` | Win rate < 45% during high VIX periods |
+| `DANGEROUS_TRANSITION:LOW_TO_HIGH:avg_5d=<return>` | Avg 5-day return after Low→High transition < -2% |
+| `DANGEROUS_TRANSITION:MED_TO_HIGH:avg_5d=<return>` | Avg 5-day return after Med→High transition < -2% |
+
+### API
+
+**Endpoint:** `POST /api/v1/regime-performance`
 
 ```bash
-# .env
-DEFAULT_LOOKBACK_DAYS=756
-DEFAULT_ROLLING_WINDOW=252
-VIX_LOW_THRESHOLD=15.0
-VIX_HIGH_THRESHOLD=25.0
-MIN_REGIME_DAYS=20
-
-# Layer 2
-SEVERE_DRAWDOWN_THRESHOLD=-0.20
-UNDERPERFORM_THRESHOLD=-0.05
-SLOW_RECOVERY_DAYS=120
-CONCENTRATION_DRIVER_PCT=0.15
-
-# Layer 3
-HIGH_BETA_THRESHOLD=1.3
-SIGNIFICANT_TILT_THRESHOLD=0.3
-LOW_R2_THRESHOLD=0.60
-HIGH_ALPHA_THRESHOLD=0.05
-DRIFT_THRESHOLD=0.4
-CONCENTRATED_FACTOR_PCT=0.50
-FACTOR_CACHE_MAX_AGE_DAYS=7
+curl -X POST "http://localhost:8001/api/v1/regime-performance" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "portfolio": [...],
+    "params": {
+      "lookback_days": 756,
+      "vix_low_threshold": 15.0,
+      "vix_high_threshold": 25.0,
+      "transition_windows": [5, 20]
+    }
+  }'
 ```
 
+**Response includes:** per-regime stats, all transition events, transition summaries, full cumulative series, risk flags, recommendations, base64 visualizations.
+
+---

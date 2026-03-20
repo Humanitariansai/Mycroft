@@ -1,10 +1,10 @@
 from pydantic_settings import BaseSettings
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from pathlib import Path
 
 class Settings(BaseSettings):
-    APP_NAME: str = "Portfolio Stress Testing - Layers 1, 2 & 3"
-    VERSION: str = "3.0.0"
+    APP_NAME: str = "Portfolio Stress Testing - Layers 1–4"
+    VERSION: str = "4.0.0"
 
     # ── Layer 1 ──────────────────────────────────────────────
     DEFAULT_LOOKBACK_DAYS: int = 756
@@ -60,8 +60,6 @@ class Settings(BaseSettings):
     CONCENTRATION_DRIVER_PCT: float = 0.15
 
     # ── Layer 3 ──────────────────────────────────────────────
-
-    # Fama-French daily factor data URLs (Kenneth French Data Library)
     FF5_URL: str = (
         "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
         "F-F_Research_Data_5_Factors_2x3_daily_CSV.zip"
@@ -70,20 +68,34 @@ class Settings(BaseSettings):
         "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
         "F-F_Momentum_Factor_daily_CSV.zip"
     )
-
-    # Disk cache — store next to this file under data/
     FACTOR_CACHE_DIR: Path = Path(__file__).parent.parent / "data" / "factor_cache"
     FF5_CACHE_FILE: str = "ff5_daily.parquet"
     MOM_CACHE_FILE: str = "momentum_daily.parquet"
-    FACTOR_CACHE_MAX_AGE_DAYS: int = 7      # refresh weekly
+    FACTOR_CACHE_MAX_AGE_DAYS: int = 7
 
-    # Risk flag thresholds
-    HIGH_BETA_THRESHOLD: float = 1.3        # MKT beta flag
-    SIGNIFICANT_TILT_THRESHOLD: float = 0.3 # |β| > 0.3 for non-MKT factors
-    LOW_R2_THRESHOLD: float = 0.60          # unexplained variance flag
-    HIGH_ALPHA_THRESHOLD: float = 0.05      # |annualised alpha| > 5%
-    DRIFT_THRESHOLD: float = 0.0           # rolling beta range triggers drift flag
-    CONCENTRATED_FACTOR_PCT: float = 0.50   # single factor > 50% of variance
+    HIGH_BETA_THRESHOLD: float = 1.3
+    SIGNIFICANT_TILT_THRESHOLD: float = 0.3
+    LOW_R2_THRESHOLD: float = 0.60
+    HIGH_ALPHA_THRESHOLD: float = 0.05
+    DRIFT_THRESHOLD: float = 0.4
+    CONCENTRATED_FACTOR_PCT: float = 0.50
+
+    # ── Layer 4 ──────────────────────────────────────────────
+    # Sharpe ratio thresholds
+    LOW_SHARPE_THRESHOLD: float = 0.5       # flag if Sharpe < 0.5 in any regime
+    NEGATIVE_SHARPE_THRESHOLD: float = 0.0  # flag if Sharpe < 0 in any regime
+
+    # Return dispersion — flag if high-VIX return is this much worse than low-VIX
+    REGIME_RETURN_GAP_THRESHOLD: float = 0.10   # 10 percentage points annualised
+
+    # Volatility spike — flag if high-VIX vol is this multiple of low-VIX vol
+    VOL_SPIKE_THRESHOLD: float = 1.5
+
+    # Win rate — flag if win rate drops below this in high-VIX
+    LOW_WIN_RATE_THRESHOLD: float = 0.45
+
+    # Transition — flag if avg forward return after Low→High is below this
+    TRANSITION_NEGATIVE_THRESHOLD: float = -0.02   # -2% over 5 or 20 days
 
     class Config:
         env_file = ".env"

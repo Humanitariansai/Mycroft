@@ -136,20 +136,17 @@ class CrashSimulationResponse(BaseModel):
 
 
 # ============================================================
-# LAYER 3 — Factor Exposure Decomposition
+# LAYER 3 — unchanged
 # ============================================================
 
 class FactorExposureParameters(BaseModel):
-    lookback_days: int = Field(default=756, ge=252, le=2520,
-                               description="Historical window for regression")
-    rolling_window: int = Field(default=252, ge=60, le=504,
-                                description="Window for rolling regression")
+    lookback_days: int = Field(default=756, ge=252, le=2520)
+    rolling_window: int = Field(default=252, ge=60, le=504)
     vix_low_threshold: float = Field(default=15.0, ge=10, le=20)
     vix_high_threshold: float = Field(default=25.0, ge=20, le=40)
     min_regime_days: int = Field(default=20, ge=5, le=60)
     use_5day_vix: bool = Field(default=True)
-    significance_level: float = Field(default=0.05, ge=0.01, le=0.10,
-                                      description="p-value threshold for significance flags")
+    significance_level: float = Field(default=0.05, ge=0.01, le=0.10)
 
 class FactorExposureRequest(BaseModel):
     portfolio: List[PortfolioHolding] = Field(..., min_items=2, max_items=50)
@@ -164,69 +161,147 @@ class FactorExposureRequest(BaseModel):
             raise ValueError(f"Weights must sum to 1.0, got {total:.3f}")
         return holdings
 
-
-# ── Static regression output ─────────────────────────────────
-
 class FactorLoading(BaseModel):
-    factor: str                  # MKT, SMB, HML, RMW, CMA, UMD
-    beta: float                  # regression coefficient
+    factor: str
+    beta: float
     t_stat: float
     p_value: float
-    significant: bool            # p_value < significance_level
-    contribution_to_variance: float   # β²·Var(F) / Var(R_p)  as fraction
-
+    significant: bool
+    contribution_to_variance: float
 
 class StaticRegressionResult(BaseModel):
-    alpha: float                 # annualised Jensen's alpha
+    alpha: float
     alpha_t_stat: float
     alpha_p_value: float
     r_squared: float
     adj_r_squared: float
-    unexplained_variance_pct: float   # (1 - R²) × 100
+    unexplained_variance_pct: float
     factor_loadings: List[FactorLoading]
-    dominant_factor: str         # factor with highest contribution_to_variance
+    dominant_factor: str
     observations: int
-
-
-# ── Rolling regression output ────────────────────────────────
 
 class RollingLoadingPoint(BaseModel):
     date: str
     beta: float
     r_squared: float
 
-
 class RollingFactorSeries(BaseModel):
     factor: str
     series: List[RollingLoadingPoint]
-    drift_flag: bool             # True if range > DRIFT_THRESHOLD
-    drift_magnitude: float       # max_beta - min_beta over window
-
-
-# ── Regime-conditional loadings ──────────────────────────────
+    drift_flag: bool
+    drift_magnitude: float
 
 class RegimeFactorLoadings(BaseModel):
-    regime: str                  # low / medium / high
+    regime: str
     observations: int
     factor_loadings: List[FactorLoading]
     r_squared: float
     alpha: float
 
-
-# ── Top-level response ────────────────────────────────────────
-
 class FactorExposureResponse(BaseModel):
     exposure_id: str
     timestamp: datetime
     portfolio_summary: Dict
-    # Full-period regression
     static_regression: StaticRegressionResult
-    # 252-day rolling betas per factor
     rolling_regressions: List[RollingFactorSeries]
-    # Regression split by VIX regime
     regime_regressions: List[RegimeFactorLoadings]
-    # Risk flags
     risk_flags: List[str]
     recommendations: List[str]
-    # base64 PNGs
+    visualizations: Dict
+
+
+# ============================================================
+# LAYER 4 — Regime-Specific Performance Analysis
+# ============================================================
+
+class RegimePerformanceParameters(BaseModel):
+    lookback_days: int = Field(default=756, ge=252, le=2520)
+    vix_low_threshold: float = Field(default=15.0, ge=10, le=20)
+    vix_high_threshold: float = Field(default=25.0, ge=20, le=40)
+    min_regime_days: int = Field(default=20, ge=5, le=60)
+    use_5day_vix: bool = Field(default=True)
+    transition_windows: List[int] = Field(
+        default=[5, 20],
+        description="Days forward to measure post-transition performance"
+    )
+
+class RegimePerformanceRequest(BaseModel):
+    portfolio: List[PortfolioHolding] = Field(..., min_items=2, max_items=50)
+    params: Optional[RegimePerformanceParameters] = Field(
+        default_factory=RegimePerformanceParameters
+    )
+
+    @validator('portfolio')
+    def validate_weights(cls, holdings):
+        total = sum(h.weight for h in holdings)
+        if abs(total - 1.0) > 0.01:
+            raise ValueError(f"Weights must sum to 1.0, got {total:.3f}")
+        return holdings
+
+
+# ── Per-regime statistics ─────────────────────────────────────
+
+class RegimeStats(BaseModel):
+    regime: str                        # low / medium / high
+    observations: int
+    # Annualised return and risk
+    ann_return: float
+    ann_volatility: float
+    sharpe_ratio: float
+    # Drawdown
+    max_drawdown: float
+    avg_drawdown: float
+    # Daily return distribution
+    win_rate: float                    # fraction of positive-return days
+    best_day: float
+    worst_day: float
+    # Cumulative return over all regime days (not annualised)
+    cumulative_return: float
+
+
+# ── Regime transition analysis ────────────────────────────────
+
+class TransitionEvent(BaseModel):
+    date: str                          # date of transition
+    from_regime: str
+    to_regime: str
+    fwd_5d_return: Optional[float]
+    fwd_20d_return: Optional[float]
+
+
+class TransitionSummary(BaseModel):
+    from_regime: str
+    to_regime: str
+    label: str                         # e.g. "Low → High"
+    n_events: int
+    avg_fwd_5d: Optional[float]
+    avg_fwd_20d: Optional[float]
+    pct_negative_5d: Optional[float]   # fraction of transitions with negative 5d return
+    pct_negative_20d: Optional[float]
+
+
+# ── Cumulative return series for chart ────────────────────────
+
+class CumulativePoint(BaseModel):
+    date: str
+    cumulative_return: float
+    regime: str                        # colour-coding by regime
+
+
+# ── Top-level response ────────────────────────────────────────
+
+class RegimePerformanceResponse(BaseModel):
+    performance_id: str
+    timestamp: datetime
+    portfolio_summary: Dict
+    # Core per-regime stats
+    regime_stats: List[RegimeStats]
+    # Transition analysis
+    transition_events: List[TransitionEvent]
+    transition_summaries: List[TransitionSummary]
+    # Full cumulative return series coloured by regime
+    cumulative_series: List[CumulativePoint]
+    # Flags + recommendations
+    risk_flags: List[str]
+    recommendations: List[str]
     visualizations: Dict
