@@ -1,0 +1,570 @@
+{
+  "name": "Retail Investor Anxiety Index",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "e2d637cd-91b3-49e6-96ef-afef781f0a96",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-1312, 688]
+    },
+    {
+      "parameters": {
+        "path": "anxiety-data",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0d9ee980-be24-4c40-bfc0-290bf741b8bb",
+      "name": "Dashboard Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1232, 1408],
+      "webhookId": "anxiety-data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read Static Output — returns latest pipeline result stored in static data\nconst staticData = $getWorkflowStaticData('global');\nconst output = staticData.latestOutput;\n\nif (!output) {\n  return [{ json: { message: 'No data yet — run the schedule trigger first.' } }];\n}\nreturn [{ json: output }];\n"
+      },
+      "id": "ce845367-3e30-42d2-9ef8-3d82af653c66",
+      "name": "Read Static Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-976, 1408]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "da6bd116-f79f-4da5-972e-9455cce319a9",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-720, 1408]
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/wallstreetbets.json?limit=25",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "AnxietyBot/1.0 (by /u/ConflictMajestic8820)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ab842a9-b88d-4edc-82d2-89afe3820712",
+      "name": "Fetch WSB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1072, 544]
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/investing.json?limit=25",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "AnxietyBot/1.0 (by /u/ConflictMajestic8820)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "023e180f-8286-444c-90b1-e27771db1a06",
+      "name": "Fetch Investing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1072, 688]
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/stocks.json?limit=25",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "AnxietyBot/1.0 (by /u/ConflictMajestic8820)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d126d0ae-e9e2-4894-a680-598f43b1217b",
+      "name": "Fetch Stocks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1072, 816]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "e672b811-450a-4a07-8814-b90473bd1eea",
+      "name": "Merge Reddit Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [-832, 688]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Node 1A: Raw Merge & Structural Clean\nconst allItems = [];\nfor (const item of $input.all()) {\n  const body = item.json;\n  let posts = [];\n  if (body && body.data && Array.isArray(body.data.children)) {\n    posts = body.data.children;\n  }\n  for (const child of posts) {\n    const d = child.data;\n    if (!d) continue;\n    const title = (d.title || '').trim();\n    if (!title) continue;\n    allItems.push({\n      id: d.id || null,\n      title: title,\n      subreddit: (d.subreddit || '').toLowerCase(),\n      score: typeof d.score === 'number' ? d.score : null,\n      numComments: typeof d.num_comments === 'number' ? d.num_comments : null,\n      createdUtc: typeof d.created_utc === 'number' ? d.created_utc : null,\n      upvoteRatio: typeof d.upvote_ratio === 'number' ? d.upvote_ratio : null\n    });\n  }\n}\nconst seen = new Set();\nconst deduped = [];\nfor (const post of allItems) {\n  if (post.id && !seen.has(post.id)) {\n    seen.add(post.id);\n    deduped.push(post);\n  } else if (!post.id) {\n    deduped.push(post);\n  }\n}\nreturn deduped.map(post => ({ json: post }));\n"
+      },
+      "id": "41c468e6-8802-4aa4-bf1b-696de61547a2",
+      "name": "1A: Raw Merge & Structural Clean",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-576, 688]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Node 1B: Linguistic & Relevance Filter\n// FIX 1: Extract both $TICKER and bare uppercase tickers\nconst COMMON_WORDS = new Set([\n  'I','A','AI','IT','US','UK','THE','AND','FOR',\n  'IPO','CEO','GDP','FED','IMF','ETF','SEC','IRA',\n  'BUT','NOT','ARE','ALL','NEW','NOW','GET','GOT'\n]);\n\nconst output = [];\nfor (const item of $input.all()) {\n  const post = item.json;\n  let title = post.title || '';\n  let cleanTitle = title.toLowerCase();\n\n  // Extract $TICKER format\n  const dollarTickers = title.match(/\\$[A-Z]{1,5}\\b/g) || [];\n\n  // Extract standalone uppercase tickers (2-5 chars), excluding common words\n  const upperTickers = title.match(/\\b[A-Z]{2,5}\\b/g) || [];\n  const filteredUpper = upperTickers.filter(t => !COMMON_WORDS.has(t));\n\n  // Merge and deduplicate\n  const allTickers = [\n    ...dollarTickers.map(t => t.replace('$', '')),\n    ...filteredUpper\n  ];\n  const tickers = [...new Set(allTickers)];\n\n  // Clean title for NLP (strip $ tickers, URLs, emoji, special chars)\n  cleanTitle = cleanTitle.replace(/\\$[a-z]{1,5}\\b/g, '').trim();\n  cleanTitle = cleanTitle.replace(/https?:\\/\\/[^\\s]+/g, '').trim();\n  cleanTitle = cleanTitle.replace(/[\\u{1F600}-\\u{1F64F}\\u{1F300}-\\u{1F5FF}\\u{1F680}-\\u{1F6FF}\\u{1F700}-\\u{1F77F}\\u{1F780}-\\u{1F7FF}\\u{1F800}-\\u{1F8FF}\\u{1F900}-\\u{1F9FF}\\u{1FA00}-\\u{1FA6F}\\u{1FA70}-\\u{1FAFF}\\u{2600}-\\u{26FF}\\u{2700}-\\u{27BF}\\u{FE00}-\\u{FE0F}\\u{1F1E0}-\\u{1F1FF}]/gu, '').trim();\n  cleanTitle = cleanTitle.replace(/[^a-z0-9 '\\-?]/g, ' ').replace(/\\s+/g, ' ').trim();\n\n  const words = cleanTitle.split(' ').filter(w => w.length > 0);\n  const wordCount = words.length;\n  if (wordCount < 4) continue;\n\n  const isQuestion = title.trimEnd().endsWith('?');\n  output.push({ json: { id: post.id, title: post.title, cleanTitle, subreddit: post.subreddit, tickers, isQuestion, wordCount, score: post.score, upvoteRatio: post.upvoteRatio } });\n}\nreturn output;\n"
+      },
+      "id": "ded1df87-086c-4d71-bf12-4250efb475ad",
+      "name": "1B: Linguistic & Relevance Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-320, 688]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Keyword Pre-Scorer\nconst FEAR_HIGH = [\n  'crash','collapse','margin call','panic','bankrupt',\n  'recession','going to lose','lose it all','losing everything',\n  'worst quarter','get out now','catastrophe','obliterated',\n  'devastating','rekt','wiped out','capitulate','capitulation',\n  'blood bath','bloodbath','implode','imploding'\n];\nconst FEAR_MID = [\n  'dump','sell','down','loss','scared','bubble','warn',\n  'fear','correction','pullback','volatile','volatility',\n  'selloff','sell off','bleeding','hurt','pain','worried',\n  'concerning','tariff','war','conflict','crisis','inflation',\n  'layoffs','overvalued','bearish','bear','puts','short',\n  'hedge','defensive','caution','risk','downside','drop',\n  'fell','fallen','sinking','tanking','tank','worst'\n];\nconst GREED_HIGH = [\n  'moon','all in','yolo','lambo','tendies',\n  'to the moon','diamond hands','sending it',\n  'short squeeze','squeeze','ape'\n];\nconst GREED_MID = [\n  'buy','bull','pump','gain','profit','green','up',\n  'rally','recover','bounce','dip','buy the dip',\n  'bullish','calls','upside','growth','opportunity',\n  'ripping','mooning','printing','loaded'\n];\nconst AMPLIFIERS = [\n  'huge','massive','insane','breaking','historic',\n  'unprecedented','extreme','critical','urgent',\n  'serious','major','significant'\n];\nfunction countMatches(text, phrases) {\n  let count = 0;\n  for (const phrase of phrases) {\n    const escaped = phrase.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n    const pattern = phrase.includes(' ') ? new RegExp(escaped,'g') : new RegExp('\\\\b'+escaped+'\\\\b','g');\n    const hits = text.match(pattern);\n    if (hits) count += hits.length;\n  }\n  return count;\n}\nconst output = [];\nfor (const item of $input.all()) {\n  const post = item.json;\n  const text = post.cleanTitle || '';\n  const fearHighCount  = countMatches(text, FEAR_HIGH);\n  const fearMidCount   = countMatches(text, FEAR_MID);\n  const greedHighCount = countMatches(text, GREED_HIGH);\n  const greedMidCount  = countMatches(text, GREED_MID);\n  const ampCount       = countMatches(text, AMPLIFIERS);\n  const fearPoints  = (fearHighCount * 20) + (fearMidCount * 10);\n  const greedPoints = (greedHighCount * 20) + (greedMidCount * 10);\n  let rawScore = 50 + fearPoints - greedPoints;\n  if (ampCount > 0) {\n    const deviation = rawScore - 50;\n    rawScore = 50 + deviation * Math.pow(1.2, ampCount);\n  }\n  const keywordScore = Math.round(Math.min(100, Math.max(0, rawScore)));\n  const totalSignal = fearHighCount + fearMidCount + greedHighCount + greedMidCount;\n  const keywordConfidence = totalSignal === 0 ? 'low' : totalSignal <= 2 ? 'medium' : 'high';\n  const zone = keywordScore >= 61 ? 'CLEAR_FEAR' : keywordScore >= 40 ? 'AMBIGUOUS' : 'CLEAR_GREED';\n  output.push({ json: { ...post, keywordScore, keywordConfidence, zone } });\n}\nreturn output;\n"
+      },
+      "id": "00f8e868-c6f9-4cbe-999b-3a564763a1cf",
+      "name": "Keyword Pre-Scorer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-64, 688]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate for Claude\n// Uses workflow static data instead of fs module\nconst posts = $input.all().map(item => item.json);\n\n// Read previousTopics from static data (no fs required)\nconst staticData = $getWorkflowStaticData('global');\nconst log = staticData.anxietyLog || [];\nconst previousTopics = log.length > 0\n  ? (log[log.length - 1].narrativeVelocity || [])\n  : [];\n\nconst tickersBySubreddit = {};\nfor (const post of posts) {\n  const sub = post.subreddit || 'unknown';\n  if (!tickersBySubreddit[sub]) tickersBySubreddit[sub] = {};\n  for (const ticker of (post.tickers || [])) {\n    tickersBySubreddit[sub][ticker] = (tickersBySubreddit[sub][ticker] || 0) + 1;\n  }\n}\n\nreturn [{\n  json: {\n    allPosts: posts,\n    previousTopics,\n    tickersBySubreddit\n  }\n}];\n"
+      },
+      "id": "772847bc-926b-4847-a0ad-661fddf8badb",
+      "name": "Aggregate for Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [192, 688]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a financial sentiment analyzer scoring Reddit posts from r/wallstreetbets, r/investing, r/stocks.\n\nScore each post title for investor fear/anxiety 0-100:\n  0-20  = strong greed/euphoria (YOLO, moon, massive gains)\n  21-40 = mild optimism (buy the dip, bullish, opportunity)\n  41-60 = neutral or genuine question with no emotional charge\n  61-80 = mild fear (worried, concerned, volatile, correction)\n  81-100 = strong panic (losing everything, crash, worst ever, rekt)\n\nCRITICAL RULES:\n- Be decisive. Do NOT cluster scores around 50.\n- A post about large losses must score 75+\n- A post about market crashes or worst quarters must score 70+\n- A post expressing strong bullish conviction must score 25 or below\n- A neutral factual question with no fear or greed scores 45-55\n- Posts mentioning war, geopolitical risk, or economic crisis score 65+\n- Use the full 0-100 range across the batch of posts\n\nUse the exact id provided. Do not renumber.\nReturn ONLY a JSON array: [{ \"id\": <original_id>, \"score\": <number> }]\n\nPosts: {{ JSON.stringify($json.allPosts.map(p => ({ id: p.id, title: p.cleanTitle }))) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a financial sentiment analyzer. Always respond with valid JSON only. No markdown, no explanation."
+            }
+          ]
+        }
+      },
+      "id": "432bb2ab-e0a0-4908-8e27-e1b7c42b1b0f",
+      "name": "Claude 1: Anxiety Score",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [448, 448]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract the top 10 emerging topics or themes from these Reddit post titles.\nCompare their frequency to the previous run topics provided.\nIf previousTopics is empty, this is the first run — set previousCount to 0 for all topics and set velocityScore based on how dominant each topic is in the current titles (high mention count = higher velocity, scale 0-100).\nReturn ONLY a JSON array:\n[{ \"topic\": <string>, \"currentCount\": <number>, \"previousCount\": <number>, \"velocityScore\": <number> }]\n\nCurrent titles: {{ JSON.stringify($json.allPosts.map(p => p.cleanTitle)) }}\nPrevious topics: {{ JSON.stringify($json.previousTopics || []) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a trend analyst for financial social media. Always respond with valid JSON only. No markdown, no explanation."
+            }
+          ]
+        }
+      },
+      "id": "dc6840ea-a10f-44e4-9b0e-69383898dcfe",
+      "name": "Claude 2: Narrative Velocity",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [448, 736]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a market pattern detector. Analyze these Reddit post titles from 3 subreddits and identify stocks, companies, or themes discussed across multiple communities.\n\nLook beyond $ tickers — find company names, ETFs, indices, macro themes discussed in multiple subreddits.\n\nExamples to look for: Nvidia/NVDA, Apple/AAPL, Microsoft/MSFT, Tesla/TSLA, SPY, QQQ, META, oil, gold, Fed, AI stocks, tech stocks, China stocks, defense stocks etc.\n\nSet isHerd = true if topic appears in 2 or more subreddits.\nAlways return at least 3-5 results even if isHerd is false for some — show the top cross-subreddit themes regardless.\n\nReturn ONLY JSON array:\n[{ \n  \"ticker\": <string>, \n  \"mentions\": { \"wallstreetbets\": <number>, \"investing\": <number>, \"stocks\": <number> }, \n  \"isHerd\": <boolean> \n}]\nsorted by total mentions descending.\n\nwallstreetbets posts: {{ JSON.stringify($json.allPosts.filter(p => p.subreddit === 'wallstreetbets').map(p => p.cleanTitle)) }}\ninvesting posts: {{ JSON.stringify($json.allPosts.filter(p => p.subreddit === 'investing').map(p => p.cleanTitle)) }}\nstocks posts: {{ JSON.stringify($json.allPosts.filter(p => p.subreddit === 'stocks').map(p => p.cleanTitle)) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a market pattern detector analyzing retail investor behavior. Always respond with valid JSON only. No markdown, no explanation."
+            }
+          ]
+        }
+      },
+      "id": "ca3c962f-65f0-4675-8664-8ac3fa19478c",
+      "name": "Claude 3: Herd Detection",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [448, 1040]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Score assertive vs uncertain language in these Reddit post titles.\nAssertive: bold claims, definitive statements, strong calls to action.\nUncertain: questions, hedging, maybe/should I/not sure language.\nReturn ONLY JSON:\n{\n  \"convictionScore\": <number>,\n  \"uncertaintyScore\": <number>,\n  \"ratio\": <number>,\n  \"dominantPostTitles\": [<top 3 most assertive titles>]\n}\nScores must sum to 100.\n\nTitles with question flags: {{ JSON.stringify($json.allPosts.map(p => ({ title: p.cleanTitle, isQuestion: p.isQuestion }))) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a linguistic analyst specializing in investor sentiment. Always respond with valid JSON only. No markdown, no explanation."
+            }
+          ]
+        }
+      },
+      "id": "3a76e93a-4226-433e-a2c2-a0b9b5a47be5",
+      "name": "Claude 4: Conviction vs Uncertainty",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [448, 1344]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify the current retail investor crowd narrative into exactly one stage:\nEuphoria, Complacency, Anxiety, Denial, Panic, or Hope.\n\nStage definitions:\n- Euphoria: extreme optimism, everyone is winning, FOMO language\n- Complacency: calm, passive, low urgency\n- Anxiety: worried but not panicking, lots of questions and hedging\n- Denial: ignoring bad signs, rationalizing losses\n- Panic: extreme fear, selling everything, catastrophic language\n- Hope: cautious optimism after a down period, early recovery language\n\nReturn ONLY JSON:\n{\n  \"stage\": <one of the 6 stages>,\n  \"confidence\": <number 0-1>,\n  \"reasoning\": <max 2 sentences>\n}\n\nTitles: {{ JSON.stringify($json.allPosts.map(p => p.cleanTitle)) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a behavioral finance expert analyzing crowd psychology. Always respond with valid JSON only. No markdown, no explanation."
+            }
+          ]
+        }
+      },
+      "id": "c488fe32-1e93-41a9-aee1-d012c118fdff",
+      "name": "Claude 5: Crowd Cycle Stage",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [448, 1648]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list"
+        },
+        "options": {
+          "maxTokensToSample": 1000
+        }
+      },
+      "id": "10a54900-93e4-44ee-9e2d-ec6f0fdcc0d5",
+      "name": "Anthropic Model 1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [448, 288],
+      "credentials": {
+        "anthropicApi": {
+          "id": "TxJGOaoFMKGRz73M",
+          "name": "Anthropic account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list"
+        },
+        "options": {
+          "maxTokensToSample": 1000
+        }
+      },
+      "id": "08c97ed9-a6cb-47db-aa1c-9a0b87f687bf",
+      "name": "Anthropic Model 2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [448, 576],
+      "credentials": {
+        "anthropicApi": {
+          "id": "TxJGOaoFMKGRz73M",
+          "name": "Anthropic account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list"
+        },
+        "options": {
+          "maxTokensToSample": 1000
+        }
+      },
+      "id": "db0810ab-cc23-4251-8663-1a824940cb01",
+      "name": "Anthropic Model 3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [448, 880],
+      "credentials": {
+        "anthropicApi": {
+          "id": "TxJGOaoFMKGRz73M",
+          "name": "Anthropic account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list"
+        },
+        "options": {
+          "maxTokensToSample": 1000
+        }
+      },
+      "id": "dabdb1e5-ecbe-4823-b061-d4b8557bd054",
+      "name": "Anthropic Model 4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [448, 1184],
+      "credentials": {
+        "anthropicApi": {
+          "id": "TxJGOaoFMKGRz73M",
+          "name": "Anthropic account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list"
+        },
+        "options": {
+          "maxTokensToSample": 1000
+        }
+      },
+      "id": "a671f0d9-c840-4402-9258-6d46fe730f68",
+      "name": "Anthropic Model 5",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [448, 1488],
+      "credentials": {
+        "anthropicApi": {
+          "id": "TxJGOaoFMKGRz73M",
+          "name": "Anthropic account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "id": "fca88a97-fd69-41f0-aaa0-3a4c41c3a4ba",
+      "name": "Merge Claude Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [896, 1056]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Signal Aggregator\n// FIX 2: Uses finalScore = Claude 1 score for all posts (preferred),\n// falling back to keywordScore for posts not scored by Claude 1.\n// top3FearfulPosts now returns { title, score } objects.\n\nfunction parseLlmOutput(text) {\n  if (!text) return null;\n  try {\n    const clean = (text + '')\n      .replace(/^```[\\w]*\\n?/m, '')\n      .replace(/\\n?```$/m, '')\n      .trim();\n    return JSON.parse(clean);\n  } catch (e) {\n    return null;\n  }\n}\n\nconst items = $input.all();\n\nlet anxietyScores     = null;\nlet narrativeVelocity = null;\nlet herdDetection     = null;\nlet conviction        = null;\nlet cycleStage        = null;\n\nfor (const item of items) {\n  const parsed = parseLlmOutput(item.json.text);\n  if (parsed === null) continue;\n\n  if (Array.isArray(parsed) && parsed.length > 0) {\n    const first = parsed[0];\n    if ('score' in first && 'id' in first) {\n      anxietyScores = parsed;                         // Claude 1\n    } else if ('velocityScore' in first || 'currentCount' in first) {\n      narrativeVelocity = parsed;                     // Claude 2\n    } else if ('ticker' in first || 'isHerd' in first) {\n      herdDetection = parsed;                         // Claude 3\n    }\n  } else if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {\n    if ('convictionScore' in parsed || 'uncertaintyScore' in parsed) {\n      conviction = parsed;                            // Claude 4\n    } else if ('stage' in parsed || 'confidence' in parsed) {\n      cycleStage = parsed;                            // Claude 5\n    }\n  }\n}\n\nanxietyScores     = anxietyScores     || [];\nnarrativeVelocity = narrativeVelocity || [];\nherdDetection     = herdDetection     || [];\nconviction        = conviction        || {};\ncycleStage        = cycleStage        || {};\n\nconst aggregateData = $('Aggregate for Claude').first().json;\nconst allPosts = (aggregateData.allPosts || []).map(p => ({ ...p }));\n\n// Build Claude 1 score map: id → score\nconst scoreMap = {};\nfor (const item of anxietyScores) {\n  if (item.id != null) scoreMap[String(item.id)] = Number(item.score);\n}\n\n// FIX 2: Use Claude score when available, fall back to keywordScore.\n// All posts are included (no filtering by zone).\nconst scoredPosts = allPosts\n  .map(post => {\n    const claudeScore = scoreMap[String(post.id)];\n    const finalScore = claudeScore !== undefined\n      ? claudeScore\n      : post.keywordScore;\n    return { ...post, finalScore };\n  })\n  .filter(p => typeof p.finalScore === 'number');\n\n// FIX 2: Average uses finalScore\nconst averageAnxietyScore = scoredPosts.length\n  ? Math.round(scoredPosts.reduce((s, p) => s + p.finalScore, 0) / scoredPosts.length)\n  : 50;\n\nconst avg = arr =>\n  arr.length ? Math.round(arr.reduce((s, v) => s + v, 0) / arr.length) : 50;\n\nconst subBuckets = { wallstreetbets: [], investing: [], stocks: [] };\nfor (const post of scoredPosts) {\n  if (subBuckets[post.subreddit]) subBuckets[post.subreddit].push(post.finalScore);\n}\nconst subredditScores = {\n  wallstreetbets: avg(subBuckets.wallstreetbets),\n  investing:      avg(subBuckets.investing),\n  stocks:         avg(subBuckets.stocks),\n};\n\n// FIX 2: top3FearfulPosts sorted by finalScore, returns { title, score } objects\nconst top3FearfulPosts = [...scoredPosts]\n  .sort((a, b) => b.finalScore - a.finalScore)\n  .slice(0, 3)\n  .map(p => ({ title: p.cleanTitle, score: p.finalScore }));\n\nreturn [{\n  json: {\n    anxietyScores,\n    narrativeVelocity,\n    herdDetection,\n    conviction,\n    cycleStage,\n    averageAnxietyScore,\n    anxietyScore: averageAnxietyScore,\n    subredditScores,\n    top3FearfulPosts,\n    timestamp: new Date().toISOString(),\n    date:      new Date().toISOString().split('T')[0],\n    postCount: allPosts.length,\n  }\n}];\n"
+      },
+      "id": "b860a7a0-a41b-47de-9984-8f06fc92eecc",
+      "name": "Signal Aggregator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1104, 752]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Persist to File — uses workflow static data instead of fs module\nconst staticData = $getWorkflowStaticData('global');\nconst data = $input.first().json;\nlet log = staticData.anxietyLog || [];\n\nconst entry = {\n  date:              data.date,\n  timestamp:         data.timestamp,\n  postCount:         data.postCount,\n  anxietyScore:      data.anxietyScore,\n  subredditScores:   data.subredditScores,\n  top3FearfulPosts:  data.top3FearfulPosts,\n  narrativeVelocity: data.narrativeVelocity,\n  herdDetection:     data.herdDetection,\n  conviction:        data.conviction,\n  cycleStage:        data.cycleStage\n};\n\nlog.push(entry);\n\nconst cutoff = new Date();\ncutoff.setDate(cutoff.getDate() - 7);\nlog = log.filter(e => new Date(e.timestamp) >= cutoff);\n\nstaticData.anxietyLog = log;\n\nreturn [{ json: { ...data, log } }];\n"
+      },
+      "id": "8170611f-0b07-48b2-b5e3-1d8478984c5e",
+      "name": "Persist to File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1328, 752]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate Quickchart URLs\nconst BASE = 'https://quickchart.io/chart?c=';\nconst data = $input.first().json;\nconst log  = data.log || [];\nconst last7 = log.slice(-7);\nconst chart1 = { type: 'line', data: { labels: last7.map(e => e.date), datasets: [{ label: 'Anxiety Score', data: last7.map(e => e.anxietyScore), borderColor: '#E24B4A', backgroundColor: 'rgba(226,75,74,0.2)', fill: true, tension: 0.3 }] }, options: { scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: true } } } };\nconst anxietyChartUrl = BASE + encodeURIComponent(JSON.stringify(chart1));\nconst velocityItems = (Array.isArray(data.narrativeVelocity) ? data.narrativeVelocity : []).slice(0, 10);\nconst chart2 = { type: 'horizontalBar', data: { labels: velocityItems.map(t => t.topic), datasets: [{ label: 'Velocity Score', data: velocityItems.map(t => t.velocityScore), backgroundColor: '#EF9F27' }] }, options: { scales: { x: { min: 0, max: 100 } } } };\nconst velocityChartUrl = BASE + encodeURIComponent(JSON.stringify(chart2));\nconst herdTickers = (Array.isArray(data.herdDetection) ? data.herdDetection : []).filter(t => t.isHerd);\nconst chart3 = { type: 'bar', data: { labels: herdTickers.map(t => t.ticker), datasets: [ { label: 'wallstreetbets', data: herdTickers.map(t => (t.mentions||{}).wallstreetbets||0), backgroundColor: '#E24B4A' }, { label: 'investing', data: herdTickers.map(t => (t.mentions||{}).investing||0), backgroundColor: '#378ADD' }, { label: 'stocks', data: herdTickers.map(t => (t.mentions||{}).stocks||0), backgroundColor: '#639922' } ] } };\nconst herdChartUrl = BASE + encodeURIComponent(JSON.stringify(chart3));\nconst conv = data.conviction || { convictionScore: 50, uncertaintyScore: 50 };\nconst chart4 = { type: 'doughnut', data: { labels: ['Conviction','Uncertainty'], datasets: [{ data: [conv.convictionScore||0, conv.uncertaintyScore||0], backgroundColor: ['#378ADD','#B4B2A9'] }] } };\nconst convictionChartUrl = BASE + encodeURIComponent(JSON.stringify(chart4));\nreturn [{ json: { ...data, anxietyChartUrl, velocityChartUrl, herdChartUrl, convictionChartUrl } }];\n"
+      },
+      "id": "b33107e5-f4b7-41bf-8190-8a6432f305f7",
+      "name": "Generate Quickchart URLs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1552, 752]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Write output.json — stores in static data instead of filesystem\nconst staticData = $getWorkflowStaticData('global');\nconst data = $input.first().json;\nconst cs   = data.cycleStage  || {};\nconst conv = data.conviction  || {};\nconst herd = Array.isArray(data.herdDetection) ? data.herdDetection : [];\n\nconst output = {\n  latestDate:         data.date,\n  postCount:          data.postCount,\n  anxietyScore:       data.anxietyScore,\n  subredditScores:    data.subredditScores,\n  top3FearfulPosts:   data.top3FearfulPosts,\n  anxietyChartUrl:    data.anxietyChartUrl,\n  velocityChartUrl:   data.velocityChartUrl,\n  herdChartUrl:       data.herdChartUrl,\n  convictionChartUrl: data.convictionChartUrl,\n  cycleStage:         cs.stage      || null,\n  cycleConfidence:    cs.confidence || null,\n  cycleReasoning:     cs.reasoning  || null,\n  herdTickers:        herd.filter(t => t.isHerd).map(t => t.ticker),\n  convictionScore:    conv.convictionScore  ?? null,\n  uncertaintyScore:   conv.uncertaintyScore ?? null,\n  convictionRatio:    conv.ratio            ?? null,\n  dominantPostTitles: conv.dominantPostTitles || []\n};\n\nstaticData.latestOutput = output;\n\nreturn [{ json: output }];\n"
+      },
+      "id": "1fe90c6c-5c5f-4704-b108-d4ac17335681",
+      "name": "Write output.json",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1808, 752]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          { "node": "Fetch WSB",       "type": "main", "index": 0 },
+          { "node": "Fetch Investing", "type": "main", "index": 0 },
+          { "node": "Fetch Stocks",    "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Dashboard Webhook": {
+      "main": [
+        [{ "node": "Read Static Output", "type": "main", "index": 0 }]
+      ]
+    },
+    "Read Static Output": {
+      "main": [
+        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch WSB": {
+      "main": [
+        [{ "node": "Merge Reddit Feeds", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Investing": {
+      "main": [
+        [{ "node": "Merge Reddit Feeds", "type": "main", "index": 1 }]
+      ]
+    },
+    "Fetch Stocks": {
+      "main": [
+        [{ "node": "Merge Reddit Feeds", "type": "main", "index": 2 }]
+      ]
+    },
+    "Merge Reddit Feeds": {
+      "main": [
+        [{ "node": "1A: Raw Merge & Structural Clean", "type": "main", "index": 0 }]
+      ]
+    },
+    "1A: Raw Merge & Structural Clean": {
+      "main": [
+        [{ "node": "1B: Linguistic & Relevance Filter", "type": "main", "index": 0 }]
+      ]
+    },
+    "1B: Linguistic & Relevance Filter": {
+      "main": [
+        [{ "node": "Keyword Pre-Scorer", "type": "main", "index": 0 }]
+      ]
+    },
+    "Keyword Pre-Scorer": {
+      "main": [
+        [{ "node": "Aggregate for Claude", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate for Claude": {
+      "main": [
+        [
+          { "node": "Claude 1: Anxiety Score",             "type": "main", "index": 0 },
+          { "node": "Claude 2: Narrative Velocity",        "type": "main", "index": 0 },
+          { "node": "Claude 3: Herd Detection",            "type": "main", "index": 0 },
+          { "node": "Claude 4: Conviction vs Uncertainty", "type": "main", "index": 0 },
+          { "node": "Claude 5: Crowd Cycle Stage",         "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Claude 1: Anxiety Score": {
+      "main": [
+        [{ "node": "Merge Claude Outputs", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude 2: Narrative Velocity": {
+      "main": [
+        [{ "node": "Merge Claude Outputs", "type": "main", "index": 1 }]
+      ]
+    },
+    "Claude 3: Herd Detection": {
+      "main": [
+        [{ "node": "Merge Claude Outputs", "type": "main", "index": 2 }]
+      ]
+    },
+    "Claude 4: Conviction vs Uncertainty": {
+      "main": [
+        [{ "node": "Merge Claude Outputs", "type": "main", "index": 3 }]
+      ]
+    },
+    "Claude 5: Crowd Cycle Stage": {
+      "main": [
+        [{ "node": "Merge Claude Outputs", "type": "main", "index": 4 }]
+      ]
+    },
+    "Merge Claude Outputs": {
+      "main": [
+        [{ "node": "Signal Aggregator", "type": "main", "index": 0 }]
+      ]
+    },
+    "Signal Aggregator": {
+      "main": [
+        [{ "node": "Persist to File", "type": "main", "index": 0 }]
+      ]
+    },
+    "Persist to File": {
+      "main": [
+        [{ "node": "Generate Quickchart URLs", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Quickchart URLs": {
+      "main": [
+        [{ "node": "Write output.json", "type": "main", "index": 0 }]
+      ]
+    },
+    "Anthropic Model 1": {
+      "ai_languageModel": [
+        [{ "node": "Claude 1: Anxiety Score",             "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "Anthropic Model 2": {
+      "ai_languageModel": [
+        [{ "node": "Claude 2: Narrative Velocity",        "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "Anthropic Model 3": {
+      "ai_languageModel": [
+        [{ "node": "Claude 3: Herd Detection",            "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "Anthropic Model 4": {
+      "ai_languageModel": [
+        [{ "node": "Claude 4: Conviction vs Uncertainty", "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "Anthropic Model 5": {
+      "ai_languageModel": [
+        [{ "node": "Claude 5: Crowd Cycle Stage",         "type": "ai_languageModel", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e05051e7-dd7d-4731-aa33-10ddb4d82c37",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f92ba833cfc01dd064a94201fa4bb20b3305c9c67348abfd124c90886d0575b8"
+  },
+  "id": "peQNrxGaucaP2FQI",
+  "tags": []
+}
