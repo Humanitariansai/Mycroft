@@ -1,5 +1,10 @@
 # Behavioral Analysis System
 
+> **Developed by:** Darshan Rajopadhye (rajopadhye.d@northeastern.edu)
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/therrshan)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/therrshan)
+
 Your brokerage shows you returns. It never tells you why you're making them — or losing them.
 
 Behavioral Alpha is a six-agent AI system that analyzes your personal trading history and produces a behavioral edge report — a direct, quantified answer to where your returns come from, which patterns are costing you alpha, and whether your track record reflects skill or luck.
