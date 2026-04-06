@@ -1,5 +1,7 @@
 # Retail Investor Anxiety Index
 
+![Dashboard Preview](preview.png)
+
 > A behavioral intelligence dashboard that analyzes Reddit crowd 
 > sentiment using AI-powered multi-signal analysis across 
 > r/wallstreetbets, r/investing, and r/stocks.
@@ -398,5 +400,8 @@ MIT — free to use, modify, and distribute.
 
 ## Built By
 
-Sahiti Nallamolu — as part of a research project exploring 
+**Sahiti Nallamolu**  
+[linkedin.com/in/sahitinallamolu](https://www.linkedin.com/in/sahitinallamolu/)
+
+Built as part of the **Humanitarians AI Fellows Program** — exploring 
 unconventional data sources for behavioral finance signals.
