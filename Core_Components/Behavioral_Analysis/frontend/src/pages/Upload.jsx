@@ -72,7 +72,7 @@ export default function Upload({ onReport }) {
       {/* Header */}
       <div className="mb-12 text-center">
         <div className="inline-flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-4 opacity-70">
-          <span className="w-4 h-px bg-accent" /> behavioral alpha <span className="w-4 h-px bg-accent" />
+          <span className="w-4 h-px bg-accent" /> behavioral analysis system <span className="w-4 h-px bg-accent" />
         </div>
         <h1 className="text-3xl font-semibold text-primary tracking-tight">
           Where's your edge?

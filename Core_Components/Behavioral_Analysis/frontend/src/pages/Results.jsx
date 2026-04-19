@@ -31,7 +31,7 @@ export default function Results({ report, onReset }) {
       <div className="mb-10 flex items-start justify-between">
         <div>
           <div className="inline-flex items-center gap-2 text-accent text-xs font-mono tracking-widest uppercase mb-3 opacity-70">
-            <span className="w-4 h-px bg-accent" /> behavioral alpha
+            <span className="w-4 h-px bg-accent" /> behavioral analysis system
           </div>
           <h1 className="text-2xl font-semibold text-primary tracking-tight">Your edge report</h1>
           {dateStr && <p className="text-dim text-xs mt-1">Generated {dateStr}</p>}
@@ -68,15 +68,17 @@ export default function Results({ report, onReset }) {
         </Section>
       )}
 
+      {/* All insights */}
+      <Section title="Detailed insights">
+        <InsightsList findings={agent_findings} />
+      </Section>
+
       {/* Narrative */}
       <Section title="Analysis">
         <NarrativeReport narrative={narrative} />
       </Section>
 
-      {/* All insights */}
-      <Section title="Detailed insights">
-        <InsightsList findings={agent_findings} />
-      </Section>
+      
 
       {/* Footer */}
       <div className="mt-12 pt-6 border-t border-border flex items-center justify-between">
