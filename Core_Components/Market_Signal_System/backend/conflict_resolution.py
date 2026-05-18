@@ -149,10 +149,10 @@ class ConflictResolver:
         
         for finding in findings:
             if finding.edge_score is not None:
-                if finding.edge_score > 0.6:
+                if finding.edge_score > 0.55:  # Lowered from 0.6 to 0.55
                     vote = "buy"
                     buy_votes += 1
-                elif finding.edge_score < 0.4:
+                elif finding.edge_score < 0.45:  # Raised from 0.4 to 0.45
                     vote = "sell" 
                     sell_votes += 1
                 else:
