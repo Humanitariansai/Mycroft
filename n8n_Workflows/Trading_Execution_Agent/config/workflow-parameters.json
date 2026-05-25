@@ -1,0 +1,45 @@
+{
+  "workflow_config": {
+    "name": "Trading Execution Agent",
+    "version": "1.0",
+    "trigger_type": "manual",
+    "execution_mode": "paper_trading_only"
+  },
+  "google_sheets": {
+    "portfolio_sheet": {
+      "name": "Portfolio_Positions",
+      "required_columns": ["Ticker", "Shares", "Cost_Basis", "Current_Value", "Target_Allocation"]
+    },
+    "trade_log_sheet": {
+      "name": "Trade_Execution_Log", 
+      "columns": ["Timestamp", "Ticker", "Action", "Shares", "Price", "Total_Value", "Risk_Score", "Signal_Confidence", "Order_ID", "Status"]
+    },
+    "risk_sheet": {
+      "name": "Risk_Monitoring",
+      "columns": ["Timestamp", "Total_Portfolio_Value", "Risk_Score", "Max_Position_Size", "Stop_Loss_Alerts", "Recommendations"]
+    }
+  },
+  "alpaca_config": {
+    "base_url": "https://paper-api.alpaca.markets",
+    "required_env_vars": ["ALPACA_API_KEY", "ALPACA_SECRET_KEY"],
+    "order_types": ["market", "limit", "stop", "stop_limit"],
+    "time_in_force": ["day", "gtc", "ioc", "fok"]
+  },
+  "risk_parameters": {
+    "max_position_size_percent": 5.0,
+    "max_portfolio_risk_score": 0.7,
+    "stop_loss_percent": 8.0,
+    "min_signal_confidence": 0.6,
+    "max_daily_trades": 10
+  },
+  "agent_endpoints": {
+    "market_signals": "http://localhost:8001/api/analyze",
+    "risk_management": "http://localhost:5678/webhook/risk-assessment",
+    "portfolio_intelligence": "http://localhost:5678/webhook/portfolio-analysis"
+  },
+  "notification_config": {
+    "email_alerts": true,
+    "alert_triggers": ["high_risk", "execution_error", "daily_summary"],
+    "recipients": ["trader@mycroft.example"]
+  }
+}
