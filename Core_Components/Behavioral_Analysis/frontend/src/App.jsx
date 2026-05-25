@@ -5,12 +5,7 @@ import Results from './pages/Results'
 export default function App() {
   const [report, setReport] = useState(null)
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {report
-        ? <Results report={report} onReset={() => setReport(null)} />
-        : <Upload onReport={setReport} />
-      }
-    </div>
-  )
+  return report
+    ? <Results report={report} onReset={() => setReport(null)} />
+    : <Upload onReport={setReport} />
 }
