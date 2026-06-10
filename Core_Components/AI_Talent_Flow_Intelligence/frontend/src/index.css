@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-lg;
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+  
+  .card-content {
+    @apply p-6;
+  }
+  
+  .metric-card {
+    @apply bg-gradient-to-r from-talent-primary to-talent-secondary text-white rounded-xl p-6 shadow-lg;
+  }
+  
+  .signal-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .signal-critical {
+    @apply bg-red-100 text-red-800 border border-red-300;
+  }
+  
+  .signal-strong {
+    @apply bg-orange-100 text-orange-800 border border-orange-300;
+  }
+  
+  .signal-moderate {
+    @apply bg-yellow-100 text-yellow-800 border border-yellow-300;
+  }
+  
+  .signal-weak {
+    @apply bg-gray-100 text-gray-800 border border-gray-300;
+  }
+  
+  .talent-avatar {
+    @apply w-12 h-12 rounded-full bg-gradient-to-r from-talent-primary to-talent-secondary flex items-center justify-center text-white font-bold text-lg;
+  }
+  
+  .influence-bar {
+    @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+  }
+  
+  .influence-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+  }
+}
