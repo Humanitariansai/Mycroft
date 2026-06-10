@@ -6,11 +6,11 @@ The AI Talent Flow Intelligence system represents a breakthrough in investment i
 
 ## 🎯 Mission Statement
 
-**"Track the minds that move markets."** By monitoring where key AI talent goes, we can predict where innovation—and investment opportunities—will emerge next.
+**"Track the technical minds that drive AI innovation."** By monitoring where key AI engineers and researchers move, we can predict technical breakthroughs and competitive shifts before they become apparent through traditional analysis.
 
 ## 🔬 Core Hypothesis
 
-**Talent flows precede value flows.** When influential AI researchers, engineers, or executives change companies, it often signals:
+**Technical talent flows precede AI breakthrough flows.** When influential AI researchers and senior engineers change companies, it often signals:
 
 - **Upcoming breakthroughs** (3-6 months lead time)
 - **Competitive advantage shifts** between companies
@@ -24,14 +24,15 @@ Unlike traditional financial intelligence that relies on lagging indicators like
 
 ## 🏗️ System Architecture
 
-### Data Collection Layer
+### Data Collection Layer (Realistic Sources)
 ```
 ┌─────────────────┬─────────────────┬─────────────────┐
-│ GitHub API      │ Academic APIs   │ Job Platforms   │
-│ - Commit logs   │ - Publications  │ - Role changes  │
-│ - Collaboration │ - Citations     │ - Compensation  │
-│ - Code quality  │ - Conferences   │ - Team sizes    │
+│ GitHub API      │ Academic APIs   │ Public Sources  │
+│ - Bio changes   │ - Publications  │ - Press releases│
+│ - Commit patterns│ - Citations    │ - Conference bio│
+│ - Org membership│ - Conferences   │ - Tech news     │
 └─────────────────┴─────────────────┴─────────────────┘
+Note: LinkedIn not included due to anti-scraping restrictions
                             │
                    ┌────────▼────────┐
                    │ Talent Pipeline │
