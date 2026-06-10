@@ -1,0 +1,194 @@
+[
+  {
+    "ticker": "AAPL",
+    "market_signal": {
+      "ticker": "AAPL",
+      "recommendation": "BUY",
+      "score": 0.552,
+      "conflicts": false,
+      "ensemble_decision": "HOLD",
+      "agent_scores": {
+        "technical_analysis": 0.45,
+        "market_fear_greed": 0.5,
+        "news_sentiment": 0.74
+      }
+    },
+    "risk_assessment": {
+      "ticker": "AAPL",
+      "risk_score": 0.4,
+      "position_percent": 8.75,
+      "max_additional_shares": 0,
+      "recommendation": "APPROVE"
+    },
+    "trade_decision": {
+      "ticker": "AAPL",
+      "action": "BUY",
+      "quantity": 0,
+      "reason": "Strong buy signal with acceptable risk",
+      "confidence": 0.552,
+      "risk_score": 0.4,
+      "timestamp": "2026-05-25T00:52:35.835208"
+    },
+    "order_result": {
+      "status": "SKIPPED",
+      "reason": "No quantity to trade"
+    },
+    "timestamp": "2026-05-25T00:52:35.835241"
+  },
+  {
+    "ticker": "NVDA",
+    "market_signal": {
+      "ticker": "NVDA",
+      "recommendation": "BUY",
+      "score": 0.68,
+      "conflicts": true,
+      "ensemble_decision": "BUY",
+      "agent_scores": {
+        "technical_analysis": 0.65,
+        "market_fear_greed": 0.5,
+        "news_sentiment": 0.9
+      }
+    },
+    "risk_assessment": {
+      "ticker": "NVDA",
+      "risk_score": 0.4,
+      "position_percent": 7.02,
+      "max_additional_shares": 4,
+      "recommendation": "APPROVE"
+    },
+    "trade_decision": {
+      "ticker": "NVDA",
+      "action": "BUY",
+      "quantity": 4,
+      "reason": "Strong buy signal with acceptable risk",
+      "confidence": 0.68,
+      "risk_score": 0.4,
+      "timestamp": "2026-05-25T00:52:36.472957"
+    },
+    "order_result": {
+      "id": "ORDER_1779684757",
+      "symbol": "NVDA",
+      "qty": 4,
+      "side": "buy",
+      "type": "market",
+      "status": "filled",
+      "filled_avg_price": 200.0,
+      "filled_at": "2026-05-25T00:52:37.473436"
+    },
+    "timestamp": "2026-05-25T00:52:37.473542"
+  },
+  {
+    "ticker": "MSFT",
+    "market_signal": {
+      "ticker": "MSFT",
+      "recommendation": "BUY",
+      "score": 0.68,
+      "conflicts": true,
+      "ensemble_decision": "BUY",
+      "agent_scores": {
+        "technical_analysis": 0.65,
+        "market_fear_greed": 0.5,
+        "news_sentiment": 0.9
+      }
+    },
+    "risk_assessment": {
+      "ticker": "MSFT",
+      "risk_score": 0.7,
+      "position_percent": 10.956000000000001,
+      "max_additional_shares": 0,
+      "recommendation": "REJECT"
+    },
+    "trade_decision": {
+      "ticker": "MSFT",
+      "action": "HOLD",
+      "quantity": 0,
+      "reason": "Conditions not met for trade execution",
+      "confidence": 0.68,
+      "risk_score": 0.7,
+      "timestamp": "2026-05-25T00:52:38.199832"
+    },
+    "order_result": {
+      "status": "SKIPPED",
+      "reason": "No quantity to trade"
+    },
+    "timestamp": "2026-05-25T00:52:38.199869"
+  },
+  {
+    "ticker": "TSLA",
+    "market_signal": {
+      "ticker": "TSLA",
+      "recommendation": "BUY",
+      "score": 0.596,
+      "conflicts": false,
+      "ensemble_decision": "BUY",
+      "agent_scores": {
+        "technical_analysis": 0.65,
+        "market_fear_greed": 0.5,
+        "news_sentiment": 0.62
+      }
+    },
+    "risk_assessment": {
+      "ticker": "TSLA",
+      "risk_score": 0.13053333333333333,
+      "position_percent": 3.916,
+      "max_additional_shares": 10,
+      "recommendation": "APPROVE"
+    },
+    "trade_decision": {
+      "ticker": "TSLA",
+      "action": "BUY",
+      "quantity": 10,
+      "reason": "Strong buy signal with acceptable risk",
+      "confidence": 0.596,
+      "risk_score": 0.13053333333333333,
+      "timestamp": "2026-05-25T00:52:38.910127"
+    },
+    "order_result": {
+      "id": "ORDER_1779684759",
+      "symbol": "TSLA",
+      "qty": 10,
+      "side": "buy",
+      "type": "market",
+      "status": "filled",
+      "filled_avg_price": 200.0,
+      "filled_at": "2026-05-25T00:52:39.910546"
+    },
+    "timestamp": "2026-05-25T00:52:39.910617"
+  },
+  {
+    "ticker": "SPY",
+    "market_signal": {
+      "ticker": "SPY",
+      "recommendation": "HOLD",
+      "score": 0.479,
+      "conflicts": false,
+      "ensemble_decision": "HOLD",
+      "agent_scores": {
+        "technical_analysis": 0.45,
+        "market_fear_greed": 0.5,
+        "news_sentiment": 0.5
+      }
+    },
+    "risk_assessment": {
+      "ticker": "SPY",
+      "risk_score": 0.7,
+      "position_percent": 42.53,
+      "max_additional_shares": 0,
+      "recommendation": "REJECT"
+    },
+    "trade_decision": {
+      "ticker": "SPY",
+      "action": "HOLD",
+      "quantity": 0,
+      "reason": "Signal confidence too low: 0.479",
+      "confidence": 0.479,
+      "risk_score": 0.7,
+      "timestamp": "2026-05-25T00:52:40.582123"
+    },
+    "order_result": {
+      "status": "SKIPPED",
+      "reason": "No quantity to trade"
+    },
+    "timestamp": "2026-05-25T00:52:40.582155"
+  }
+]

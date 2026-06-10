@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retail Investor Anxiety Index</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f0f0f;
+      --surface:  #1a1a1a;
+      --surface2: #212121;
+      --border:   #2e2e2e;
+      --text:     #e0e0e0;
+      --muted:    #7a7a7a;
+      --red:      #E24B4A;
+      --yellow:   #EF9F27;
+      --green:    #639922;
+      --blue:     #378ADD;
+      --grey:     #B4B2A9;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 28px 32px;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .header-meta { color: var(--muted); font-size: 12px; }
+
+    /* ── Dashboard layout ── */
+    .dashboard { display: flex; flex-direction: column; gap: 16px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .row-1 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+    /* ── Panel shell ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 22px 20px;
+    }
+    .panel-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .panel-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── Chart images ── */
+    .chart-img {
+      width: 100%;
+      display: block;
+      border-radius: 8px;
+      margin-top: 14px;
+      background: var(--surface2);
+    }
+
+    /* ── Panel 1 — Anxiety Index ── */
+    .anxiety-score {
+      font-size: 80px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .anxiety-label {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 2px;
+      margin-bottom: 16px;
+    }
+    .subreddit-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 11px 4px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .badge-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Panel 3 — Crowd Cycle Stage ── */
+    .cycle-stage-label {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .stage-icons { display: flex; gap: 10px; margin-bottom: 14px; font-size: 20px; }
+    .stage-icon        { opacity: 0.2; transition: opacity 0.2s; cursor: default; }
+    .stage-icon.active { opacity: 1; }
+    .confidence-wrap { margin-bottom: 14px; }
+    .confidence-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .bar-track { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; background: var(--blue); }
+    .reasoning { font-size: 12px; color: var(--muted); line-height: 1.65; margin-bottom: 14px; }
+    .cycle-wheel-wrap { display: flex; justify-content: center; }
+
+    /* ── Panel 4 — Herd Detection ── */
+    .herd-tickers { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .ticker-chip {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(226,75,74,0.12);
+      color: var(--red);
+      border: 1px solid rgba(226,75,74,0.28);
+    }
+
+    /* ── Panel 5 — Conviction ── */
+    .ratio-value { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; }
+    .ratio-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; margin-top: 2px; }
+    .post-cards { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+    .post-card {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .post-card-title { font-size: 12px; line-height: 1.5; flex: 1; color: var(--text); }
+    .post-rank {
+      flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(55,138,221,0.15);
+      color: var(--blue);
+    }
+
+    /* ── Panel 6 — Top Fearful Posts ── */
+    .fearful-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .fearful-card {
+      padding: 16px 16px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .fearful-card-title { font-size: 13px; line-height: 1.55; flex: 1; }
+    .fearful-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .rank-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(226,75,74,0.12);
+      color: var(--red);
+      border: 1px solid rgba(226,75,74,0.22);
+    }
+    .score-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 10px;
+      letter-spacing: 0.2px;
+    }
+    .score-badge.fear   { background: rgba(226,75,74,0.15);  color: var(--red);    border: 1px solid rgba(226,75,74,0.30); }
+    .score-badge.warn   { background: rgba(239,159,39,0.15); color: var(--yellow); border: 1px solid rgba(239,159,39,0.30); }
+    .score-badge.greed  { background: rgba(99,153,34,0.15);  color: var(--green);  border: 1px solid rgba(99,153,34,0.30); }
+
+    /* ── Loading / Error ── */
+    .state-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .state-icon  { font-size: 48px; }
+    .state-title { font-size: 15px; color: var(--text); }
+    .state-detail { font-size: 12px; max-width: 420px; }
+    .state-code {
+      font-family: monospace;
+      font-size: 11px;
+      padding: 6px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="state-center">
+      <div class="state-icon">⏳</div>
+      <div class="state-title">Loading data…</div>
+    </div>
+  </div>
+
+  <script>
+    /* ─── Colour helpers ─── */
+    function scoreColor(s) {
+      if (s <= 33) return 'var(--green)';
+      if (s <= 66) return 'var(--yellow)';
+      return 'var(--red)';
+    }
+    function scoreLabel(s) {
+      if (s <= 20) return 'Strong Greed';
+      if (s <= 40) return 'Mild Optimism';
+      if (s <= 60) return 'Neutral';
+      if (s <= 80) return 'Fear';
+      return 'Panic';
+    }
+    function scoreBadgeClass(s) {
+      if (s >= 70) return 'fear';
+      if (s >= 45) return 'warn';
+      return 'greed';
+    }
+
+    /* ─── Mini DOM helpers ─── */
+    function mk(tag, cls, text) {
+      const el = document.createElement(tag);
+      if (cls)       el.className = cls;
+      if (text != null) el.textContent = text;
+      return el;
+    }
+    function div(cls, ...children) {
+      const d = mk('div', cls);
+      children.forEach(c => c != null && d.append(c));
+      return d;
+    }
+    function img(src, alt) {
+      const i = mk('img', 'chart-img');
+      i.src = src; i.alt = alt || '';
+      return i;
+    }
+
+    /* ─── SVG cycle wheel ─── */
+    const STAGES = [
+      { name: 'Euphoria',    color: '#EF9F27' },
+      { name: 'Complacency', color: '#639922' },
+      { name: 'Anxiety',     color: '#E24B4A' },
+      { name: 'Denial',      color: '#B4B2A9' },
+      { name: 'Panic',       color: '#8B1A1A' },
+      { name: 'Hope',        color: '#378ADD' },
+    ];
+    const STAGE_COLOR = Object.fromEntries(STAGES.map(s => [s.name, s.color]));
+    const STAGE_ICON  = {
+      Euphoria: '🚀', Complacency: '😎', Anxiety: '😰',
+      Denial: '🙈',   Panic: '😱',       Hope: '🌱'
+    };
+
+    function buildWheel(current) {
+      const NS   = 'http://www.w3.org/2000/svg';
+      const SIZE = 190, CX = SIZE / 2, CY = SIZE / 2;
+      const R = 74, IR = 30;
+      const SLICE = (2 * Math.PI) / 6;
+      const START = -Math.PI / 2;
+      const norm  = s => (s || '').toLowerCase();
+
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
+      svg.setAttribute('width',  SIZE);
+      svg.setAttribute('height', SIZE);
+
+      STAGES.forEach((stage, i) => {
+        const a1  = START + i * SLICE;
+        const a2  = a1 + SLICE;
+        const mid = a1 + SLICE / 2;
+        const active = norm(stage.name) === norm(current);
+
+        const ox1 = CX + R  * Math.cos(a1), oy1 = CY + R  * Math.sin(a1);
+        const ox2 = CX + R  * Math.cos(a2), oy2 = CY + R  * Math.sin(a2);
+        const ix1 = CX + IR * Math.cos(a2), iy1 = CY + IR * Math.sin(a2);
+        const ix2 = CX + IR * Math.cos(a1), iy2 = CY + IR * Math.sin(a1);
+
+        const d = [
+          `M ${ix2.toFixed(1)} ${iy2.toFixed(1)}`,
+          `L ${ox1.toFixed(1)} ${oy1.toFixed(1)}`,
+          `A ${R} ${R} 0 0 1 ${ox2.toFixed(1)} ${oy2.toFixed(1)}`,
+          `L ${ix1.toFixed(1)} ${iy1.toFixed(1)}`,
+          `A ${IR} ${IR} 0 0 0 ${ix2.toFixed(1)} ${iy2.toFixed(1)} Z`,
+        ].join(' ');
+
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill',         active ? stage.color : stage.color + '38');
+        path.setAttribute('stroke',       '#0f0f0f');
+        path.setAttribute('stroke-width', '2');
+        svg.appendChild(path);
+
+        const LR = R + 16;
+        const lx = CX + LR * Math.cos(mid);
+        const ly = CY + LR * Math.sin(mid);
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', lx.toFixed(1));
+        t.setAttribute('y', ly.toFixed(1));
+        t.setAttribute('text-anchor',       'middle');
+        t.setAttribute('dominant-baseline', 'middle');
+        t.setAttribute('font-size',         '8');
+        t.setAttribute('font-family',       'system-ui, sans-serif');
+        t.setAttribute('fill',              active ? stage.color : '#4a4a4a');
+        t.setAttribute('font-weight',       active ? '700' : '400');
+        t.textContent = stage.name;
+        svg.appendChild(t);
+      });
+
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', CX); c.setAttribute('cy', CY);
+      c.setAttribute('r', IR - 2); c.setAttribute('fill', '#1a1a1a');
+      svg.appendChild(c);
+
+      if (current) {
+        const ct = document.createElementNS(NS, 'text');
+        ct.setAttribute('x', CX); ct.setAttribute('y', CY);
+        ct.setAttribute('text-anchor',       'middle');
+        ct.setAttribute('dominant-baseline', 'middle');
+        ct.setAttribute('font-size',         '6.5');
+        ct.setAttribute('font-family',       'system-ui, sans-serif');
+        ct.setAttribute('fill',              STAGE_COLOR[current] || '#e0e0e0');
+        ct.setAttribute('font-weight',       '700');
+        ct.textContent = current.toUpperCase();
+        svg.appendChild(ct);
+      }
+
+      return svg;
+    }
+
+    /* ─── Panel 1 — Anxiety Index ─── */
+    function panel1(data) {
+      const score = data.anxietyScore ?? 50;
+      const color = scoreColor(score);
+      const sub   = data.subredditScores || {};
+
+      const p = div('panel');
+      p.append(mk('div', 'panel-title', 'Anxiety Index'));
+
+      const sc = mk('div', 'anxiety-score', score);
+      sc.style.color = color;
+      p.append(sc);
+
+      const lbl = mk('div', 'anxiety-label', scoreLabel(score));
+      lbl.style.color = color;
+      p.append(lbl);
+
+      const badges = div('subreddit-badges');
+      [
+        { key: 'wallstreetbets', label: 'WSB',       color: '#E24B4A' },
+        { key: 'investing',      label: 'Investing',  color: '#378ADD' },
+        { key: 'stocks',         label: 'Stocks',     color: '#639922' },
+      ].forEach(({ key, label, color: c }) => {
+        const b   = div('badge');
+        const dot = mk('div', 'badge-dot');
+        dot.style.background = c;
+        b.append(dot, `r/${label}: ${sub[key] ?? '—'}`);
+        badges.append(b);
+      });
+      p.append(badges);
+
+      if (data.anxietyChartUrl) p.append(img(data.anxietyChartUrl, 'Anxiety trend'));
+      return p;
+    }
+
+    /* ─── Panel 2 — Narrative Velocity ─── */
+    function panel2(data) {
+      const p = div('panel');
+      p.append(mk('div', 'panel-title', 'Narrative Velocity'));
+      p.append(mk('div', 'panel-subtitle', 'Rising narratives this run'));
+      if (data.velocityChartUrl) p.append(img(data.velocityChartUrl, 'Velocity chart'));
+      return p;
+    }
+
+    /* ─── Panel 3 — Crowd Cycle Stage ─── */
+    function panel3(data) {
+      const stage      = data.cycleStage || 'Unknown';
+      const confidence = data.cycleConfidence != null
+        ? Math.round(data.cycleConfidence * 100) : 0;
+      const reasoning  = data.cycleReasoning || '';
+
+      const p = div('panel');
+      p.append(mk('div', 'panel-title', 'Crowd Cycle Stage'));
+
+      const lbl = mk('div', 'cycle-stage-label', stage);
+      lbl.style.color = STAGE_COLOR[stage] || 'var(--text)';
+      p.append(lbl);
+
+      const strip = div('stage-icons');
+      STAGES.forEach(s => {
+        const icon = mk('span', 'stage-icon', STAGE_ICON[s.name] || '●');
+        icon.title = s.name;
+        if (s.name === stage) icon.classList.add('active');
+        strip.append(icon);
+      });
+      p.append(strip);
+
+      const wrap  = div('confidence-wrap');
+      const lbls  = div('confidence-labels');
+      lbls.append(mk('span', null, 'Confidence'), mk('span', null, confidence + '%'));
+      const track = div('bar-track');
+      const fill  = div('bar-fill');
+      fill.style.width = confidence + '%';
+      track.append(fill);
+      wrap.append(lbls, track);
+      p.append(wrap);
+
+      if (reasoning) p.append(mk('div', 'reasoning', reasoning));
+      p.append(div('cycle-wheel-wrap', buildWheel(stage)));
+      return p;
+    }
+
+    /* ─── Panel 4 — Herd Detection ─── */
+    function panel4(data) {
+      const p = div('panel');
+      p.append(mk('div', 'panel-title', 'Herd Detection'));
+      p.append(mk('div', 'panel-subtitle', 'Cross-subreddit herd activity'));
+
+      if (data.herdChartUrl) p.append(img(data.herdChartUrl, 'Herd chart'));
+
+      const tickers = data.herdTickers || [];
+      if (tickers.length) {
+        const row = div('herd-tickers');
+        tickers.forEach(t => row.append(mk('span', 'ticker-chip', t)));
+        p.append(row);
+      }
+      return p;
+    }
+
+    /* ─── Panel 5 — Conviction vs Uncertainty ─── */
+    function panel5(data) {
+      const p = div('panel');
+      p.append(mk('div', 'panel-title', 'Conviction vs Uncertainty'));
+      p.append(mk('div', 'panel-subtitle', 'Crowd conviction'));
+
+      if (data.convictionChartUrl) p.append(img(data.convictionChartUrl, 'Conviction chart'));
+
+      if (data.convictionRatio != null) {
+        const rv = mk('div', 'ratio-value', Number(data.convictionRatio).toFixed(2));
+        rv.style.color = data.convictionRatio >= 1 ? 'var(--blue)' : 'var(--grey)';
+        p.append(rv);
+        p.append(mk('div', 'ratio-label', 'conviction : uncertainty ratio'));
+      }
+
+      const posts = data.dominantPostTitles || [];
+      if (posts.length) {
+        const cards = div('post-cards');
+        posts.forEach((title, i) => {
+          const card = div('post-card');
+          card.append(mk('div', 'post-card-title', title));
+          card.append(mk('span', 'post-rank', '#' + (i + 1)));
+          cards.append(card);
+        });
+        p.append(cards);
+      }
+      return p;
+    }
+
+    /* ─── Panel 6 — Top Fearful Posts ─── */
+    // top3FearfulPosts is [{ title: string, score: number }]
+    function panel6(data) {
+      const posts = data.top3FearfulPosts || [];
+
+      const p = div('panel');
+      p.append(mk('div', 'panel-title', 'Top Fearful Posts'));
+      p.append(mk('div', 'panel-subtitle', 'Highest anxiety posts this run'));
+
+      const grid = div('fearful-grid');
+      for (let i = 0; i < 3; i++) {
+        const post  = posts[i];
+        const title = post ? (post.title || post) : '—';
+        const score = post && post.score != null ? post.score : null;
+
+        const card = div('fearful-card');
+        card.append(mk('div', 'fearful-card-title', title));
+
+        const footer = div('fearful-card-footer');
+        footer.append(mk('span', 'rank-badge', '#' + (i + 1)));
+
+        if (score != null) {
+          const sb = mk('span', 'score-badge ' + scoreBadgeClass(score), score + ' / 100');
+          footer.append(sb);
+        }
+
+        card.append(footer);
+        grid.append(card);
+      }
+
+      p.append(grid);
+      return p;
+    }
+
+    /* ─── Main render ─── */
+    function render(data) {
+      const app = document.getElementById('app');
+      app.innerHTML = '';
+
+      const hdr  = document.createElement('header');
+      const h1   = mk('h1', null, 'Retail Investor Anxiety Index');
+      const meta = mk('div', 'header-meta',
+        `Last updated: ${data.latestDate || '—'}  ·  ${data.postCount || 0} posts analyzed`);
+      hdr.append(h1, meta);
+      app.append(hdr);
+
+      const dash = div('dashboard');
+
+      const r1 = div('row-3');
+      r1.append(panel1(data), panel2(data), panel3(data));
+      dash.append(r1);
+
+      const r2 = div('row-2');
+      r2.append(panel4(data), panel5(data));
+      dash.append(r2);
+
+      const r3 = div('row-1');
+      r3.append(panel6(data));
+      dash.append(r3);
+
+      app.append(dash);
+    }
+
+    /* ─── Init ─── */
+    async function init() {
+      try {
+        const res = await fetch('http://localhost:5678/webhook/anxiety-data', { mode: 'cors' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        render(await res.json());
+      } catch (err) {
+        document.getElementById('app').innerHTML = '';
+        const wrap = div('state-center');
+        wrap.append(
+          mk('div', 'state-icon', '📉'),
+          mk('div', 'state-title', 'Could not load dashboard data'),
+          mk('div', 'state-detail',
+            'Run the n8n workflow first to generate data, then make sure the workflow is active and the webhook is reachable at:'),
+          mk('div', 'state-code', 'http://localhost:5678/webhook/anxiety-data'),
+          mk('div', 'state-detail', err.message)
+        );
+        document.getElementById('app').append(wrap);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

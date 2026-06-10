@@ -1,15 +1,27 @@
 # Python
-venv/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
+*.py[oc]
 build/
+dist/
+wheels/
+*.egg-info/
+.pytest_cache/
 
-# Data files (too large / scraped locally)
+# Virtual environments
+venv/
+.venv/
+
+# Environment / config
+.env
+*.env
+Config.toml
+Dependencies.toml
+
+# Generated / build
+target/
+generated/
+
+# Congressional signal module — data files (too large / scraped locally)
 data/trades.csv
 data/enriched_trades.csv
 data/scraper_checkpoint.txt
@@ -18,9 +30,12 @@ data/debug_page.html
 data/page1.html
 data/pol_page.html
 
-# Environment
-.env
-*.env
+# Other module data
+*.db
+*.tsv
+Core_Components/SEC_Filings_Analysis_Agent/AAPL_SEC_filings/
+Core_Components/Patents_Analysis_Agent/patent_data/
+Core_Components/Portfolio_Stress_Test_System/backend/app/data
 
 # IDE
 .vscode/

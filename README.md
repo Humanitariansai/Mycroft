@@ -1,251 +1,118 @@
-# Congressional Trade Signals — MCP Research System
+# Mycroft: An Open Source Educational Experiment in AI-Powered Investment
+**Using AI to Invest in AI: Building and Learning Together**
+
+Named after Sherlock Holmes's enigmatic elder brother—a man of superior analytical abilities who preferred to orchestrate from behind the scenes—the Mycroft framework represents an educational experiment in AI-powered investment intelligence. With its tagline "Using AI to Invest in AI," this open-source platform explores how a ecosystem of specialized agents might work in concert to analyze the rapidly evolving artificial intelligence sector while implementing disciplined investment strategies. As an experimental project, Mycroft emphasizes learning by building, inviting contributors to discover what approaches actually work in practice.
+
+## The Analytical Agents: Exploring Information Processing
+At the foundation of the Mycroft experiment lies its analytical division—agents designed to test different methods of gathering, processing, and interpreting vast amounts of information about AI companies and their competitive landscape.
+
+**Research Agents** function as experimental information gatherers, generating reports on companies in the AI sector. These agents experiment with different approaches to combing through financial statements, earnings calls, patent filings, and technical documentation to construct profiles of target companies. The goal is to discover which analytical approaches yield the most useful insights.
+
+"The research agents are designed as a testbed for different analytical methodologies," explains Professor Nik Bear Brown, PhD, MBA. "We're building to learn which frameworks actually capture the nuances of AI companies. This is very much about discovery through experimentation."
+
+**Verification Agents** serve as the framework's built-in skeptics, testing approaches to independently validating claims and checking data points from research reports against multiple sources. This experimental layer explores how different verification methodologies might reduce confirmation bias and enhance analytical reliability.
+
+"In traditional investment research, verification often happens haphazardly, if at all," notes Professor Nik Bear Brown, PhD, MBA. "Mycroft's explicit verification layer lets us experiment with structured approaches to research integrity."
+
+**Comparative Analysis Agents** explore how to effectively evaluate companies within specific AI subsectors such as semiconductors, cloud infrastructure, model developers, enterprise applications, and vertical solutions. These experimental agents test methods for identifying patterns across competitors that might escape detection in isolated company analyses.
+
+## The Portfolio Agents: Testing Investment Strategies
+While the analytical agents experiment with intelligence gathering, Mycroft's portfolio agents explore how this knowledge might be transformed into actionable investment strategies.
+
+**Diversification Agents** test approaches to balancing a portfolio across multiple sectors. These experimental components explore different applications of portfolio theory and risk modeling, seeking to discover which methods actually work for maintaining exposure to AI's growth potential while buffering against sector-specific volatility.
+
+"The diversification agents let us experiment with different mathematical approaches," says Professor Nik Bear Brown, PhD, MBA. "We're building various simulations and stress tests to learn which methods actually identify vulnerabilities in a portfolio."
+
+**Risk Management Agents** implement experimental safeguards at both the individual position and portfolio levels. These agents test different approaches to position limits, stop-loss strategies, hedging opportunities, and correlation monitoring.
+
+**Rebalancing Agents** explore different methodologies for assessing whether a portfolio allocation remains optimal given changing market conditions. Rather than assuming rigid rebalancing schedules are best, these experimental agents test dynamic approaches to discover what actually works in practice.
+
+## The Advisory Agents: Exploring Human-AI Interaction
+Mycroft's experimental approach extends to human interaction. The advisory agents explore different methods of communication between AI systems and human investors.
+
+**Conversational Financial Advisors** test various approaches to creating natural dialogue about investment goals, risk tolerance, time horizons, and portfolio construction. These experimental interfaces adapt their communication style based on user expertise, allowing us to discover which communication approaches are most effective.
+
+"The advisory agents represent our commitment to learning through building," emphasizes Professor Nik Bear Brown, PhD, MBA. "We're experimenting with different ways to make complex investment concepts accessible while avoiding oversimplification."
+
+**Goal-Setting Agents** explore methodologies for establishing concrete investment objectives and translating abstract aspirations into quantifiable targets. This experimental component helps us discover effective approaches to explaining trade-offs between risk and return.
+
+**Educational Agents** test different approaches to ongoing learning. These experimental components identify knowledge gaps and explain investment concepts in context, allowing us to learn which educational methodologies actually enhance financial literacy.
+
+## The Intelligence Agents: Testing Market Awareness
+To ensure Mycroft's experimental analyses remain current, we're testing a network of intelligence agents that monitor developments across the AI landscape.
+
+**News Monitoring Agents** explore different approaches to tracking reporting from technology publications, financial news sources, academic journals, and corporate announcements. These experimental components test methodologies for filtering the overwhelming volume of daily news.
+
+**Social Sentiment Agents** experiment with analyzing discussions across social media platforms, developer forums, and industry communities. Unlike simplistic sentiment analysis tools, these experimental agents test approaches to contextualizing discussions within broader technical and industry frameworks.
+
+**Financial Report Agents** explore methodologies for processing quarterly earnings releases, SEC filings, investor presentations, and other formal disclosures. These experimental components test approaches to identifying subtle shifts in language that might signal changing business conditions.
+
+**Regulatory Monitoring Agents** experiment with tracking evolving policy landscapes around AI governance, data privacy, competition, and sector-specific regulations.
+
+## The Mycroft Layer: Experimenting with Orchestration
+At the heart of the framework sits the experimental Mycroft layer—testing approaches to coordinating the activities of specialized agents, resolving conflicts, prioritizing actions, and maintaining overall system coherence.
+
+"The Mycroft layer is where we experiment with coordination itself," explains Professor Nik Bear Brown, PhD, MBA. "Individual agents are narrowly focused by design. The Mycroft layer lets us test methods for synthesizing insights and resolving contradictions."
+
+This experimental orchestration layer explores several key mechanisms:
+
+**Cross-Agent Validation** tests approaches to identifying when different agents reach contradictory conclusions. Rather than simply averaging or voting, the experimental Mycroft layer traces reasoning paths to discover effective methods for resolving analytical conflicts.
+
+**Dynamic Task Allocation** explores approaches to distributing computational resources based on changing priorities. When significant market developments occur, we test how quickly and effectively analytical capacity can be redirected.
+
+**Pattern Recognition** experiments with identifying connections across seemingly unrelated developments. Like its literary namesake who could deduce far-reaching consequences from minor diplomatic incidents, the experimental Mycroft layer tests approaches to synthesizing disparate signals into coherent narratives.
+
+**Decision Optimization** explores methodologies for translating insights into appropriate portfolio actions. The experimental Mycroft layer tests approaches to balancing competing recommendations while considering practical constraints that affect implementation.
+
+**Continuous Learning** tests how the entire framework might improve over time. The experimental Mycroft layer tracks prediction accuracy, investment performance, and user satisfaction to discover which refinement methodologies actually enhance system performance.
+
+## The Educational Philosophy: Building to Learn
+The Mycroft framework was designed with a clear educational philosophy: to build systems that help us learn what actually works in AI-powered investment analysis. The project explicitly embraces experimentation and discovery rather than claiming to have definitive solutions.
+
+"We're building to learn," emphasizes Professor Nik Bear Brown, PhD, MBA. "This open-source experiment is about discovering which approaches actually help process information effectively, identify meaningful patterns, and maintain disciplined investment strategies. We don't have all the answers—that's precisely why we're building."
+
+This approach distinguishes Mycroft from commercial "black box" systems that make bold claims about performance. The framework's transparency allows contributors to understand the reasoning behind each component, challenge assumptions, and discover through experimentation which approaches yield the most valuable insights.
+
+As artificial intelligence continues to transform industries worldwide, the Mycroft educational experiment offers a compelling example of how open-source development can contribute to our collective understanding of AI applications. By building and testing a recursive intelligence that helps investors navigate the very technological revolution it embodies, we're creating an educational platform that discovers what actually works.
+
+Whether some of Mycroft's experimental approaches will prove effective remains to be seen—that's the nature of educational experimentation. But in combining specialized AI agents under the coordination of a sophisticated orchestration layer, the framework represents a significant opportunity for collaborative learning—one that could help individual investors have a better understand the AI revolution reshaping our world.
+
+---
+
+## Congressional Trade Signal Module
 
 > *"They write the laws. They also trade the stocks."*
 
-An end-to-end research pipeline that scrapes U.S. congressional stock trade disclosures,
-enriches them with market price data, and surfaces actionable signals through an
-AI-readable MCP server.
+An experimental intelligence agent that scrapes U.S. congressional STOCK Act disclosures,
+enriches them with equity price data, and surfaces investment signals through an
+AI-readable MCP server — a concrete implementation of Mycroft's Intelligence Agent concept.
 
----
+**Key finding (3,336 trades, 14 members, May 2023–May 2026):**
 
-## The Core Thesis
+| Signal type | Raw return | Alpha vs SPY |
+|------------|-----------|-------------|
+| All BUY trades (n=1,147) | +2.32% | **−1.59%** |
+| Semiconductor cluster buys | +9.4%–+77.7% | **+11%–+69%** |
+| High-signal filter (n=43) | — | **+11.2%** |
 
-The STOCK Act (2012) requires every member of Congress to disclose personal stock trades
-within **45 days** of the transaction. This was meant to prevent insider trading.
-It accidentally created a public dataset of some of the most information-advantaged
-traders in the world.
+See [`CONGRESSIONAL_SIGNALS_README.md`](CONGRESSIONAL_SIGNALS_README.md) for full documentation,
+[`PAPER_DRAFT.md`](PAPER_DRAFT.md) for the academic paper, and [`dashboard.html`](dashboard.html)
+for the interactive visualization.
 
-Congress members:
-- Sit on committees that receive **classified economic and national security briefings**
-- Draft legislation **before it becomes public** (pharma pricing, defense spending, tech regulation)
-- Meet routinely with lobbyists, regulators, and executives
+### Module files
 
-When multiple members buy the same stock in a short window — especially across party
-lines — it is worth paying attention.
+| File | Purpose |
+|------|---------|
+| `scraper.py` | Selenium headless Chrome pipeline — Capitol Trades → `data/trades.csv` |
+| `enricher.py` | Adds yfinance price columns → `data/enriched_trades.csv` |
+| `market_adjusted.py` | Per-trade SPY benchmark → `abnormal_return` column |
+| `server.py` | FastMCP server with 5 signal tools |
+| `dashboard.html` | Standalone Chart.js dashboard |
+| `PAPER_DRAFT.md` | Academic paper draft |
 
----
-
-## Live Example: UnitedHealth Group (UNH), April 2026
-
-UNH collapsed ~20% in early 2026 on DOJ investigation news. Most retail investors fled.
-
-**April 21, 2026:** Rep. Maria Elvira Salazar (R-FL, House Foreign Affairs Committee)
-purchased UNH at ~$346.
-
-**May 11, 2026:** Disclosure became public.
-
-**May 12, 2026:** UNH trades at **$401** — a **+16% gain** in 21 days.
-
-The system flagged this as a signal **the moment the disclosure hit**, with full price
-context attached. No manual searching required.
-
-```
-get_buy_signals(days=30, min_politicians=2)
-→ UNH: 2 congressional buys | latest: 2026-04-21 | sentiment: BULLISH
-```
-
----
-
-## Architecture
-
-```
-Capitol Trades (capitoltrades.com)
-        │
-        ▼
-  scraper.py          ← Selenium 4 headless Chrome
-  (187 politicians,      paginates each politician's trade table
-   ~5,000+ trades)       checkpointed, resumable
-        │
-        ▼
-  data/trades.csv     ← ticker, politician, trade_type,
-                         transaction_date, disclosure_date, amount_range
-        │
-        ▼
-  enricher.py         ← Yahoo Finance (yfinance)
-                         adds price_at_trade, price_30d_post_disclosure,
-                         pct_change_post_disclosure per trade
-        │
-        ▼
-  data/enriched_trades.csv
-        │
-        ▼
-  server.py           ← FastMCP server (stdio transport)
-                         5 AI-callable tools
-        │
-        ▼
-  Claude Desktop / any MCP client
-```
-
----
-
-## MCP Tools
-
-| Tool | Description |
-|------|-------------|
-| `get_buy_signals(days, min_politicians)` | Stocks bought by N+ members in last D days — ranked by conviction |
-| `get_stock_activity(ticker)` | All congressional trades for a specific stock with BULLISH/BEARISH/NEUTRAL sentiment |
-| `get_politician_activity(name)` | Leaderboard of most active traders, or drill into one member's history |
-| `get_recent_trades(limit)` | Raw trade feed, enriched with price data where available |
-| `get_price_history(ticker, period)` | Live Yahoo Finance OHLCV for any stock |
-
----
-
-## Quickstart
-
-### 1. Install dependencies
 ```bash
-git clone https://github.com/YOUR_USERNAME/congressional-trade-signals
-cd congressional-trade-signals
-python -m venv venv
-venv\Scripts\activate        # Windows
-pip install selenium pandas yfinance fastmcp requests
+pip install -r requirements.txt
+python scraper.py        # scrape disclosures
+python enricher.py       # add price data
+python market_adjusted.py  # compute alpha
 ```
-
-### 2. Scrape trade data
-```bash
-python scraper.py
-# Collects ~187 politicians, ~5,000+ trades
-# Checkpointed — safe to interrupt and resume
-# Runtime: ~45 minutes
-```
-
-### 3. Enrich with price data
-```bash
-python enricher.py
-# Adds pre/post trade prices via Yahoo Finance
-# Runtime: ~15-20 minutes
-```
-
-### 4. Start the MCP server
-```bash
-python server.py
-```
-
-### 5. Connect to Claude Desktop
-Add to `%APPDATA%\Claude\claude_desktop_config.json`:
-```json
-{
-  "mcpServers": {
-    "congressional-trades": {
-      "command": "C:\\path\\to\\venv\\Scripts\\python.exe",
-      "args": ["C:\\path\\to\\server.py"]
-    }
-  }
-}
-```
-
-Then ask Claude:
-> *"What stocks are Congress buying right now?"*
-> *"Show me all congressional trades in NVDA"*
-> *"Who are the most active traders in Congress?"*
-
----
-
-## Research Paper: Story Structure
-
-### Abstract
-We build an open-source system to collect, enrich, and analyze U.S. congressional stock
-trade disclosures in real time. Using a corpus of 5,000+ trades across 187 elected
-officials, we demonstrate that congressional BUY signals — particularly clustered purchases
-across multiple members — are systematically associated with positive abnormal returns
-in the 30 days following public disclosure. We propose a replicable methodology for
-retail investors to monitor and act on these signals using an LLM-native MCP interface.
-
-### Key Findings (preliminary, with full dataset)
-
-1. **The Disclosure Lag Alpha**: The 45-day reporting window is not fully priced in.
-   Stocks bought by 2+ members show measurable positive drift in the 10–30 days
-   *after* public disclosure, suggesting the market does not fully arbitrage the signal.
-
-2. **Cluster Buys Outperform Solo Buys**: Trades where 3+ members bought the same
-   ticker within a 30-day window outperform single-member buys by an estimated 4-8%
-   on a 60-day horizon (to be confirmed with full dataset).
-
-3. **Asymmetry by Chamber**: Senate trades (larger disclosed amounts, longer tenures,
-   more powerful committee assignments) show stronger predictive power than House trades.
-
-4. **Heavy Buyers vs. Balanced Traders**: Members like Maria Elvira Salazar
-   (50 buys / 5 sells) show strong directional conviction vs. members like Greg Stanton
-   (94 buys / 95 sells, 189 trades) who appear to run a passive index-mirroring strategy
-   — the latter are noise, the former are signal.
-
-### Paper Sections
-
-```
-1. Introduction          — STOCK Act background, prior academic work (Ziobrowski et al. 2011)
-2. Data & Methodology    — Scraping pipeline, date handling, price enrichment
-3. Signal Construction   — Cluster signal, politician scoring, disclosure-lag window
-4. Results               — Abnormal returns, Sharpe comparison vs. SPY
-5. Case Studies          — UNH April 2026, [others from full dataset]
-6. Limitations           — Survivorship bias, small amounts (~$1K-15K), look-ahead bias
-7. MCP Interface         — LLM-native tooling for real-time signal consumption
-8. Conclusion
-```
-
----
-
-## Data Schema
-
-### trades.csv
-| Column | Description |
-|--------|-------------|
-| `politician` | Full name |
-| `party` | Democrat / Republican |
-| `chamber` | house / senate |
-| `ticker` | Equity ticker (blank for non-stocks) |
-| `asset_name` | Full company name |
-| `trade_type` | BUY / SELL / EXCHANGE |
-| `transaction_date` | Date trade was made (YYYY-MM-DD) |
-| `disclosure_date` | Date filed with Congress (YYYY-MM-DD) |
-| `amount_range` | Reported range e.g. "1K-15K", "100K-250K" |
-| `trade_url` | Source URL on capitoltrades.com |
-
-### enriched_trades.csv
-Adds to the above:
-| Column | Description |
-|--------|-------------|
-| `price_30d_pre_trade` | Close 30 days before transaction |
-| `price_at_trade` | Close on transaction date |
-| `pct_change_pre_trade` | % move in 30d before the trade |
-| `price_at_disclosure` | Close on disclosure date |
-| `price_30d_post_disclosure` | Close 30 days after disclosure |
-| `pct_change_post_disclosure` | % gain/loss after disclosure became public |
-
----
-
-## Prior Academic Work
-
-- **Ziobrowski et al. (2004)** — "Abnormal Returns from the Common Stock Investments
-  of the U.S. Senate" — found senators outperformed the market by ~85 bps/month.
-- **Ziobrowski et al. (2011)** — Extended to House, found +55 bps/month abnormal returns.
-- **Eggers & Hainmueller (2013)** — Challenged methodology, found results sensitive
-  to sample period.
-- **This work** — Real-time, open-source replication with LLM-native tooling and
-  modern disclosure data post-STOCK Act amendments.
-
----
-
-## Limitations & Ethics
-
-- Disclosed amounts are **ranges** (e.g. $1,000–$15,000), not exact figures
-- The 45-day lag means some alpha may be gone by disclosure time
-- This is a **research tool**, not financial advice
-- Data source: [Capitol Trades](https://www.capitoltrades.com) (third-party aggregator of public STOCK Act filings)
-
----
-
-## Stack
-
-| Component | Technology |
-|-----------|------------|
-| Scraper | Python 3.11, Selenium 4, Chrome headless |
-| Price data | yfinance (Yahoo Finance) |
-| Data | pandas, CSV |
-| MCP server | FastMCP |
-| LLM client | Claude Desktop (Anthropic) |
-
----
-
-## License
-
-MIT — use freely for research and educational purposes.
