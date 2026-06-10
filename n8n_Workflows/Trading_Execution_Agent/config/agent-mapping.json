@@ -1,0 +1,61 @@
+{
+  "existing_agents": {
+    "risk_management": {
+      "location": "n8n_Workflows/Risk_Management_Agent",
+      "purpose": "Portfolio risk analysis and position sizing",
+      "inputs": "Portfolio data from Google Sheets",
+      "outputs": "Risk scores, stop-loss levels, position size recommendations",
+      "integration_method": "HTTP webhook call to existing n8n workflow"
+    },
+    "market_signals": {
+      "location": "Core_Components/Market_Signal_System",
+      "purpose": "Multi-agent investment decision making with conflict resolution",
+      "inputs": "Stock ticker",
+      "outputs": "BUY/SELL/HOLD recommendation with confidence scores",
+      "api_endpoint": "http://localhost:8001/api/analyze",
+      "integration_method": "Direct API call"
+    },
+    "portfolio_intelligence": {
+      "location": "n8n_Workflows/Portfolio_Intelligence_Agent", 
+      "purpose": "Performance tracking and position analysis",
+      "inputs": "Portfolio positions and market data",
+      "outputs": "Performance metrics, allocation analysis",
+      "integration_method": "HTTP webhook call to existing n8n workflow"
+    },
+    "behavioral_analysis": {
+      "location": "Core_Components/Behavioral_Analysis",
+      "purpose": "Trading psychology and timing optimization",
+      "inputs": "Historical trading data",
+      "outputs": "Behavioral insights, optimal timing recommendations",
+      "integration_method": "Reference for execution timing logic"
+    }
+  },
+  "new_execution_layer": {
+    "alpaca_api": {
+      "purpose": "Paper trading execution",
+      "endpoints": [
+        "/v2/orders - Place orders",
+        "/v2/positions - Get positions", 
+        "/v2/account - Account status"
+      ],
+      "integration": "Custom HTTP nodes in n8n workflow"
+    },
+    "execution_logic": {
+      "workflow": "Manual trigger → Portfolio data → Risk check → Market signal → Order placement → Logging",
+      "safety_checks": [
+        "Risk limits validation",
+        "Position size constraints", 
+        "Stop-loss verification",
+        "Account balance checks"
+      ]
+    }
+  },
+  "data_flow": {
+    "input_source": "Google Sheets (Portfolio positions)",
+    "signal_generation": "Market Signal System API call",
+    "risk_validation": "Risk Management Agent webhook",
+    "execution": "Alpaca API calls",
+    "logging": "Google Sheets (Trade log)",
+    "monitoring": "Email notifications"
+  }
+}
