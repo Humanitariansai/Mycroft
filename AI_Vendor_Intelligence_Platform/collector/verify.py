@@ -20,10 +20,20 @@ _TOTALS_SQL = """
 SELECT
     COUNT(*)                                          AS total_signals,
     COUNT(DISTINCT company_name)                      AS unique_companies,
+    COUNT(DISTINCT signal_type)                       AS unique_signal_types,
     MIN(signal_date)                                  AS earliest_signal,
     MAX(signal_date)                                  AS latest_signal,
     COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') AS added_last_24h
 FROM ai_company_signals
+"""
+
+_SIGNAL_TYPE_SUMMARY_SQL = """
+SELECT
+    signal_type,
+    COUNT(*) AS count
+FROM ai_company_signals
+GROUP BY signal_type
+ORDER BY count DESC
 """
 
 _COLLECTOR_RUNS_SQL = """
@@ -89,11 +99,21 @@ def main() -> None:
         cur.execute(_TOTALS_SQL)
         row = cur.fetchone()
 
-    total_signals, unique_companies, earliest, latest, last_24h = row
-    print(f"  Total signals      : {total_signals:,}")
-    print(f"  Unique companies   : {unique_companies:,}")
-    print(f"  Date range         : {earliest}  →  {latest}")
-    print(f"  Added in last 24h  : {last_24h:,}")
+    total_signals, unique_companies, unique_types, earliest, latest, last_24h = row
+    print(f"  Total signals         : {total_signals:,}")
+    print(f"  Unique companies      : {unique_companies:,}")
+    print(f"  Unique signal types   : {unique_types:,}")
+    print(f"  Date range            : {earliest}  →  {latest}")
+    print(f"  Added in last 24h     : {last_24h:,}")
+
+    # --- Signal type summary ---
+    print("\n── Signal type summary ────────────────────────────────────────────\n")
+    with conn.cursor() as cur:
+        cur.execute(_SIGNAL_TYPE_SUMMARY_SQL)
+        type_rows = cur.fetchall()
+
+    for signal_type, count in type_rows:
+        print(f"  {signal_type:<20} : {count:,}")
 
     # --- Recent collector runs ---
     print("\n── Last 10 collector runs ─────────────────────────────────────────\n")
