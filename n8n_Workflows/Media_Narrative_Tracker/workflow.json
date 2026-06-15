@@ -1,5 +1,5 @@
 {
-  "name": "Media Narrative Tracker — Mycroft Agent 3",
+  "name": "Media Narrative Tracker — Mycroft Agent 3 (Groq)",
   "nodes": [
     {
       "parameters": {
@@ -17,7 +17,7 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -200,
+        -220,
         120
       ]
     },
@@ -34,7 +34,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -200,
+        -220,
         320
       ],
       "webhookId": "run-media-pipeline-hook",
@@ -47,14 +47,14 @@
     },
     {
       "parameters": {
-        "jsCode": "// Fetch Watchlist — hardcoded AI sector companies to track\nconst watchlist = [\n  { ticker: \"NVDA\", companyName: \"NVIDIA\",\n    aliases: [\"nvidia\", \"nvda\", \"jensen huang\"] },\n  { ticker: \"AMD\",  companyName: \"AMD\",\n    aliases: [\"amd\", \"advanced micro devices\", \"lisa su\"] },\n  { ticker: \"INTC\", companyName: \"Intel\",\n    aliases: [\"intel\", \"intc\", \"pat gelsinger\"] },\n  { ticker: \"GOOGL\", companyName: \"Google\",\n    aliases: [\"google\", \"alphabet\", \"googl\", \"deepmind\"] },\n  { ticker: \"AAPL\", companyName: \"Apple\",\n    aliases: [\"apple\", \"aapl\", \"tim cook\"] },\n  { ticker: \"MSFT\", companyName: \"Microsoft\",\n    aliases: [\"microsoft\", \"msft\", \"azure\", \"satya nadella\"] },\n  { ticker: \"META\", companyName: \"Meta\",\n    aliases: [\"meta\", \"facebook\", \"zuckerberg\", \"llama\"] }\n];\n\nreturn [{ json: { watchlist } }];"
+        "jsCode": "// Fetch Watchlist — hardcoded AI sector companies\nconst watchlist = [\n  { ticker: \"NVDA\",  companyName: \"NVIDIA\",\n    aliases: [\"nvidia\", \"nvda\", \"jensen huang\"] },\n  { ticker: \"AMD\",   companyName: \"AMD\",\n    aliases: [\"amd\", \"advanced micro devices\", \"lisa su\"] },\n  { ticker: \"INTC\",  companyName: \"Intel\",\n    aliases: [\"intel\", \"intc\", \"pat gelsinger\"] },\n  { ticker: \"GOOGL\", companyName: \"Google\",\n    aliases: [\"google\", \"alphabet\", \"googl\", \"deepmind\"] },\n  { ticker: \"AAPL\",  companyName: \"Apple\",\n    aliases: [\"apple\", \"aapl\", \"tim cook\"] },\n  { ticker: \"MSFT\",  companyName: \"Microsoft\",\n    aliases: [\"microsoft\", \"msft\", \"azure\", \"satya nadella\"] },\n  { ticker: \"META\",  companyName: \"Meta\",\n    aliases: [\"meta\", \"facebook\", \"zuckerberg\", \"llama\"] }\n];\n\nreturn [{ json: { watchlist } }];"
       },
       "id": "node-0003",
       "name": "Fetch Watchlist",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        40,
+        20,
         220
       ]
     },
@@ -85,8 +85,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        300,
-        -100
+        280,
+        -120
       ]
     },
     {
@@ -116,8 +116,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        300,
-        40
+        280,
+        20
       ]
     },
     {
@@ -147,8 +147,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        300,
-        180
+        280,
+        160
       ]
     },
     {
@@ -178,8 +178,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        300,
-        320
+        280,
+        300
       ]
     },
     {
@@ -209,8 +209,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        300,
-        460
+        280,
+        440
       ]
     },
     {
@@ -224,189 +224,144 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
       "position": [
-        560,
-        180
+        540,
+        160
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Parse & Clean Articles — regex XML parser, no external libs\nconst feeds = [\n  { node: \"Fetch FT RSS\",            source: \"Financial Times\" },\n  { node: \"Fetch Reuters RSS\",       source: \"Reuters\" },\n  { node: \"Fetch Seeking Alpha RSS\", source: \"Seeking Alpha\" },\n  { node: \"Fetch CNBC RSS\",          source: \"CNBC\" },\n  { node: \"Fetch Yahoo Finance RSS\", source: \"Yahoo Finance\" }\n];\n\nfunction stripHtml(s) {\n  return String(s || \"\")\n    .replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g, \"$1\")\n    .replace(/<[^>]*>/g, \" \")\n    .replace(/&nbsp;/gi, \" \")\n    .replace(/&amp;/gi, \"&\")\n    .replace(/&lt;/gi, \"<\")\n    .replace(/&gt;/gi, \">\")\n    .replace(/&quot;/gi, '\"')\n    .replace(/&#39;/gi, \"'\")\n    .replace(/&[a-z0-9#]+;/gi, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfunction unwrapCdata(s) {\n  const m = String(s || \"\").match(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/);\n  return m ? m[1] : s;\n}\n\nfunction tagValue(block, tag) {\n  const re = new RegExp(\"<\" + tag + \"[^>]*>([\\\\s\\\\S]*?)<\\\\/\" + tag + \">\", \"i\");\n  const m = block.match(re);\n  return m ? unwrapCdata(m[1]).trim() : \"\";\n}\n\nfunction toIso(d) {\n  if (!d) return null;\n  const t = Date.parse(d);\n  return isNaN(t) ? null : new Date(t).toISOString();\n}\n\nfunction rawText(nodeName) {\n  let item;\n  try { item = $(nodeName).first(); } catch (e) { return \"\"; }\n  if (!item || !item.json) return \"\";\n  const j = item.json;\n  // n8n HTTP Request (responseFormat: text) stores body under .data; guard others\n  return j.data || j.body || j.response || (typeof j === \"string\" ? j : \"\") || \"\";\n}\n\nconst articles = [];\n\nfor (const feed of feeds) {\n  const xml = rawText(feed.node);\n  if (!xml) continue;\n  const items = xml.match(/<item[\\s\\S]*?<\\/item>/gi)\n            || xml.match(/<entry[\\s\\S]*?<\\/entry>/gi)\n            || [];\n  for (const block of items) {\n    const headline = stripHtml(tagValue(block, \"title\"));\n    let link = tagValue(block, \"link\");\n    if (!link) {\n      // Atom feeds use <link href=\"...\"/>\n      const m = block.match(/<link[^>]*href=[\"']([^\"']+)[\"']/i);\n      link = m ? m[1] : \"\";\n    }\n    const article_url = (link || \"\").trim();\n    const pub = tagValue(block, \"pubDate\") || tagValue(block, \"published\") || tagValue(block, \"updated\");\n    let summary = stripHtml(tagValue(block, \"description\") || tagValue(block, \"summary\") || tagValue(block, \"content\"));\n    if (summary.length > 500) summary = summary.slice(0, 500);\n\n    if (!headline || !article_url) continue;\n\n    articles.push({\n      article_url,\n      headline,\n      summary,\n      source: feed.source,\n      published_at: toIso(pub) || new Date().toISOString()\n    });\n  }\n}\n\nconst watchlist = $('Fetch Watchlist').first().json.watchlist;\n\nreturn [{ json: { articles, watchlist } }];"
+        "jsCode": "// Parse & Clean Articles — regex XML parser, no external libs\nconst feeds = [\n  { node: \"Fetch FT RSS\",            source: \"Financial Times\" },\n  { node: \"Fetch Reuters RSS\",       source: \"Reuters\" },\n  { node: \"Fetch Seeking Alpha RSS\", source: \"Seeking Alpha\" },\n  { node: \"Fetch CNBC RSS\",          source: \"CNBC\" },\n  { node: \"Fetch Yahoo Finance RSS\", source: \"Yahoo Finance\" }\n];\n\nfunction stripHtml(s) {\n  return String(s || \"\")\n    .replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g, \"$1\")\n    .replace(/<[^>]*>/g, \" \")\n    .replace(/&nbsp;/gi, \" \")\n    .replace(/&amp;/gi, \"&\")\n    .replace(/&lt;/gi, \"<\")\n    .replace(/&gt;/gi, \">\")\n    .replace(/&quot;/gi, '\"')\n    .replace(/&#39;/gi, \"'\")\n    .replace(/&[a-z0-9#]+;/gi, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfunction unwrapCdata(s) {\n  const m = String(s || \"\").match(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/);\n  return m ? m[1] : s;\n}\n\nfunction tagValue(block, tag) {\n  const re = new RegExp(\"<\" + tag + \"[^>]*>([\\\\s\\\\S]*?)<\\\\/\" + tag + \">\", \"i\");\n  const m = block.match(re);\n  return m ? unwrapCdata(m[1]).trim() : \"\";\n}\n\nfunction toIso(d) {\n  if (!d) return null;\n  const t = Date.parse(d);\n  return isNaN(t) ? null : new Date(t).toISOString();\n}\n\nfunction rawText(nodeName) {\n  let item;\n  try { item = $(nodeName).first(); } catch (e) { return \"\"; }\n  if (!item || !item.json) return \"\";\n  const j = item.json;\n  return j.data || j.body || j.response || (typeof j === \"string\" ? j : \"\") || \"\";\n}\n\nconst articles = [];\nfor (const feed of feeds) {\n  const xml = rawText(feed.node);\n  if (!xml) continue;\n  const items = xml.match(/<item[\\s\\S]*?<\\/item>/gi)\n            || xml.match(/<entry[\\s\\S]*?<\\/entry>/gi)\n            || [];\n  for (const block of items) {\n    const headline = stripHtml(tagValue(block, \"title\"));\n    let link = tagValue(block, \"link\");\n    if (!link) {\n      const m = block.match(/<link[^>]*href=[\"']([^\"']+)[\"']/i);\n      link = m ? m[1] : \"\";\n    }\n    const article_url = (link || \"\").trim();\n    const pub = tagValue(block, \"pubDate\") || tagValue(block, \"published\") || tagValue(block, \"updated\");\n    let summary = stripHtml(tagValue(block, \"description\") || tagValue(block, \"summary\") || tagValue(block, \"content\"));\n    if (summary.length > 500) summary = summary.slice(0, 500);\n    if (!headline || !article_url) continue;\n    articles.push({\n      article_url,\n      headline,\n      summary,\n      source: feed.source,\n      published_at: toIso(pub) || new Date().toISOString()\n    });\n  }\n}\n\nconst watchlist = $('Fetch Watchlist').first().json.watchlist;\nreturn [{ json: { articles, watchlist, fetchedAt: new Date().toISOString() } }];"
       },
       "id": "node-0010",
       "name": "Parse & Clean Articles",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        780,
-        180
+        760,
+        160
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Deduplicate Against Supabase — filter out URLs seen in last 7 days\nconst articles = $json.articles || [];\nconst watchlist = $json.watchlist || [];\n\nconst SUPABASE_URL = $env.SUPABASE_URL;\nconst SUPABASE_KEY = $env.SUPABASE_KEY;\n\nconst sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();\n\nlet knownUrls = new Set();\ntry {\n  const url = SUPABASE_URL +\n    \"/rest/v1/media_narratives_raw?select=article_url&created_at=gte.\" +\n    encodeURIComponent(sevenDaysAgo);\n  const resp = await this.helpers.httpRequest({\n    method: \"GET\",\n    url,\n    headers: {\n      apikey: SUPABASE_KEY,\n      Authorization: \"Bearer \" + SUPABASE_KEY,\n      \"Content-Type\": \"application/json\"\n    },\n    json: true\n  });\n  const rows = Array.isArray(resp) ? resp : [];\n  knownUrls = new Set(rows.map(r => r.article_url));\n} catch (e) {\n  // If the read fails, proceed without dedup rather than dropping the run\n  console.log(\"Dedup read failed, continuing without dedup:\", e.message);\n}\n\nconst newArticles = articles.filter(a => !knownUrls.has(a.article_url));\nconst skippedCount = articles.length - newArticles.length;\n\nif (newArticles.length === 0) {\n  return [{ json: { status: \"no_new_articles\", skipped: skippedCount, newArticles: [], watchlist } }];\n}\n\nreturn [{ json: { newArticles, watchlist, skippedCount } }];"
+        "jsCode": "// Deduplicate Against Supabase — drop URLs seen in last 7 days\nconst articles = $json.articles || [];\nconst watchlist = $json.watchlist || [];\nconst fetchedAt = $json.fetchedAt;\n\nconst SUPABASE_URL = $env.SUPABASE_URL;\nconst SUPABASE_KEY = $env.SUPABASE_KEY;\nconst sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();\n\nlet knownUrls = new Set();\ntry {\n  const url = SUPABASE_URL +\n    \"/rest/v1/media_narratives_raw?select=article_url&created_at=gte.\" +\n    encodeURIComponent(sevenDaysAgo);\n  const resp = await this.helpers.httpRequest({\n    method: \"GET\",\n    url,\n    headers: {\n      apikey: SUPABASE_KEY,\n      Authorization: \"Bearer \" + SUPABASE_KEY,\n      \"Content-Type\": \"application/json\"\n    },\n    json: true\n  });\n  const rows = Array.isArray(resp) ? resp : [];\n  knownUrls = new Set(rows.map(r => r.article_url));\n} catch (e) {\n  console.log(\"Dedup read failed, continuing without dedup:\", e.message);\n}\n\nconst newArticles = articles.filter(a => !knownUrls.has(a.article_url));\nconst skippedCount = articles.length - newArticles.length;\n\nif (newArticles.length === 0) {\n  return [{ json: { status: \"no_new_articles\", skippedCount, articles: [], watchlist } }];\n}\nreturn [{ json: { newArticles, skippedCount, watchlist, fetchedAt } }];"
       },
       "id": "node-0011",
       "name": "Deduplicate Against Supabase",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1000,
-        180
+        980,
+        160
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Aggregate for Claude — same payload feeds all 3 Claude nodes\nconst newArticles = $json.newArticles || [];\nconst watchlist = $json.watchlist || [];\n\nreturn [{\n  json: {\n    articles: newArticles,\n    watchlist,\n    batchSize: newArticles.length\n  }\n}];"
+        "jsCode": "// Aggregate for Groq — same payload for all 3 Groq nodes\nconst newArticles = $json.newArticles || [];\nconst watchlist = $json.watchlist || [];\nreturn [{\n  json: {\n    articles: newArticles,\n    watchlist,\n    articleCount: newArticles.length\n  }\n}];"
       },
       "id": "node-0012",
-      "name": "Aggregate for Claude",
+      "name": "Aggregate for Groq",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1220,
-        180
+        1200,
+        160
       ]
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=For each article, extract the single most important factual claim being made. Ignore editorial framing.\nReturn ONLY a JSON array:\n[{\n  \"article_url\": <exact url from input>,\n  \"core_claim\": <one sentence, the factual claim>,\n  \"claim_type\": <one of: \"earnings\", \"product\", \"partnership\", \"regulatory\", \"personnel\", \"market_move\", \"macro\", \"other\">\n}]\n\nArticles:\n{{ JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary }))) }}",
-        "messages": {
-          "messageValues": [
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
             {
-              "type": "system",
-              "message": "You are a financial journalist analyst. Your job is to extract the single core claim from each financial news article. Always respond with valid JSON only. No markdown, no explanation, no preamble."
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
             }
           ]
-        }
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"model\": \"llama-3.3-70b-versatile\", \"temperature\": 0.1, \"max_tokens\": 4000, \"messages\": [ { \"role\": \"system\", \"content\": \"You are a financial journalist analyst. Extract the single core claim from each article. Return valid JSON only. No markdown, no preamble, no explanation.\" }, { \"role\": \"user\", \"content\": \"For each article extract the single most important factual claim. Ignore editorial framing, opinion, and context.\\nReturn ONLY a JSON array:\\n[{\\n  \\\"article_url\\\": \\\"<exact url>\\\",\\n  \\\"core_claim\\\": \\\"<one sentence factual claim>\\\",\\n  \\\"claim_type\\\": \\\"<one of: earnings | product | partnership | regulatory | personnel | market_move | macro | other>\\\"\\n}]\\n\\nArticles:\\n\" + JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary }))) } ] }) }}",
+        "options": {}
       },
       "id": "node-0013",
-      "name": "Claude 1: Core Claim Extractor",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.5,
+      "name": "Groq 1: Core Claim Extractor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
-        1480,
-        0
+        1460,
+        -20
       ]
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=For each article, score its information age.\n\nInformation age means: how fresh is the underlying claim?\n- Score 80-100: Genuinely new — first time this specific claim has been made, new data, new event\n- Score 50-79: Partially new — a new development in an ongoing story, adds something to existing narrative\n- Score 20-49: Likely recycled — same claim seen before, new framing but old underlying information\n- Score 0-19: Recycled — this is commentary, synthesis, or restatement of weeks-old news\n\nAlso classify:\n  is_recycled: true if score < 40, false otherwise\n  narrative_label: a 3-5 word phrase that names the narrative (e.g. \"AI chip export restrictions\", \"Fed rate cut expectations\", \"NVIDIA data center growth\")\n\nReturn ONLY a JSON array:\n[{\n  \"article_url\": <exact url from input>,\n  \"information_age_score\": <integer 0-100>,\n  \"is_recycled\": <boolean>,\n  \"narrative_label\": <string>\n}]\n\nArticles:\n{{ JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary, published_at: a.published_at, source: a.source }))) }}",
-        "messages": {
-          "messageValues": [
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
             {
-              "type": "system",
-              "message": "You are an analyst who detects whether financial news is genuinely new or recycled narrative. Always respond with valid JSON only. No markdown, no explanation."
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
             }
           ]
-        }
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"model\": \"llama-3.3-70b-versatile\", \"temperature\": 0.1, \"max_tokens\": 4000, \"messages\": [ { \"role\": \"system\", \"content\": \"You are an analyst who detects whether financial news is genuinely new or recycled narrative. Return valid JSON only. No markdown, no preamble.\" }, { \"role\": \"user\", \"content\": \"Score each article's information age — how fresh is the underlying claim?\\n\\nScoring guide:\\n  80-100: Genuinely new — first time this specific claim has been made, new data, new event\\n  50-79:  Partially new — new development in ongoing story, adds something to existing narrative\\n  20-49:  Likely recycled — same claim seen before, new framing but old underlying information\\n  0-19:   Recycled — commentary, synthesis, or restatement of weeks-old news\\n\\nReturn ONLY a JSON array:\\n[{\\n  \\\"article_url\\\": \\\"<exact url>\\\",\\n  \\\"information_age_score\\\": <integer 0-100>,\\n  \\\"is_recycled\\\": <true if score < 40, else false>,\\n  \\\"narrative_label\\\": \\\"<3-5 word phrase naming the narrative e.g. AI chip export restrictions>\\\"\\n}]\\n\\nArticles:\\n\" + JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary, published_at: a.published_at, source: a.source }))) } ] }) }}",
+        "options": {}
       },
       "id": "node-0014",
-      "name": "Claude 2: Information Age Scorer",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.5,
+      "name": "Groq 2: Information Age Scorer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
-        1480,
-        180
+        1460,
+        160
       ]
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=For each article, identify which companies from the watchlist are mentioned. Use the aliases list to catch informal references (e.g. \"Jensen\" → NVIDIA).\n\nReturn ONLY a JSON array:\n[{\n  \"article_url\": <exact url from input>,\n  \"companies_mentioned\": [\n    { \"ticker\": <string>, \"companyName\": <string> }\n  ]\n}]\nReturn empty array for companies_mentioned if none found.\n\nWatchlist: {{ JSON.stringify($json.watchlist) }}\n\nArticles:\n{{ JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary }))) }}",
-        "messages": {
-          "messageValues": [
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
             {
-              "type": "system",
-              "message": "You are a financial entity recognition system. Your job is to identify which companies from a watchlist are mentioned in each article. Always respond with valid JSON only. No markdown, no explanation."
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
             }
           ]
-        }
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"model\": \"llama-3.3-70b-versatile\", \"temperature\": 0.1, \"max_tokens\": 4000, \"messages\": [ { \"role\": \"system\", \"content\": \"You are a financial entity recognition system. Identify which watchlist companies appear in each article, including informal references via aliases. Return valid JSON only. No markdown, no preamble.\" }, { \"role\": \"user\", \"content\": \"For each article identify which companies from the watchlist are mentioned. Use aliases to catch informal references (e.g. \\\"Jensen\\\" or \\\"Jensen Huang\\\" -> NVIDIA).\\n\\nReturn ONLY a JSON array:\\n[{\\n  \\\"article_url\\\": \\\"<exact url>\\\",\\n  \\\"companies_mentioned\\\": [\\n    { \\\"ticker\\\": \\\"<string>\\\", \\\"companyName\\\": \\\"<string>\\\" }\\n  ]\\n}]\\nReturn empty array for companies_mentioned if none match.\\n\\nWatchlist: \" + JSON.stringify($json.watchlist) + \"\\n\\nArticles:\\n\" + JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary }))) } ] }) }}",
+        "options": {}
       },
       "id": "node-0015",
-      "name": "Claude 3: Company Mention Extractor",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.5,
+      "name": "Groq 3: Company Mention Extractor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
-        1480,
-        360
+        1460,
+        340
       ]
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-sonnet-4-5-20250929",
-          "cachedResultName": "Claude Sonnet 4.5"
-        },
-        "options": {}
-      },
-      "id": "node-0016",
-      "name": "Anthropic Model 1",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        1440,
-        140
-      ],
-      "credentials": {
-        "anthropicApi": {
-          "id": "anthropic-cred",
-          "name": "Anthropic account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-sonnet-4-5-20250929",
-          "cachedResultName": "Claude Sonnet 4.5"
-        },
-        "options": {}
-      },
-      "id": "node-0017",
-      "name": "Anthropic Model 2",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        1440,
-        320
-      ],
-      "credentials": {
-        "anthropicApi": {
-          "id": "anthropic-cred",
-          "name": "Anthropic account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-sonnet-4-5-20250929",
-          "cachedResultName": "Claude Sonnet 4.5"
-        },
-        "options": {}
-      },
-      "id": "node-0018",
-      "name": "Anthropic Model 3",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        1440,
-        500
-      ],
-      "credentials": {
-        "anthropicApi": {
-          "id": "anthropic-cred",
-          "name": "Anthropic account"
-        }
-      }
     },
     {
       "parameters": {
@@ -414,26 +369,26 @@
         "numberInputs": 3,
         "options": {}
       },
-      "id": "node-0019",
-      "name": "Merge Claude Outputs",
+      "id": "node-0016",
+      "name": "Merge Groq Outputs",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
       "position": [
-        1760,
-        180
+        1720,
+        160
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Signal Assembler — merge 3 Claude outputs by article_url\nfunction genUuid() {\n  // RFC4122 v4 without crypto dependency\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {\n    const r = Math.floor(Math.random() * 16);\n    const v = c === 'x' ? r : (r & 0x3) | 0x8;\n    return v.toString(16);\n  });\n}\n\nfunction parseClaude(raw) {\n  if (raw == null) return null;\n  let text = typeof raw === \"string\" ? raw : (raw.text || raw.output || raw.response || raw.data || \"\");\n  if (typeof text !== \"string\") {\n    // already structured\n    if (Array.isArray(text)) return text;\n    if (typeof raw === \"object\" && Array.isArray(raw)) return raw;\n  }\n  text = String(text).trim();\n  // strip code fences\n  text = text.replace(/^\\`\\`\\`(?:json)?/i, \"\").replace(/\\`\\`\\`$/,\"\").trim();\n  const start = text.indexOf(\"[\");\n  const end = text.lastIndexOf(\"]\");\n  if (start !== -1 && end !== -1 && end > start) {\n    text = text.slice(start, end + 1);\n  }\n  try {\n    return JSON.parse(text);\n  } catch (e) {\n    console.log(\"Claude parse failure:\", e.message);\n    return null;\n  }\n}\n\nconst all = $input.all();\n\n// Each Claude node arrives on its own merge input slot.\nfunction claudeOutputAt(idx) {\n  const item = all[idx];\n  if (!item || !item.json) return null;\n  return item.json;\n}\n\nconst c1 = parseClaude(claudeOutputAt(0)) || [];\nconst c2 = parseClaude(claudeOutputAt(1)) || [];\nconst c3 = parseClaude(claudeOutputAt(2)) || [];\n\nconst byUrl = {};\nfunction ensure(url) {\n  if (!byUrl[url]) byUrl[url] = { article_url: url };\n  return byUrl[url];\n}\n\nfor (const r of (Array.isArray(c1) ? c1 : [])) {\n  if (!r || !r.article_url) continue;\n  const o = ensure(r.article_url);\n  o.core_claim = r.core_claim;\n  o.claim_type = r.claim_type;\n}\nfor (const r of (Array.isArray(c2) ? c2 : [])) {\n  if (!r || !r.article_url) continue;\n  const o = ensure(r.article_url);\n  o.information_age_score = r.information_age_score;\n  o.is_recycled = r.is_recycled;\n  o.narrative_label = r.narrative_label;\n}\nfor (const r of (Array.isArray(c3) ? c3 : [])) {\n  if (!r || !r.article_url) continue;\n  const o = ensure(r.article_url);\n  o.companies_mentioned = r.companies_mentioned || [];\n}\n\n// Source article metadata from the Aggregate node\nlet sourceArticles = [];\ntry { sourceArticles = $('Aggregate for Claude').first().json.articles || []; } catch (e) {}\nconst metaByUrl = {};\nfor (const a of sourceArticles) metaByUrl[a.article_url] = a;\n\nconst runId = genUuid();\nconst now = new Date().toISOString();\nconst parseFailed = (c1.length + c2.length + c3.length) === 0;\n\nconst records = Object.values(byUrl).map(o => {\n  const meta = metaByUrl[o.article_url] || {};\n  return {\n    article_url: o.article_url,\n    headline: meta.headline || null,\n    summary: meta.summary || null,\n    source: meta.source || null,\n    published_at: meta.published_at || null,\n    core_claim: o.core_claim || null,\n    claim_type: o.claim_type || null,\n    information_age_score: typeof o.information_age_score === \"number\" ? o.information_age_score : null,\n    is_recycled: typeof o.is_recycled === \"boolean\" ? o.is_recycled : null,\n    narrative_label: o.narrative_label || null,\n    companies_mentioned: o.companies_mentioned || [],\n    first_appearance_date: now,\n    appearance_count: 1,\n    agent_run_id: runId,\n    processed_at: now,\n    signal_type: parseFailed ? \"parse_error\" : \"ok\"\n  };\n});\n\nreturn records.map(r => ({ json: r }));"
+        "jsCode": "// Signal Assembler — merge 3 Groq outputs by article_url\nfunction genUuid() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {\n    const r = Math.floor(Math.random() * 16);\n    const v = c === 'x' ? r : (r & 0x3) | 0x8;\n    return v.toString(16);\n  });\n}\n\nfunction parseGroq(item) {\n  if (!item || !item.json) return null;\n  let content = null;\n  const j = item.json;\n  try {\n    content = j.choices && j.choices[0] && j.choices[0].message\n      ? j.choices[0].message.content : null;\n  } catch (e) { content = null; }\n  if (content == null) {\n    // some HTTP nodes nest the body under .data / .body\n    const body = j.data || j.body;\n    if (body && body.choices) content = body.choices[0].message.content;\n  }\n  if (content == null) return null;\n  let text = String(content).trim();\n  text = text.replace(/^\\`\\`\\`(?:json)?/i, \"\").replace(/\\`\\`\\`$/, \"\").trim();\n  const start = text.indexOf(\"[\");\n  const end = text.lastIndexOf(\"]\");\n  if (start !== -1 && end !== -1 && end > start) text = text.slice(start, end + 1);\n  try { return JSON.parse(text); }\n  catch (e) { console.log(\"Groq parse failure:\", e.message); return null; }\n}\n\nconst all = $input.all();\nconst c1 = parseGroq(all[0]) || [];   // Core Claim Extractor\nconst c2 = parseGroq(all[1]) || [];   // Information Age Scorer\nconst c3 = parseGroq(all[2]) || [];   // Company Mention Extractor\n\nconst byUrl = {};\nconst ensure = (url) => (byUrl[url] = byUrl[url] || { article_url: url });\n\nfor (const r of (Array.isArray(c1) ? c1 : [])) {\n  if (!r || !r.article_url) continue;\n  const o = ensure(r.article_url);\n  o.core_claim = r.core_claim != null ? r.core_claim : null;\n  o.claim_type = r.claim_type != null ? r.claim_type : null;\n}\nfor (const r of (Array.isArray(c2) ? c2 : [])) {\n  if (!r || !r.article_url) continue;\n  const o = ensure(r.article_url);\n  o.information_age_score = typeof r.information_age_score === \"number\" ? r.information_age_score : null;\n  o.is_recycled = typeof r.is_recycled === \"boolean\" ? r.is_recycled : null;\n  o.narrative_label = r.narrative_label != null ? r.narrative_label : null;\n}\nfor (const r of (Array.isArray(c3) ? c3 : [])) {\n  if (!r || !r.article_url) continue;\n  ensure(r.article_url).companies_mentioned = r.companies_mentioned || [];\n}\n\nlet sourceArticles = [];\ntry { sourceArticles = $('Aggregate for Groq').first().json.articles || []; } catch (e) {}\nconst metaByUrl = {};\nfor (const a of sourceArticles) metaByUrl[a.article_url] = a;\n\nconst runId = genUuid();\nconst now = new Date().toISOString();\n\nconst records = Object.values(byUrl).map(o => {\n  const meta = metaByUrl[o.article_url] || {};\n  return {\n    article_url: o.article_url,\n    headline: meta.headline || null,\n    summary: meta.summary || null,\n    source: meta.source || null,\n    published_at: meta.published_at || null,\n    core_claim: o.core_claim || null,\n    claim_type: o.claim_type || null,\n    information_age_score: o.information_age_score == null ? null : o.information_age_score,\n    is_recycled: o.is_recycled == null ? null : o.is_recycled,\n    narrative_label: o.narrative_label || null,\n    companies_mentioned: o.companies_mentioned || [],\n    first_appearance_date: now,\n    appearance_count: 1,\n    agent_run_id: runId,\n    processed_at: now\n  };\n});\n\n// One item per record so the Supabase upsert maps cleanly.\n// Run-level metadata is recomputed by Generate Report from these records.\nreturn records.map(r => ({ json: r }));"
       },
-      "id": "node-0020",
+      "id": "node-0017",
       "name": "Signal Assembler",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1980,
-        180
+        1940,
+        160
       ]
     },
     {
@@ -443,13 +398,13 @@
         "dataToSend": "autoMapInputData",
         "conflictColumns": "article_url"
       },
-      "id": "node-0021",
+      "id": "node-0018",
       "name": "Insert to Supabase",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        2200,
-        180
+        2160,
+        160
       ],
       "credentials": {
         "supabaseApi": {
@@ -460,109 +415,84 @@
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\n  \"status\": \"success\",\n  \"articlesProcessed\": \"={{ $json.length }}\",\n  \"runId\": \"={{ $('Signal Assembler').first().json.agent_run_id }}\",\n  \"timestamp\": \"={{ new Date().toISOString() }}\"\n}"
+        "jsCode": "// Generate Report — build the markdown signal report\nconst records = $('Signal Assembler').all().map(i => i.json);\nconst runId = records.length ? records[0].agent_run_id : \"n/a\";\nconst runTimestamp = new Date().toISOString();\n\nconst total = records.length;\nconst novel = records.filter(r => (r.information_age_score || 0) >= 60);\nconst recycled = records.filter(r => r.is_recycled === true);\nconst novelCount = novel.length;\nconst recycledCount = recycled.length;\n\nconst fmt = v => (v == null || v === \"\" ? \"—\" : v);\nconst companiesOf = r => {\n  const cm = r.companies_mentioned || [];\n  return cm.length ? cm.map(c => c.ticker || c.companyName).join(\", \") : \"None\";\n};\n\n// company coverage\nconst compStats = {};\nfor (const r of records) {\n  for (const c of (r.companies_mentioned || [])) {\n    const key = c.ticker || c.companyName;\n    if (!key) continue;\n    if (!compStats[key]) compStats[key] = { ticker: c.ticker || \"—\", name: c.companyName || key, count: 0, sum: 0 };\n    compStats[key].count++;\n    compStats[key].sum += (r.information_age_score || 0);\n  }\n}\nconst companyList = Object.values(compStats).sort((a, b) => b.count - a.count);\n\n// narrative clusters\nconst clusters = {};\nfor (const r of records) {\n  const label = r.narrative_label || \"Unlabeled\";\n  if (!clusters[label]) clusters[label] = { count: 0, sum: 0, sources: new Set() };\n  clusters[label].count++;\n  clusters[label].sum += (r.information_age_score || 0);\n  if (r.source) clusters[label].sources.add(r.source);\n}\nconst clusterList = Object.entries(clusters)\n  .map(([label, c]) => ({ label, count: c.count, avg: Math.round(c.sum / c.count), sources: [...c.sources] }))\n  .sort((a, b) => b.count - a.count);\nconst topNarrative = clusterList.length ? clusterList[0].label : \"—\";\n\n// classification buckets\nconst bucket = (lo, hi) => records.filter(r => (r.information_age_score || 0) >= lo && (r.information_age_score || 0) <= hi).length;\nconst b80 = bucket(80, 100), b50 = bucket(50, 79), b20 = bucket(20, 49), b0 = bucket(0, 19);\n\nconst L = [];\nL.push(\"# Media Narrative Tracker — Signal Report\");\nL.push(\"**Run ID:** \" + runId);\nL.push(\"**Generated:** \" + runTimestamp);\nL.push(\"**Period:** Last 6 hours\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Executive Summary\");\nL.push(\"\");\nL.push(\"| Metric | Value |\");\nL.push(\"|--------|-------|\");\nL.push(\"| Articles processed | \" + total + \" |\");\nL.push(\"| Novel signals (score ≥ 60) | \" + novelCount + \" |\");\nL.push(\"| Recycled narratives | \" + recycledCount + \" |\");\nL.push(\"| Companies mentioned | \" + (companyList.map(c => c.name).join(\", \") || \"None\") + \" |\");\nL.push(\"| Most active narrative | \" + topNarrative + \" |\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Novel Signals\");\nL.push(\"*Articles with information age score ≥ 60 — worth reading*\");\nL.push(\"\");\nif (!novel.length) {\n  L.push(\"_No novel signals in this run._\");\n  L.push(\"\");\n} else {\n  for (const r of novel.sort((a, b) => (b.information_age_score || 0) - (a.information_age_score || 0))) {\n    L.push(\"### \" + fmt(r.headline));\n    L.push(\"**Source:** \" + fmt(r.source) + \" | **Score:** \" + fmt(r.information_age_score) + \"/100 | **Claim type:** \" + fmt(r.claim_type) + \" | **Companies:** \" + companiesOf(r));\n    L.push(\"**Core claim:** \" + fmt(r.core_claim));\n    L.push(\"**Narrative:** \" + fmt(r.narrative_label));\n    L.push(\"**Published:** \" + fmt(r.published_at));\n    L.push(\"**URL:** \" + fmt(r.article_url));\n    L.push(\"\");\n  }\n}\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Recycled Narratives\");\nL.push(\"*Articles with information age score < 40 — noise*\");\nL.push(\"\");\nconst recList = records.filter(r => (r.information_age_score || 0) < 40);\nif (!recList.length) {\n  L.push(\"_No recycled narratives in this run._\");\n  L.push(\"\");\n} else {\n  L.push(\"| Headline | Source | Score | Narrative Label |\");\n  L.push(\"|----------|--------|-------|-----------------|\");\n  for (const r of recList.sort((a, b) => (a.information_age_score || 0) - (b.information_age_score || 0))) {\n    L.push(\"| \" + fmt(r.headline) + \" | \" + fmt(r.source) + \" | \" + fmt(r.information_age_score) + \" | \" + fmt(r.narrative_label) + \" |\");\n  }\n  L.push(\"\");\n}\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Narrative Clusters\");\nL.push(\"*Articles grouped by narrative label*\");\nL.push(\"\");\nif (!clusterList.length) {\n  L.push(\"_No narratives to cluster._\");\n  L.push(\"\");\n} else {\n  for (const c of clusterList) {\n    L.push(\"**\" + c.label + \"** — \" + c.count + \" articles, avg score: \" + c.avg);\n    L.push(\"Sources: \" + (c.sources.join(\", \") || \"—\"));\n    L.push(\"\");\n  }\n}\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Company Coverage\");\nL.push(\"*Which watchlist companies appeared in this run*\");\nL.push(\"\");\nL.push(\"| Company | Ticker | Mentions | Avg Age Score |\");\nL.push(\"|---------|--------|----------|---------------|\");\nif (!companyList.length) {\n  L.push(\"| None | — | 0 | — |\");\n} else {\n  for (const c of companyList) {\n    L.push(\"| \" + c.name + \" | \" + c.ticker + \" | \" + c.count + \" | \" + Math.round(c.sum / c.count) + \" |\");\n  }\n}\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Signal Classification Summary\");\nL.push(\"\");\nL.push(\"| Score Range | Label | Count |\");\nL.push(\"|-------------|-------|-------|\");\nL.push(\"| 80–100 | Genuinely New | \" + b80 + \" |\");\nL.push(\"| 50–79 | Partially New | \" + b50 + \" |\");\nL.push(\"| 20–49 | Likely Recycled | \" + b20 + \" |\");\nL.push(\"| 0–19 | Recycled | \" + b0 + \" |\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Known Limitations\");\nL.push(\"- RSS coverage limited to 5 outlets (FT, Reuters, Seeking Alpha, CNBC, Yahoo Finance). Trade press narratives may not appear until picked up here.\");\nL.push(\"- Information age scores are Groq estimates, not validated against a labeled ground truth dataset.\");\nL.push(\"- Narrative label consistency across runs is unvalidated. Same narrative may receive slightly different labels.\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"*Mycroft — Media Narrative Tracker | Agent 3*\");\nL.push(\"*Stack: n8n + Groq (llama-3.3-70b-versatile) + Supabase*\");\n\nconst report = L.join(\"\\n\");\n\nreturn [{\n  json: {\n    report,\n    runId,\n    totalProcessed: total,\n    novelCount,\n    recycledCount\n  }\n}];"
       },
-      "id": "node-0022",
-      "name": "Pipeline Response",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        2420,
-        180
-      ]
-    },
-    {
-      "parameters": {
-        "httpMethod": "GET",
-        "path": "media-narrative-dashboard",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "id": "node-0023",
-      "name": "Dashboard Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        -200,
-        700
-      ],
-      "webhookId": "media-narrative-dashboard-hook"
-    },
-    {
-      "parameters": {
-        "operation": "getAll",
-        "tableId": "media_narratives_raw",
-        "returnAll": false,
-        "limit": 100,
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "created_at",
-              "condition": "gt",
-              "keyValue": "={{ new Date(Date.now() - 48*60*60*1000).toISOString() }}"
-            }
-          ]
-        },
-        "sort": {
-          "values": [
-            {
-              "field": "information_age_score",
-              "direction": "DESC"
-            }
-          ]
-        }
-      },
-      "id": "node-0024",
-      "name": "Fetch Dashboard Data",
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [
-        40,
-        700
-      ],
-      "credentials": {
-        "supabaseApi": {
-          "id": "supabase-cred",
-          "name": "Supabase account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Build Dashboard HTML — full inline SPA\nconst rows = $input.all().map(i => i.json).filter(Boolean);\n\nconst total = rows.length;\nconst novel = rows.filter(r => (r.information_age_score || 0) >= 60).length;\nconst recycled = rows.filter(r => r.is_recycled === true).length;\n\n// most mentioned company\nconst mentionCounts = {};\nfor (const r of rows) {\n  let cm = r.companies_mentioned;\n  if (typeof cm === \"string\") { try { cm = JSON.parse(cm); } catch (e) { cm = []; } }\n  for (const c of (cm || [])) {\n    const name = c.companyName || c.ticker;\n    if (!name) continue;\n    mentionCounts[name] = (mentionCounts[name] || 0) + 1;\n  }\n}\nconst mostMentioned = Object.entries(mentionCounts).sort((a,b)=>b[1]-a[1])[0];\nconst mostMentionedLabel = mostMentioned ? (mostMentioned[0] + \" (\" + mostMentioned[1] + \")\") : \"—\";\n\n// narrative clusters\nconst clusters = {};\nfor (const r of rows) {\n  const label = r.narrative_label || \"Unlabeled\";\n  if (!clusters[label]) clusters[label] = { count: 0, sum: 0 };\n  clusters[label].count++;\n  clusters[label].sum += (r.information_age_score || 0);\n}\nconst clusterRows = Object.entries(clusters)\n  .map(([label, c]) => ({ label, count: c.count, avg: Math.round(c.sum / c.count) }))\n  .sort((a,b) => b.count - a.count);\n\nconst esc = s => String(s == null ? \"\" : s)\n  .replace(/&/g,\"&amp;\").replace(/</g,\"&lt;\").replace(/>/g,\"&gt;\").replace(/\"/g,\"&quot;\");\n\nfunction borderColor(score) {\n  if (score >= 80) return \"#22c55e\";\n  if (score >= 40) return \"#eab308\";\n  return \"#ef4444\";\n}\n\nconst signalRows = rows\n  .slice()\n  .sort((a,b) => (b.information_age_score||0) - (a.information_age_score||0))\n  .map(r => {\n    let cm = r.companies_mentioned;\n    if (typeof cm === \"string\") { try { cm = JSON.parse(cm); } catch(e){ cm=[]; } }\n    const companies = (cm||[]).map(c => esc(c.ticker || c.companyName)).join(\", \") || \"—\";\n    const score = r.information_age_score == null ? \"—\" : r.information_age_score;\n    const pub = r.published_at ? new Date(r.published_at).toLocaleString() : \"—\";\n    return '<tr style=\"border-left:5px solid ' + borderColor(r.information_age_score||0) + '\">' +\n      '<td class=\"score\">' + esc(score) + '</td>' +\n      '<td>' + esc(r.narrative_label) + '</td>' +\n      '<td><a href=\"' + esc(r.article_url) + '\" target=\"_blank\">' + esc(r.headline) + '</a></td>' +\n      '<td>' + esc(r.source) + '</td>' +\n      '<td>' + esc(pub) + '</td>' +\n      '<td>' + companies + '</td>' +\n      '<td>' + esc(r.claim_type) + '</td>' +\n      '</tr>';\n  }).join(\"\");\n\nconst clusterHtml = clusterRows.map(c =>\n  '<tr><td>' + esc(c.label) + '</td><td>' + c.count + '</td><td>' + c.avg + '</td></tr>'\n).join(\"\");\n\nconst companyHtml = Object.entries(mentionCounts).sort((a,b)=>b[1]-a[1]).map(([n,c]) =>\n  '<tr><td>' + esc(n) + '</td><td>' + c + '</td></tr>'\n).join(\"\");\n\nconst html = `<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n<title>Media Narrative Tracker — Mycroft</title>\n<style>\n  :root{ --bg:#0b0f17; --panel:#141b27; --line:#243044; --txt:#e6edf3; --muted:#8b98ad; --accent:#38bdf8; }\n  *{ box-sizing:border-box; }\n  body{ margin:0; background:var(--bg); color:var(--txt); font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }\n  header{ padding:24px 28px; border-bottom:1px solid var(--line); }\n  h1{ margin:0; font-size:22px; } h1 span{ color:var(--accent); }\n  .sub{ color:var(--muted); font-size:13px; margin-top:4px; }\n  .wrap{ padding:24px 28px; max-width:1400px; margin:0 auto; }\n  .cards{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }\n  .card{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; }\n  .card .k{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.05em; }\n  .card .v{ font-size:28px; font-weight:700; margin-top:6px; }\n  h2{ font-size:16px; margin:28px 0 12px; border-left:3px solid var(--accent); padding-left:10px; }\n  table{ width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }\n  th,td{ text-align:left; padding:10px 12px; font-size:13px; border-bottom:1px solid var(--line); vertical-align:top; }\n  th{ color:var(--muted); text-transform:uppercase; font-size:11px; letter-spacing:.05em; cursor:pointer; user-select:none; }\n  tr:hover td{ background:#1a2333; }\n  td.score{ font-weight:700; font-size:15px; }\n  a{ color:var(--accent); text-decoration:none; } a:hover{ text-decoration:underline; }\n  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }\n  footer{ color:var(--muted); font-size:12px; text-align:center; padding:30px 0; border-top:1px solid var(--line); margin-top:32px; }\n  @media(max-width:900px){ .cards{ grid-template-columns:repeat(2,1fr);} .grid2{ grid-template-columns:1fr;} }\n</style>\n</head>\n<body>\n<header>\n  <h1>Media Narrative Tracker — <span>Mycroft</span></h1>\n  <div class=\"sub\">Agent 3 · Information-age scoring of financial media · last 48 hours</div>\n</header>\n<div class=\"wrap\">\n  <div class=\"cards\">\n    <div class=\"card\"><div class=\"k\">Articles (48h)</div><div class=\"v\">${total}</div></div>\n    <div class=\"card\"><div class=\"k\">Novel (score ≥ 60)</div><div class=\"v\" style=\"color:#22c55e\">${novel}</div></div>\n    <div class=\"card\"><div class=\"k\">Recycled</div><div class=\"v\" style=\"color:#ef4444\">${recycled}</div></div>\n    <div class=\"card\"><div class=\"k\">Most Mentioned</div><div class=\"v\" style=\"font-size:20px\">${mostMentionedLabel}</div></div>\n  </div>\n\n  <h2>Signal Table</h2>\n  <table id=\"signalTable\">\n    <thead><tr>\n      <th onclick=\"sortBy(0,true)\">Score</th>\n      <th onclick=\"sortBy(1)\">Narrative Label</th>\n      <th onclick=\"sortBy(2)\">Headline</th>\n      <th onclick=\"sortBy(3)\">Source</th>\n      <th onclick=\"sortBy(4)\">Published</th>\n      <th onclick=\"sortBy(5)\">Companies</th>\n      <th onclick=\"sortBy(6)\">Claim Type</th>\n    </tr></thead>\n    <tbody>${signalRows || '<tr><td colspan=\"7\" style=\"color:var(--muted)\">No articles in the last 48 hours.</td></tr>'}</tbody>\n  </table>\n\n  <div class=\"grid2\">\n    <div>\n      <h2>Narrative Clusters</h2>\n      <table>\n        <thead><tr><th>Narrative</th><th>Count</th><th>Avg Age Score</th></tr></thead>\n        <tbody>${clusterHtml || '<tr><td colspan=\"3\" style=\"color:var(--muted)\">—</td></tr>'}</tbody>\n      </table>\n    </div>\n    <div>\n      <h2>Company Mentions (48h)</h2>\n      <table>\n        <thead><tr><th>Company</th><th>Mentions</th></tr></thead>\n        <tbody>${companyHtml || '<tr><td colspan=\"2\" style=\"color:var(--muted)\">—</td></tr>'}</tbody>\n      </table>\n    </div>\n  </div>\n\n  <footer>Mycroft — Media Narrative Tracker · Agent 3 | n8n + Claude AI + Supabase</footer>\n</div>\n<script>\n  function sortBy(col, numeric){\n    const tbody = document.querySelector('#signalTable tbody');\n    const rows = Array.from(tbody.querySelectorAll('tr'));\n    const dir = tbody.getAttribute('data-dir-' + col) === 'asc' ? 'desc' : 'asc';\n    tbody.setAttribute('data-dir-' + col, dir);\n    rows.sort((a,b)=>{\n      let x = a.children[col] ? a.children[col].innerText : '';\n      let y = b.children[col] ? b.children[col].innerText : '';\n      if(numeric){ x = parseFloat(x)||0; y = parseFloat(y)||0; return dir==='asc'? x-y : y-x; }\n      return dir==='asc' ? x.localeCompare(y) : y.localeCompare(x);\n    });\n    rows.forEach(r=>tbody.appendChild(r));\n  }\n</script>\n</body>\n</html>`;\n\nreturn [{ json: { html } }];"
-      },
-      "id": "node-0025",
-      "name": "Build Dashboard HTML",
+      "id": "node-0019",
+      "name": "Generate Report",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        300,
-        700
+        2380,
+        160
       ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "tableId": "narrative_reports",
+        "dataToSend": "defineBelow",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "run_id",
+              "fieldValue": "={{ $json.runId }}"
+            },
+            {
+              "fieldId": "report_markdown",
+              "fieldValue": "={{ $json.report }}"
+            },
+            {
+              "fieldId": "articles_processed",
+              "fieldValue": "={{ $json.totalProcessed }}"
+            },
+            {
+              "fieldId": "novel_count",
+              "fieldValue": "={{ $json.novelCount }}"
+            },
+            {
+              "fieldId": "recycled_count",
+              "fieldValue": "={{ $json.recycledCount }}"
+            }
+          ]
+        }
+      },
+      "id": "node-0020",
+      "name": "Store Report in Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        160
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-cred",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
         "respondWith": "text",
-        "responseBody": "={{ $json.html }}",
+        "responseBody": "={{ $('Generate Report').first().json.report }}",
         "options": {
           "responseHeaders": {
             "entries": [
               {
                 "name": "Content-Type",
-                "value": "text/html; charset=utf-8"
+                "value": "text/markdown"
               }
             ]
           }
         }
       },
-      "id": "node-0026",
-      "name": "Serve Dashboard HTML",
+      "id": "node-0021",
+      "name": "Pipeline Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        560,
-        700
+        2820,
+        160
       ]
     }
   ],
@@ -701,68 +631,68 @@
       "main": [
         [
           {
-            "node": "Aggregate for Claude",
+            "node": "Aggregate for Groq",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Aggregate for Claude": {
+    "Aggregate for Groq": {
       "main": [
         [
           {
-            "node": "Claude 1: Core Claim Extractor",
+            "node": "Groq 1: Core Claim Extractor",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Claude 2: Information Age Scorer",
+            "node": "Groq 2: Information Age Scorer",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Claude 3: Company Mention Extractor",
+            "node": "Groq 3: Company Mention Extractor",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Claude 1: Core Claim Extractor": {
+    "Groq 1: Core Claim Extractor": {
       "main": [
         [
           {
-            "node": "Merge Claude Outputs",
+            "node": "Merge Groq Outputs",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Claude 2: Information Age Scorer": {
+    "Groq 2: Information Age Scorer": {
       "main": [
         [
           {
-            "node": "Merge Claude Outputs",
+            "node": "Merge Groq Outputs",
             "type": "main",
             "index": 1
           }
         ]
       ]
     },
-    "Claude 3: Company Mention Extractor": {
+    "Groq 3: Company Mention Extractor": {
       "main": [
         [
           {
-            "node": "Merge Claude Outputs",
+            "node": "Merge Groq Outputs",
             "type": "main",
             "index": 2
           }
         ]
       ]
     },
-    "Merge Claude Outputs": {
+    "Merge Groq Outputs": {
       "main": [
         [
           {
@@ -788,73 +718,29 @@
       "main": [
         [
           {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Store Report in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Report in Supabase": {
+      "main": [
+        [
+          {
             "node": "Pipeline Response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Anthropic Model 1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Claude 1: Core Claim Extractor",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Anthropic Model 2": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Claude 2: Information Age Scorer",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Anthropic Model 3": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Claude 3: Company Mention Extractor",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Dashboard Webhook": {
-      "main": [
-        [
-          {
-            "node": "Fetch Dashboard Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fetch Dashboard Data": {
-      "main": [
-        [
-          {
-            "node": "Build Dashboard HTML",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Dashboard HTML": {
-      "main": [
-        [
-          {
-            "node": "Serve Dashboard HTML",
             "type": "main",
             "index": 0
           }

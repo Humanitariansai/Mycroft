@@ -2,55 +2,66 @@
 
 ## 1. What it does
 
-The Media Narrative Tracker monitors five financial-news RSS feeds and uses Claude to score each article for **information age** — how genuinely new the underlying claim is versus a recycled narrative being retold. It tells an investor when a story carries fresh signal and when it is merely echo, surfacing the result through a Supabase-backed dashboard.
+The Media Narrative Tracker monitors five financial-news RSS feeds and uses the Groq API (`llama-3.3-70b-versatile`) to score each article for **information age** — how genuinely new the underlying claim is versus a recycled narrative being retold. It produces a structured markdown **signal report** that is returned directly in the webhook response and stored in Supabase, telling an investor when a story carries fresh signal and when it is merely echo.
 
-## 2. Where it fits in Mycroft
+## 2. Mycroft architecture
 
-Mycroft is an AI-powered investment-intelligence framework focused on the AI sector. The Media Narrative Tracker sits one layer above the data-collection agents, judging the *quality* of incoming media rather than the data itself.
-
-| # | Agent | Output table | Status |
-|---|-------|--------------|--------|
+| # | Agent | Output table(s) | Status |
+|---|-------|-----------------|--------|
 | 1 | Reddit Anxiety Index | `anxiety_runs` | ✅ Built |
 | 2 | Patent Velocity Tracker | `patent_runs` | ✅ Built |
-| 3 | **Media Narrative Tracker** | `media_narratives_raw` | ✅ **Built (this agent)** |
+| 3 | **Media Narrative Tracker** | `media_narratives_raw`, `narrative_reports` | ✅ **Built (this agent)** |
 | 4 | Story Consistency | `story_consistency` | ⬜ Not built |
-| 5 | Four-Layer Blindspot Detector | (consumes 1–4) | ⬜ Not built |
+| 5 | Four-Layer Blindspot Detector | `blindspot_reports` | ⬜ Not built |
 
-## 3. The three Claude signals
+## 3. The three Groq signals
 
-Three Claude LLM Chain nodes run in parallel against the same batch of new articles:
+Three parallel HTTP Request nodes call the Groq API against the same batch of new articles:
 
 | Node | Signal | Output fields |
 |------|--------|---------------|
-| Claude 1 — Core Claim Extractor | The single factual claim, stripped of editorial framing | `core_claim`, `claim_type` |
-| Claude 2 — Information Age Scorer | Freshness of the underlying claim (0–100) | `information_age_score`, `is_recycled`, `narrative_label` |
-| Claude 3 — Company Mention Extractor | Watchlist companies referenced (alias-aware) | `companies_mentioned` |
+| Groq 1 — Core Claim Extractor | The single factual claim, stripped of editorial framing | `core_claim`, `claim_type` |
+| Groq 2 — Information Age Scorer | Freshness of the underlying claim (0–100) | `information_age_score`, `is_recycled`, `narrative_label` |
+| Groq 3 — Company Mention Extractor | Watchlist companies referenced (alias-aware) | `companies_mentioned` |
 
 The **Signal Assembler** merges all three by `article_url` into one record per article.
 
-## 4. Tech stack
+## 4. Report structure
+
+The Generate Report node produces a markdown report with these sections:
+
+1. **Executive Summary** — counts, companies, most active narrative
+2. **Novel Signals** — articles with score ≥ 60 (worth reading)
+3. **Recycled Narratives** — articles with score < 40 (noise)
+4. **Narrative Clusters** — articles grouped by narrative label
+5. **Company Coverage** — watchlist companies appearing this run
+6. **Signal Classification Summary** — counts per score band
+
+(Plus a Known Limitations note and footer.)
+
+## 5. Tech stack
 
 | Layer | Technology |
 |-------|-----------|
 | Orchestration | n8n (self-hosted, workflow.json) |
-| LLM | Anthropic Claude (LLM Chain nodes) |
+| LLM | Groq API — `llama-3.3-70b-versatile` (via HTTP Request nodes) |
 | Storage | Supabase (PostgreSQL + jsonb) |
-| Ingestion | 5 RSS feeds via HTTP Request nodes |
-| Dashboard | Inline single-page HTML served by n8n |
+| Ingestion | 5 RSS feeds (FT, Reuters, Seeking Alpha, CNBC, Yahoo Finance) |
+| Output | Markdown report (webhook response + `narrative_reports`) |
 
-## 5. Prerequisites
+## 6. Prerequisites
 
 - A running n8n instance (self-hosted, v1.x) — local default `http://localhost:5678`
 - A Supabase project
-- An Anthropic API key
-- Node.js only insofar as n8n requires it (no extra libraries — the XML parser is pure regex)
+- A Groq API key
+- No external libraries — the XML parser is pure regex
 
-## 6. Supabase setup
+## 7. Supabase setup
 
 Run [setup.sql](setup.sql) in the Supabase SQL editor. It creates:
 
-- `media_narratives_raw` — primary signal table, with `article_url` **unique** (the deduplication key)
-- `agent_runs` — pipeline run history
+- `media_narratives_raw` — primary signal table, `article_url` **unique** (the deduplication key)
+- `narrative_reports` — full markdown report per run
 - six indexes (incl. a **GIN** index on `companies_mentioned`)
 - the `novel_signals` view (score ≥ 60, last 48h)
 
@@ -59,59 +70,62 @@ Run [setup.sql](setup.sql) in the Supabase SQL editor. It creates:
 article_url text unique not null
 ```
 
-## 7. Credential placeholders
+## 8. Credentials
 
-| Credential | n8n name | Where to get it |
-|------------|----------|-----------------|
+| Credential | n8n env var | Where to get |
+|------------|-------------|--------------|
 | Supabase URL | `SUPABASE_URL` | Supabase project settings |
-| Supabase anon key | `SUPABASE_KEY` | Supabase API settings |
-| Anthropic API key | `ANTHROPIC_KEY` | console.anthropic.com |
-| Pipeline secret | `PIPELINE_SECRET` | Generate any string |
+| Supabase key | `SUPABASE_KEY` | Supabase API settings |
+| Groq API key | `GROQ_API_KEY` | console.groq.com |
+| Pipeline secret | `PIPELINE_SECRET` | Any random string |
 
-Set `SUPABASE_URL`, `SUPABASE_KEY`, and `PIPELINE_SECRET` as **environment variables** on the n8n host (the Code nodes read `$env.*`). Configure the Anthropic, Supabase, and Header-Auth credentials in **n8n → Credentials**. The Manual Pipeline Webhook uses Header Auth with header `X-Pipeline-Secret` matching `PIPELINE_SECRET`.
+Set these as **environment variables** on the n8n host (the Code and HTTP nodes read `$env.*`). Also configure the Supabase credential in **n8n → Credentials** for the two Supabase nodes, and the Header-Auth credential (header `X-Pipeline-Secret` = `PIPELINE_SECRET`) for the Manual Pipeline Webhook.
 
-## 8. n8n import steps
+## 9. n8n import steps
 
 1. n8n → **Workflows → Import from File** → select [workflow.json](workflow.json).
-2. Open each of the three **Anthropic Model** sub-nodes and select your Anthropic credential.
-3. Open **Insert to Supabase** and **Fetch Dashboard Data** and select your Supabase credential.
-4. Open **Manual Pipeline Webhook** and select the Header-Auth credential (`X-Pipeline-Secret`).
-5. Ensure `SUPABASE_URL`, `SUPABASE_KEY`, `PIPELINE_SECRET` exist in the host environment.
-6. Save. (The workflow ships `active: false` — activate it to enable the 6-hour Cron.)
+2. Open **Insert to Supabase** and **Store Report in Supabase** and select your Supabase credential.
+3. Open **Manual Pipeline Webhook** and select the Header-Auth credential (`X-Pipeline-Secret`).
+4. Ensure `SUPABASE_URL`, `SUPABASE_KEY`, `GROQ_API_KEY`, `PIPELINE_SECRET` exist in the host environment.
+5. Save. (Ships `active: false` — activate it to enable the 6-hour Cron.)
 
-## 9. First run
+## 10. First run
 
-- **Manual trigger:**
-  ```bash
-  curl -H "X-Pipeline-Secret: <your PIPELINE_SECRET>" \
-    "http://localhost:5678/webhook/run-media-pipeline"
-  ```
-- Or click **Execute Workflow** in the editor.
-- On first run, every article is new (the table is empty) so all are scored and inserted. Subsequent runs deduplicate against the last 7 days.
-- Open the dashboard URL in a browser to view results.
-
-## 10. Webhook URLs
-
-```
-Pipeline:  http://localhost:5678/webhook/run-media-pipeline
-Dashboard: http://localhost:5678/webhook/media-narrative-dashboard
+```bash
+curl -H "X-Pipeline-Secret: your-secret" \
+  http://localhost:5678/webhook/run-media-pipeline
 ```
 
-## 11. Known limitations
+The full markdown report is returned directly in the response (`Content-Type: text/markdown`). On the first run, every article is new (empty table) so all are scored and inserted; later runs deduplicate against the last 7 days.
 
-1. **RSS feed coverage is not neutral.** The five sources (Financial Times, Reuters, Seeking Alpha, CNBC, Yahoo Finance) each carry editorial biases. Trade-press or niche narratives won't be detected until they surface in these five sources, so the agent's view of "what the media is saying" is structurally skewed toward mainstream financial outlets.
-2. **Information-age scoring depends on Claude consistency.** Whether Claude assigns the same recycled narrative a comparable score across separate runs is unvalidated; scoring drift over time is possible.
-3. **No ground truth for "recycled" classification.** No labeled dataset exists to validate what the agent calls recycled vs. novel — the `is_recycled` flag and age score are model judgments, not measured facts.
-4. **Narrative-label stability.** Claude may phrase the same underlying narrative slightly differently across runs (e.g. "AI chip export curbs" vs. "AI chip export restrictions"), which prevents clean grouping of a narrative over time in the clusters view.
+## 11. Reading the report
 
-## 12. How this connects to Agent 5 (Four-Layer Blindspot Detector)
+Each article carries an **information age score**:
 
-Agent 5 consumes the outputs of Agents 1–4 to detect investor blindspots. The Media Narrative Tracker feeds two of its patterns directly:
+| Score | Label | Meaning |
+|-------|-------|---------|
+| 80–100 | Genuinely New | First time this specific claim appears — new data, new event |
+| 50–79 | Partially New | New development in an ongoing story |
+| 20–49 | Likely Recycled | Same claim seen before, new framing |
+| 0–19 | Recycled | Commentary / restatement of weeks-old news |
 
-- **Pattern 1 — `NARRATIVE_RECYCLING_TRAP`:** uses `is_recycled` and `narrative_label` to flag when an investor is reacting to recycled coverage (low `information_age_score`) as though it were new information — i.e. mistaking echo for signal.
-- **Pattern 4 — `INFORMATION_ASYMMETRY_WINDOW`:** uses high `information_age_score` (genuinely novel) signals, cross-referenced against company mentions and the anxiety/patent agents, to identify short windows where new information has appeared but is not yet broadly priced in.
+`is_recycled` is `true` when the score is below 40. Prioritize the **Novel Signals** section; treat the **Recycled Narratives** table as noise.
 
-## 13. Project structure
+## 12. Known limitations
+
+1. **RSS coverage limited to 5 outlets** (FT, Reuters, Seeking Alpha, CNBC, Yahoo Finance). Trade-press and niche narratives are missed until picked up by these sources, so the agent's view of "the media" is structurally skewed toward mainstream financial outlets.
+2. **Information age scores are Groq estimates** with no labeled ground-truth validation — `is_recycled` and the score are model judgments, not measured facts.
+3. **Narrative label consistency across runs is unvalidated.** Groq may phrase the same underlying narrative slightly differently between runs, which prevents clean grouping of a narrative over time.
+4. **Groq model output format may vary.** The Signal Assembler strips ```json fences and wraps each `JSON.parse()` in try/catch with a null fallback, but malformed-output edge cases can still drop a field for an article.
+
+## 13. How output connects to Agent 5 (Four-Layer Blindspot Detector)
+
+Agent 5 reads from the `novel_signals` view and the `media_narratives_raw` table to power two of its patterns:
+
+- **Pattern 1 — `NARRATIVE_RECYCLING_TRAP`:** uses `is_recycled` and `narrative_label` to flag when an investor is reacting to recycled coverage (low `information_age_score`) as though it were new — mistaking echo for signal.
+- **Pattern 4 — `INFORMATION_ASYMMETRY_WINDOW`:** uses high-score novel signals from `novel_signals`, cross-referenced with company mentions and the anxiety/patent agents, to identify short windows where new information has appeared but is not yet broadly priced in.
+
+## 14. Project structure
 
 ```
 media-narrative-tracker/
