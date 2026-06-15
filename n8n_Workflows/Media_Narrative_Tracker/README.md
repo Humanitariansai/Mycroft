@@ -118,14 +118,7 @@ Each article carries an **information age score**:
 3. **Narrative label consistency across runs is unvalidated.** Groq may phrase the same underlying narrative slightly differently between runs, which prevents clean grouping of a narrative over time.
 4. **Groq model output format may vary.** The Signal Assembler strips ```json fences and wraps each `JSON.parse()` in try/catch with a null fallback, but malformed-output edge cases can still drop a field for an article.
 
-## 13. How output connects to Agent 5 (Four-Layer Blindspot Detector)
-
-Agent 5 reads from the `novel_signals` view and the `media_narratives_raw` table to power two of its patterns:
-
-- **Pattern 1 — `NARRATIVE_RECYCLING_TRAP`:** uses `is_recycled` and `narrative_label` to flag when an investor is reacting to recycled coverage (low `information_age_score`) as though it were new — mistaking echo for signal.
-- **Pattern 4 — `INFORMATION_ASYMMETRY_WINDOW`:** uses high-score novel signals from `novel_signals`, cross-referenced with company mentions and the anxiety/patent agents, to identify short windows where new information has appeared but is not yet broadly priced in.
-
-## 14. Project structure
+## 13. Project structure
 
 ```
 media-narrative-tracker/
