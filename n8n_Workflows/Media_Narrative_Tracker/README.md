@@ -1,4 +1,4 @@
-# Media Narrative Tracker — Mycroft Agent 3
+# Media Narrative Tracker
 
 ## 1. What it does
 
