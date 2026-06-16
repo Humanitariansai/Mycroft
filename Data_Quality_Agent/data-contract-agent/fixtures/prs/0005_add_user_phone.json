@@ -1,0 +1,6 @@
+{
+  "migration": "0005_add_user_phone.py",
+  "branch": "add-user-phone",
+  "title": "Add optional phone number to users",
+  "description": "Adds a nullable `phone` column to `users` so we can support SMS-based 2FA in a later release. No backfill; existing rows keep NULL."
+}

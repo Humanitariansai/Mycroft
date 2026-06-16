@@ -1,0 +1,6 @@
+{
+  "migration": "0002_rename_signup_date.py",
+  "branch": "rename-signup-date",
+  "title": "Rename `users.signup_date` to `created_at` for consistency",
+  "description": "Every other table on `users` uses `created_at` for the row's creation timestamp; `signup_date` is the odd one out. This PR renames the column and updates ORM + API references."
+}
