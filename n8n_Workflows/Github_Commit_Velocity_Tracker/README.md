@@ -1,234 +1,337 @@
-# GitHub Commit Velocity Tracker — Mycroft Agent 4
+# GitHub Commit Velocity Tracker
 
-Tracks **weekly engineering activity** across 7 AI watchlist companies using the
-free **GitHub REST API**, detects week-over-week commit velocity acceleration
-before product announcements, persists signals to **Supabase**, and returns a
-structured markdown report over a webhook.
+Engineering velocity is a leading indicator. The pace at which a company's public repositories are pushed, starred, and expanded tends to move before the press release — a sustained acceleration in active repos often precedes a product launch, an SDK release, or a research milestone by weeks.
 
-No dashboard. **Report only.**
+Institutional alternative data providers have long treated open-source telemetry — commit cadence, contributor counts, repo activity — as a tradeable signal that front-runs reported fundamentals. This workflow builds a lightweight version of that same idea on free infrastructure. Every Sunday it pulls the 10 most-recently-pushed public repositories for each of 7 AI watchlist companies, computes weekly velocity metrics, compares against the previous week's run, and asks Groq to classify the engineering momentum. The output is a structured markdown report showing which companies are accelerating, which are stable, and which are quietly slowing down.
 
 ---
 
-## 1. What This Agent Does
+## Watchlist
 
-Engineering velocity is a **leading indicator**. The pace at which a company's
-public repositories are pushed, starred, and expanded tends to move *before* the
-press release — a sustained acceleration in active repos often precedes a product
-launch, an SDK release, or a research milestone by weeks.
-
-This is classic **institutional alternative data**. Quant funds such as
-**Two Sigma** and **DE Shaw** have long treated open-source telemetry —
-commit cadence, contributor counts, repo activity — as a tradeable signal that
-front-runs reported fundamentals. Mycroft Agent 4 builds a lightweight version
-of that same idea on free infrastructure:
-
-1. Pull the 10 most-recently-pushed public repos for each watchlist org.
-2. Compute weekly velocity metrics (active repos, stars, languages, top repo).
-3. Compare against last week's run stored in Supabase → **velocity_direction**.
-4. Ask Groq (`llama-3.3-70b-versatile`) to classify activity and momentum.
-5. Assemble signals, upsert to Supabase, and emit a markdown report.
-
-### Watchlist
-
-| Ticker | Company   | GitHub Org          |
-|--------|-----------|---------------------|
-| NVDA   | NVIDIA    | `NVIDIA`            |
-| AMD    | AMD       | `GPUOpen-Tools`     |
-| INTC   | Intel     | `intel`             |
-| GOOGL  | Google    | `google`            |
-| AAPL   | Apple     | `apple`             |
-| MSFT   | Microsoft | `microsoft`         |
-| META   | Meta      | `facebookresearch`  |
+| Ticker | Company | GitHub Org |
+|---|---|---|
+| NVDA | NVIDIA | `NVIDIA` |
+| AMD | AMD | `GPUOpen-Tools` |
+| INTC | Intel | `intel` |
+| GOOGL | Google | `google` |
+| AAPL | Apple | `apple` |
+| MSFT | Microsoft | `microsoft` |
+| META | Meta | `facebookresearch` |
 
 ---
 
-## 2. Mycroft Architecture
+## How It Works
 
-| Agent | Name                          | Status      | Output Table(s)                      |
-|-------|-------------------------------|-------------|--------------------------------------|
-| 1     | Earnings-Call Anxiety Index   | Live        | `anxiety_runs`                       |
-| 2     | Patent Filing Tracker         | Live        | `patent_runs`                        |
-| 3     | Media Narrative Monitor       | Live        | `media_narratives_raw`               |
-| **4** | **GitHub Commit Velocity Tracker** | **This agent** | **`github_signals`, `github_reports`** |
-| 5     | Mindshare / Attention Signal  | Planned     | `mindshare_signals`                  |
-| 6     | Contradiction Engine          | Planned     | `contradiction_reports`              |
+For each company the workflow fetches the 10 most recently pushed public repos from the GitHub REST API. From those it calculates:
 
-Agent 4 produces an *engineering activity* lens that Agent 6 cross-references
-against narrative and patent signals to surface contradictions (see §12).
+- **Active repos** — repos pushed in the last 30 days
+- **Total stars** — sum across top 10 repos
+- **Top repo** — highest starred repo
+- **Languages** — unique languages across repos
 
----
+It then compares against the previous week's stored run to produce:
 
-## 3. The Groq Signals
+- **repos_delta** — change in active repo count week over week
+- **velocity_direction** — `ACCELERATING` (delta > 2), `DECELERATING` (delta < -2), or `STABLE`
+- **delta_pct** — percentage change
 
-Groq (`llama-3.3-70b-versatile`, `temperature: 0.1`, `max_tokens: 2000`) returns
-a JSON array keyed by ticker. Two classification axes drive the report:
+Groq then classifies each company on two axes:
 
-### `activity_classification`
-How much engineering throughput the org is currently showing.
+**activity_classification** — how much engineering throughput the org is showing:
+`HIGHLY_ACTIVE` · `ACTIVE` · `MODERATE` · `LOW_ACTIVITY`
 
-| Value           | Meaning                                              |
-|-----------------|------------------------------------------------------|
-| `HIGHLY_ACTIVE` | Many active repos, broad and fresh push activity     |
-| `ACTIVE`        | Healthy, steady engineering output                   |
-| `MODERATE`      | Some activity, neither surging nor stalling          |
-| `LOW_ACTIVITY`  | Sparse pushes; engineering looks quiet               |
+**momentum_signal** — the direction of that activity:
+`BUILDING` · `MAINTAINING` · `SLOWING` · `PIVOTING`
 
-### `momentum_signal`
-The *direction* of that activity over time.
-
-| Value         | Meaning                                                  |
-|---------------|----------------------------------------------------------|
-| `BUILDING`    | Activity ramping up — possible pre-launch acceleration   |
-| `MAINTAINING` | Steady-state output                                      |
-| `SLOWING`     | Decelerating — fewer fresh pushes than expected          |
-| `PIVOTING`    | Activity shifting focus (new repos / language mix shift) |
-
-Each company record also carries `key_observation` (one sentence),
-`notable_repos` (1–2 repo names), and `risk_flag` (boolean).
+Each company also gets a `key_observation` (one sentence), `notable_repos` (1–2 repos worth watching), and a `risk_flag` boolean.
 
 ---
 
-## 4. Report Structure
+## Architecture
 
-The webhook returns a markdown report with **6 core sections** (plus header,
-limitations, and footer):
-
-1. **Executive Summary** — companies tracked, accelerating, stable, decelerating, risk flags.
-2. **Engineering Velocity Rankings** — sorted by active repos; per-company velocity, classification, momentum, observation, top repo, notable repos, risk flag.
-3. **Accelerating Companies** — those with `velocity_direction = ACCELERATING`.
-4. **Risk Flags** — those with `risk_flag = true`.
-5. **Week-over-Week Delta Table** — repos this week vs last week, delta, direction.
-6. **Language Landscape** — top languages per company.
-
-Followed by **Known Limitations** and the Mycroft footer.
-
----
-
-## 5. Tech Stack
-
-| Layer        | Technology                              |
-|--------------|-----------------------------------------|
-| Orchestration| n8n                                     |
-| Data source  | GitHub REST API (free, authenticated)   |
-| LLM          | Groq — `llama-3.3-70b-versatile`        |
-| Storage      | Supabase (Postgres)                     |
-| Delivery     | Webhook → markdown report               |
-
-LLM calls go through **HTTP Request nodes** only — no n8n LLM Chain nodes.
-
----
-
-## 6. Prerequisites
-
-- A running **n8n** instance (self-hosted or cloud), v1.x+.
-- A **Supabase** project.
-- A free **GitHub Personal Access Token**.
-- A free **Groq API key**.
-- Environment variables configured on the n8n host (see §8).
-
----
-
-## 7. Supabase Setup
-
-Run [setup.sql](setup.sql) in the Supabase **SQL Editor**. It creates:
-
-- `github_signals` — one row per company per week (`unique (ticker, run_week)`).
-- `github_reports` — one row per run with the rendered markdown.
-
-Both tables have **row level security disabled** for service-key access.
-Indexes are created on `ticker`, `velocity_direction`, `risk_flag`, and
-`run_timestamp`.
+```
+Cron Trigger (weekly, Sunday 06:00 UTC)
+  +
+Manual Webhook  GET /run-github-pipeline
+  ↓
+Fetch Watchlist
+  ↓
+7 parallel GitHub REST API fetches
+  GET /orgs/{org}/repos?per_page=10&sort=pushed&type=public
+  Authorization: Bearer $GITHUB_TOKEN
+  ↓
+Merge GitHub Results  (waitForAll, 7 inputs)
+  ↓
+Parse & Calculate Velocity
+  ↓
+Load Previous Run from Supabase
+  ↓
+Calculate Week-over-Week Delta
+  ↓
+Aggregate for Groq
+  ↓
+Groq: Activity Classifier  (llama-3.3-70b-versatile)
+  ↓
+Parse Groq Response
+  ↓
+Signal Assembler
+  ↓
+Upsert to Supabase  (conflict: ticker, run_week)
+  ↓
+Generate Report
+  ↓
+Store Report in Supabase
+  ↓
+Pipeline Response  (Content-Type: text/markdown)
+```
 
 ---
 
-## 8. Credentials & Environment Variables
+## Report Structure
 
-| Variable          | Where to get it                              | Purpose                                  |
-|-------------------|----------------------------------------------|------------------------------------------|
-| `GITHUB_TOKEN`    | github.com/settings/tokens (free PAT)        | Authenticated GitHub REST API (5k req/hr)|
-| `SUPABASE_URL`    | Supabase → Project Settings                  | Supabase REST base URL                   |
-| `SUPABASE_KEY`    | Supabase → API settings (service role key)   | Supabase auth (read/upsert/insert)       |
-| `GROQ_API_KEY`    | console.groq.com                             | Groq chat completions                    |
-| `PIPELINE_SECRET` | any random string you choose                 | Validates `X-Pipeline-Secret` on webhook |
+Every run produces a markdown report with six sections:
 
-In n8n:
-
-- Set the env vars above on the n8n host so `{{ $env.VAR }}` resolves.
-- Create a **Supabase API** credential named **"Supabase Mycroft"** (used by the
-  two Supabase nodes) with your project URL + service role key.
-- Create an **Header Auth** credential named
-  **"Pipeline Secret (X-Pipeline-Secret)"** with header name
-  `X-Pipeline-Secret` and value equal to `PIPELINE_SECRET`.
+1. **Executive Summary** — companies tracked, accelerating, stable, decelerating, risk flags
+2. **Engineering Velocity Rankings** — sorted by active repos; per-company velocity direction, delta, classification, momentum, observation, top repo, notable repos, risk flag
+3. **Accelerating Companies** — companies where `velocity_direction = ACCELERATING`
+4. **Risk Flags** — companies where `risk_flag = true`
+5. **Week-over-Week Delta Table** — repos this week vs last week, delta, direction per company
+6. **Language Landscape** — top languages detected per company
 
 ---
 
-## 9. n8n Import Steps
+## Tech Stack
 
-1. Open n8n → **Workflows** → **Import from File**.
-2. Select [workflow.json](workflow.json).
-3. Open the two Supabase nodes and bind the **"Supabase Mycroft"** credential.
-4. Open the **Manual Pipeline Webhook** node and bind the **Header Auth** credential.
-5. Confirm the host env vars (`GITHUB_TOKEN`, `GROQ_API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`, `PIPELINE_SECRET`) are set.
-6. Save. Leave the workflow **inactive** until you've done a manual test run.
+| Layer | Technology |
+|---|---|
+| Orchestration | n8n (self-hosted) |
+| Data source | GitHub REST API (free, authenticated PAT) |
+| LLM | Groq — `llama-3.3-70b-versatile` via HTTP Request nodes |
+| Storage | Supabase (PostgreSQL) |
+| Output | Markdown report via webhook + archived in Supabase |
 
 ---
 
-## 10. First Run
+## Prerequisites
 
-Trigger the pipeline manually via the webhook:
+- n8n instance running (self-hosted, v1.x+)
+- Supabase project
+- Free GitHub Personal Access Token
+- Groq API key — [console.groq.com](https://console.groq.com)
+
+---
+
+## Supabase Setup
+
+Run `setup.sql` in the Supabase SQL Editor before the first run. It creates:
+
+- `github_signals` — one row per company per week, unique on `(ticker, run_week)`
+- `github_reports` — full markdown report archive per run
+- Indexes on `ticker`, `velocity_direction`, `risk_flag`, `run_timestamp`
+
+---
+
+## Credentials
+
+Set these as environment variables on the n8n host before starting n8n:
+
+| Variable | Where to get it |
+|---|---|
+| `GITHUB_TOKEN` | github.com/settings/tokens → Generate new token (classic) → `public_repo` scope only |
+| `SUPABASE_URL` | Supabase → Project Settings → API |
+| `SUPABASE_KEY` | Supabase → Project Settings → API (anon key) |
+| `GROQ_API_KEY` | console.groq.com → API Keys |
+| `PIPELINE_SECRET` | Any random string you choose |
+
+```bash
+export GITHUB_TOKEN=your-github-pat
+export SUPABASE_URL=https://your-project.supabase.co
+export SUPABASE_KEY=your-anon-key
+export GROQ_API_KEY=your-groq-key
+export PIPELINE_SECRET=your-secret
+npx n8n
+```
+
+In the n8n UI, also create:
+- A **Supabase** credential and bind it to the two Supabase nodes
+- A **Header Auth** credential (`X-Pipeline-Secret` = your `PIPELINE_SECRET`) and bind it to the Manual Pipeline Webhook node
+
+> The GitHub token is read via `$env.GITHUB_TOKEN` in the 7 fetch nodes — no n8n credential needed for it, just the env var.
+
+---
+
+## Import & Activate
+
+1. n8n → **Workflows → Import from File** → select `workflow.json`
+2. Open **Upsert to Supabase** → bind your Supabase credential
+3. Open **Store Report in Supabase** → bind your Supabase credential
+4. Open **Manual Pipeline Webhook** → bind your Header Auth credential
+5. Save — leave inactive until you've done a manual test run
+
+---
+
+## First Run
 
 ```bash
 curl -H "X-Pipeline-Secret: your-secret" \
   http://localhost:5678/webhook/run-github-pipeline
 ```
 
-The response body is the full markdown report (`Content-Type: text/markdown`).
-The **first run** seeds Supabase and has no week-over-week comparison — every
-company shows as `STABLE` with `is_first_run = true`. Subsequent runs compute
-real deltas.
+The full markdown report is returned directly in the response. The first run seeds Supabase and has no week-over-week comparison — every company shows `is_first_run: true` and `delta_pct: N/A`. Subsequent runs compute real deltas.
 
-The **Cron Trigger** runs automatically every **Sunday 06:00 UTC**.
+The Cron trigger runs automatically every Sunday at 06:00 UTC once activated.
 
 ---
 
-## 11. Known Limitations
+## Known Limitations
 
-- **Top 10 repos per org only** — deeper backlogs are not sampled.
-- **Repos delta is an activity proxy, not a raw commit count.**
-- **First run has no week-over-week comparison.**
-- **GitHub token required** (5,000 req/hr authenticated).
-
----
-
-## 12. How `github_signals` Feeds Agent 6 (Engineering Silence)
-
-Agent 6 (Contradiction Engine) reads `github_signals` to detect the
-**Engineering Silence** pattern: a company that is *loud* in narrative or patent
-channels (Agents 2 & 3) but whose public engineering velocity is flat or
-decelerating.
-
-Concretely, Agent 6 looks for rows where:
-
-- `velocity_direction = 'DECELERATING'` or `momentum_signal IN ('SLOWING','PIVOTING')`, **and**
-- `risk_flag = true`,
-
-while the same ticker shows rising media/patent activity in the other agents'
-tables. The mismatch — public optimism with quiet engineering — is logged to
-`contradiction_reports` as a high-value contrarian signal. The `run_week`
-key makes week-aligned joins across agents straightforward.
+- **Top 10 repos per org only** — companies with many repos show a partial picture.
+- **Active repo count, not raw commit count** — a single highly active repo may not move the metric.
+- **First run has no week-over-week comparison** — meaningful delta data starts from the second run.
+- **GitHub token required** — unauthenticated calls are limited to 60 requests/hour, insufficient for 7 companies.
 
 ---
 
-## 13. Project Structure
+## Project Structure
 
 ```
-.
-├── workflow.json   # importable n8n workflow (22 nodes)
-├── setup.sql       # Supabase schema: github_signals + github_reports
-└── README.md       # this file
+github-commit-velocity-tracker/
+├── workflow.json
+├── setup.sql
+└── README.md
 ```
 
 ---
 
-_Mycroft — GitHub Commit Velocity Tracker | Agent 4_
-_Stack: n8n + GitHub REST API + Groq + Supabase_
+## Sample Output
+
+```
+# GitHub Commit Velocity Tracker — Signal Report
+
+**Run ID:** `a7c2e8f1-3b4d-4a9e-8f1c-2d3e4f5a6b7c`
+**Generated:** 2026-06-15T06:08:44.120Z
+**Period:** 2026-W24
+
+---
+
+## Executive Summary
+
+| Metric | Value |
+|---|---|
+| Companies tracked | 7 |
+| Accelerating | 2 |
+| Stable | 4 |
+| Decelerating | 1 |
+| Risk flags | 1 |
+
+---
+
+## Engineering Velocity Rankings
+
+### 1. NVIDIA (NVDA)
+
+- **Velocity:** ACCELERATING (+31.2%)
+- **Activity:** HIGHLY_ACTIVE
+- **Momentum:** BUILDING
+- **Active repos:** 21 | **Stars:** 48,320
+- **Observation:** Significant surge in inference and world-model repos
+  pushed in the past week, consistent with a pre-release acceleration.
+- **Top repo:** TensorRT-LLM
+- **Notable repos:** TensorRT-LLM, cuda-samples
+- **Risk flag:** no
+
+### 2. Microsoft (MSFT)
+
+- **Velocity:** STABLE (+2.1%)
+- **Activity:** HIGHLY_ACTIVE
+- **Momentum:** MAINTAINING
+- **Active repos:** 18 | **Stars:** 112,440
+- **Observation:** Broad, steady engineering output across Azure, dotnet,
+  and AI tooling repos with no unusual acceleration.
+- **Top repo:** TypeScript
+- **Notable repos:** TypeScript, vscode
+- **Risk flag:** no
+
+### 3. Meta (META)
+
+- **Velocity:** ACCELERATING (+18.7%)
+- **Activity:** ACTIVE
+- **Momentum:** BUILDING
+- **Active repos:** 14 | **Stars:** 89,210
+- **Observation:** facebookresearch org showing elevated push activity
+  concentrated in LLaMA and related inference tooling repos.
+- **Top repo:** llama
+- **Notable repos:** llama, faiss
+- **Risk flag:** no
+
+### 7. Intel (INTC)
+
+- **Velocity:** DECELERATING (-22.4%)
+- **Activity:** LOW_ACTIVITY
+- **Momentum:** SLOWING
+- **Active repos:** 5 | **Stars:** 9,840
+- **Observation:** Marked decline in active repo pushes — fewer than half
+  the count from last week. OneAPI activity has dropped significantly.
+- **Top repo:** intel-extension-for-pytorch
+- **Notable repos:** intel-extension-for-pytorch
+- **Risk flag:** ⚠️ YES
+
+---
+
+## Accelerating Companies
+
+- **NVIDIA (NVDA)** — +31.2%, HIGHLY_ACTIVE — Pre-release acceleration
+  in inference and world-model repos.
+- **Meta (META)** — +18.7%, ACTIVE — Elevated activity in LLaMA and
+  inference tooling.
+
+---
+
+## Risk Flags
+
+- ⚠️ **Intel (INTC)** — SLOWING — Active repo count dropped 22.4% WoW.
+  OneAPI activity significantly reduced.
+
+---
+
+## Week-over-Week Delta Table
+
+| Company | Ticker | Repos (this week) | Repos (last week) | Delta | Direction |
+|---|---|---|---|---|---|
+| NVIDIA | NVDA | 21 | 16 | +5 | ACCELERATING |
+| Microsoft | MSFT | 18 | 17 | +1 | STABLE |
+| Meta | META | 14 | 11 | +3 | ACCELERATING |
+| Google | GOOGL | 17 | 17 | 0 | STABLE |
+| Apple | AAPL | 8 | 8 | 0 | STABLE |
+| AMD | AMD | 9 | 10 | -1 | STABLE |
+| Intel | INTC | 5 | 11 | -6 | DECELERATING |
+
+---
+
+## Language Landscape
+
+| Company | Top Languages |
+|---|---|
+| NVIDIA | C++, Python, CUDA, CMake |
+| Microsoft | TypeScript, C#, Python, Go |
+| Meta | Python, C++, Jupyter Notebook |
+| Google | Python, Go, Java, TypeScript |
+| Apple | Swift, C++, Python |
+| AMD | C++, Python, CMake |
+| Intel | Python, C++, CMake |
+```
+
+---
+
+## Author
+
+**Sahiti Nallamolu**
+
+- LinkedIn: [linkedin.com/in/sahitinallamolu](https://www.linkedin.com/in/sahitinallamolu/)
+- Humanitarians AI Fellow
+
+---
+
+*Stack: n8n + GitHub REST API + Groq (llama-3.3-70b-versatile) + Supabase*
+
+---
