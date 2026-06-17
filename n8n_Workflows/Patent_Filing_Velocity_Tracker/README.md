@@ -1,60 +1,113 @@
-# Patent Filing Velocity Tracker — Mycroft Analytical Agent
+# Patent Filing Velocity Tracker
 
-A production-ready n8n workflow that tracks patent filing acceleration across the five largest US AI chip companies (NVIDIA, AMD, Intel, Google, Apple) using free USPTO PatentsView data, runs six parallel Claude analyses against each run, and emits structured intelligence signals to the [Mycroft](https://www.humanitarians.ai/mycroft) orchestration layer.
+Patent filings are a leading indicator. When a company accelerates its filing rate in a specific technical area, it signals a strategic bet being placed months — sometimes years — before the product ships or the analyst report is written. The filing date precedes the publication date by roughly 18 months on the USPTO system, and it precedes the press release by even longer.
 
-This workflow is one **Mycroft Analytical Agent**. Mycroft is an open-source AI-powered investment intelligence framework being built by [Humanitarians AI](https://www.humanitarians.ai). The agent's job is to detect strategic intent through patent velocity — a leading indicator of company direction that becomes visible months before product announcements or analyst coverage — and surface it as machine-readable signals (`PATENT_VELOCITY`, with `investmentSignal`, `breakthroughScore`, and `expiresAt`) that other Mycroft components can compose with signals from market data, hiring trends, supply-chain disclosures, and earnings.
+This workflow tracks patent filing acceleration across five AI chip companies — NVIDIA, AMD, Intel, Google, and Apple — using free USPTO PatentsView data. Every run fetches recent patents, runs six parallel Claude analyses to extract structured signals, and returns a JSON response containing per-company intelligence: who is filing faster, what new technical concepts are appearing, whether research teams are expanding, where the field is converging, and which companies are filing in territory they've never touched before.
 
 ---
 
-## The 7 signals extracted
+## The 7 Signals
 
 | # | Signal | Output shape | Question it answers |
-|---|--------|--------------|----------------------|
-| 1 | **Velocity Score** | `[{ company, velocityScore, trend, insight, confidenceLevel }]` | Who is filing faster than they were, calibrated to absolute volume? |
-| 2 | **Concept Novelty** | `[{ company, newConcepts, emergingThemes, noveltyScore, confidenceLevel }]` | What technical vocabulary appears in this run but not the last? |
-| 3 | **Inventor Network** | `[{ company, newInventorCount, teamExpansionSignal, insight, confidenceLevel }]` | Are research teams expanding, stable, or contracting? |
-| 4 | **Cross-Company Convergence** | `{ convergenceTopics, divergenceTopics, leaderByCategory, strategicInsight, confidenceLevel }` | Where is the field consolidating? Where is one player going it alone? |
-| 5 | **Strategic Intent** | `[{ company, intent, confidence, reasoning, keyTechnicalThemes }]` | Defensive / Expansive / Foundational / Incremental / Exploratory? |
-| 6 | **Breakthrough Detection** | `[{ company, breakthroughPatents, breakthroughScore, confidenceLevel }]` | Is anyone filing in CPC subcodes they've never touched before? |
-| 7 | **Investment Signal** (derived) | per company: `ACCUMULATE / WATCH / HOLD / REDUCE / INSUFFICIENT_DATA` with `signalExpiresAt` | One composite, machine-readable bucket per company for downstream orchestration. |
+|---|---|---|---|
+| 1 | **Velocity Score** | `{ company, velocityScore, trend, insight, confidenceLevel }` | Who is filing faster than they were, calibrated to absolute volume? |
+| 2 | **Concept Novelty** | `{ company, newConcepts, emergingThemes, noveltyScore, confidenceLevel }` | What technical vocabulary appears in this run but not the last? |
+| 3 | **Inventor Network** | `{ company, newInventorCount, teamExpansionSignal, insight, confidenceLevel }` | Are research teams expanding, stable, or contracting? |
+| 4 | **Cross-Company Convergence** | `{ convergenceTopics, divergenceTopics, leaderByCategory, strategicInsight }` | Where is the field consolidating? Where is one player going it alone? |
+| 5 | **Strategic Intent** | `{ company, intent, confidence, reasoning, keyTechnicalThemes }` | Defensive / Expansive / Foundational / Incremental / Exploratory? |
+| 6 | **Breakthrough Detection** | `{ company, breakthroughPatents, breakthroughScore, confidenceLevel }` | Is anyone filing in CPC subcodes they've never touched before? |
+| 7 | **Investment Signal** (derived) | `{ company, investmentSignal, signalExpiresAt }` | One composite signal per company for downstream use |
 
-The 7th signal is **derived locally** from the other six inside the Signal Aggregator node — no separate Claude call. Rules:
-- `ACCUMULATE`: `velocityScore > 70` AND `trend === 'ACCELERATING'` AND `teamExpansionSignal === 'EXPANDING'`
-- `WATCH`: `breakthroughScore > 60`
-- `HOLD`: `trend === 'STEADY'`
-- `REDUCE`: `trend === 'DECELERATING'`
-- `INSUFFICIENT_DATA`: any core signal is `null` or any company had fewer than 5 patents in the date range
+Signal 7 is derived locally inside the Signal Aggregator node — no separate Claude call:
 
-Every signal carries `signalExpiresAt` set to 90 days from the run timestamp — downstream consumers must treat older signals as stale.
+- `ACCUMULATE` — `velocityScore > 70` AND `trend = ACCELERATING` AND `teamExpansionSignal = EXPANDING`
+- `WATCH` — `breakthroughScore > 60`
+- `HOLD` — `trend = STEADY`
+- `REDUCE` — `trend = DECELERATING`
+- `INSUFFICIENT_DATA` — any core signal is null or fewer than 5 patents in the date range
+
+Every signal carries `signalExpiresAt` set to 90 days from the run timestamp.
 
 ---
 
-## Tech stack
+## Architecture
 
-| Layer | Tool | Notes |
-|-------|------|-------|
-| Orchestration | n8n | self-hosted via `npx n8n` |
-| Patent data | USPTO PatentsView API | free, no auth, ~18 month publication lag |
-| LLM | Claude Sonnet (`claude-sonnet-4-6`) | 7 parallel chains (6 analysis + 1 newsletter), 1500 max tokens |
-| Storage | Supabase (Postgres + JSONB) | 3 tables: `patent_runs`, `newsletter_runs`, `error_log` |
-| Email | SendGrid **or** n8n native email node | drives the weekly subscriber briefing |
-| Downstream | Mycroft orchestration endpoint | HTTP POST with normalized signal payload |
+```
+Webhook Trigger  GET /run-patent-pipeline
+  (Header auth: X-Pipeline-Secret)
+  ↓
+Security Gate  (validates PIPELINE_SECRET)
+  ↓
+IF Authorized
+  ↓
+Fetch Previous Run + Fetch Patent Data  (parallel)
+  USPTO PatentsView API — free, no auth
+  5 companies × multiple CPC subcodes (G06N, H01L)
+  ↓
+Merge Fetch Outputs
+  ↓
+1A: Structural Clean
+  ↓
+1B: Classify + Quality Weight
+  ↓
+Patent Count Gate
+  (skips Claude analysis if < 5 patents per company)
+  ↓
+Aggregate for Claude
+  ↓
+6 parallel Claude analyses  (claude-sonnet-4-6, 1500 tokens each)
+  Claude 1: Velocity Score
+  Claude 2: Concept Novelty
+  Claude 3: Inventor Network
+  Claude 4: Cross-Company Convergence
+  Claude 5: Strategic Intent
+  Claude 6: Breakthrough Detection
+  ↓
+Merge Claude Outputs  (append, 6 inputs)
+  ↓
+Signal Aggregator
+  (derives Investment Signal + signalExpiresAt)
+  ↓
+3 parallel branches:
+
+  Persistence branch             Newsletter branch          Orchestration branch
+  Insert to patent_runs          Gated: ≥ 200 patents       POST to external endpoint
+  Write errors to error_log      Generate newsletter         (placeholder until live)
+                                 Send to subscribers
+                                 Insert to newsletter_runs
+  ↓
+Converge Outputs  (append, 3 inputs)
+  ↓
+Webhook Response  (JSON summary)
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Orchestration | n8n (self-hosted) |
+| Patent data | USPTO PatentsView API — free, no auth required |
+| LLM | Claude Sonnet (`claude-sonnet-4-6`) — 7 parallel chains |
+| Storage | Supabase (PostgreSQL + JSONB) |
+| Email | SendGrid or n8n native SMTP node |
 
 ---
 
 ## Prerequisites
 
-- **Node.js 18+** (for `npx n8n`)
-- **n8n** running locally or self-hosted
-- **Supabase** project (free tier is sufficient)
-- **Anthropic API key** — https://console.anthropic.com
-- **SendGrid account** (or any SMTP credentials you'd rather use for the n8n email node)
+- Node.js 18+
+- n8n running locally or self-hosted
+- Supabase project (free tier is sufficient)
+- Anthropic API key — [console.anthropic.com](https://console.anthropic.com)
+- SendGrid account or any SMTP credentials
 
 ---
 
-## 1. Supabase setup
+## Supabase Setup
 
-Open the Supabase SQL editor and run **all three** statements:
+Open the Supabase SQL editor and run all four statements:
 
 ```sql
 create table patent_runs (
@@ -87,106 +140,90 @@ create table error_log (
   error_type text,
   error_detail jsonb
 );
-```
 
-Then disable RLS on the three tables so the anon key can write:
-
-```sql
-alter table patent_runs disable row level security;
-alter table newsletter_runs disable row level security;
-alter table error_log disable row level security;
-```
-
-Re-enable RLS and route writes through a service-role key from a backend if you ever expose this Supabase project publicly.
-
-You'll also need a `newsletter_subscribers` table for the briefing branch — the workflow queries it for the `email` column:
-
-```sql
 create table newsletter_subscribers (
   id uuid default gen_random_uuid() primary key,
   created_at timestamptz default now(),
   email text unique not null
 );
+```
+
+Disable RLS on all four tables:
+
+```sql
+alter table patent_runs disable row level security;
+alter table newsletter_runs disable row level security;
+alter table error_log disable row level security;
 alter table newsletter_subscribers disable row level security;
 ```
 
 ---
 
-## 2. Credential placeholders
+## Credentials
 
-Find-and-replace these inside `workflow.json` before importing:
+**Find and replace in `workflow.json` before importing:**
 
-| Placeholder | Source | Replace with |
-|-------------|--------|--------------|
-| `YOUR_SUPABASE_URL` | Supabase project settings | `https://abcdxyz.supabase.co` |
-| `YOUR_SUPABASE_ANON_KEY` | Supabase project settings | the anon JWT |
-| `YOUR_ANTHROPIC_API_KEY` | Anthropic console | stored inside the n8n credential, not in the file |
-| `YOUR_ANTHROPIC_CREDENTIAL_NAME` | n8n credentials UI | e.g. `Anthropic account` |
-| `YOUR_ANTHROPIC_CREDENTIAL_ID` | n8n credentials UI | auto-assigned when you save the credential |
-| `YOUR_SMTP_CREDENTIAL_NAME` / `YOUR_SMTP_CREDENTIAL_ID` | n8n SMTP / SendGrid credential | for the Send Email node |
-| `YOUR_PIPELINE_SECRET` (n8n env var `PIPELINE_SECRET`) | you choose | a random string used as the `X-Pipeline-Secret` header |
-| `YOUR_MYCROFT_ORCHESTRATION_ENDPOINT` + `YOUR_AGENT_SECRET` | Mycroft team | the agent-bus URL and per-agent secret |
+| Placeholder | Where to get it |
+|---|---|
+| `YOUR_SUPABASE_URL` | Supabase → Project Settings → API |
+| `YOUR_SUPABASE_ANON_KEY` | Supabase → Project Settings → API (anon key) |
+| `YOUR_MYCROFT_ORCHESTRATION_ENDPOINT` | Replace with `https://httpbin.org/post` for now |
+| `YOUR_AGENT_SECRET` | Replace with any placeholder string for now |
 
----
-
-## 3. n8n import
-
-```bash
-npx n8n
-```
-
-In the n8n UI (default `http://localhost:5678`):
-
-1. **Workflows → Import from File →** select `workflow.json`.
-2. **Credentials → New → Anthropic API**. Paste your key. Save. Open the workflow and bind the credential to each of the **7 Anthropic Model** nodes (Anthropic Model 1–6 plus Anthropic Model Newsletter).
-3. **Credentials → New → SMTP** (or SendGrid). Bind to the **Send Email** node.
-4. Activate the workflow.
-
----
-
-## 4. Environment variables
-
-Set the pipeline secret as an n8n environment variable. For local `npx n8n`:
+**Set as environment variable before starting n8n:**
 
 ```bash
 export PIPELINE_SECRET=your-long-random-string
 npx n8n
 ```
 
-For Docker, add `-e PIPELINE_SECRET=...`. The Security Gate code node reads it via `$env.PIPELINE_SECRET` and rejects any request whose `X-Pipeline-Secret` header doesn't match.
+**Create in the n8n UI after importing:**
 
-> The webhook URL is publicly reachable once the workflow is active. The secret header is the **only** authentication in front of the pipeline — pick a long random value.
+- **Anthropic API** credential — paste your key, bind to all 7 Anthropic Model nodes (1–6 + Newsletter)
+- **SMTP or SendGrid** credential — bind to the Send Email node
+
+`YOUR_ANTHROPIC_CREDENTIAL_NAME`, `YOUR_ANTHROPIC_CREDENTIAL_ID`, `YOUR_SMTP_CREDENTIAL_NAME`, and `YOUR_SMTP_CREDENTIAL_ID` are all bound in the n8n UI after import — n8n assigns real IDs when you save each credential. Do not find-replace these in the file.
 
 ---
 
-## 5. First run
+## Import & Activate
+
+1. Find-and-replace all placeholders in `workflow.json` as listed above
+2. n8n → **Workflows → Import from File** → select `workflow.json`
+3. Create Anthropic API credential → bind to all 7 Anthropic Model nodes
+4. Create SMTP/SendGrid credential → bind to Send Email node
+5. Replace the 5 assignee ID placeholders in the **Fetch Patent Data** code node (see below)
+6. Add at least one subscriber: `insert into newsletter_subscribers (email) values ('your@email.com');`
+7. Save — leave inactive until you've done a manual test run
+
+---
+
+## PatentsView Assignee IDs
+
+The workflow ships with placeholder strings (`nvidia-assignee-id`, `amd-assignee-id`, etc.). Without real IDs every patent fetch returns 0 results.
+
+1. Go to [patentsview.org/query/builder](https://patentsview.org/query/builder)
+2. Search each company name
+3. Copy the `assignee_id` from the results
+4. Open the **Fetch Patent Data** Code node in n8n
+5. Replace the 5 placeholders with real values
+
+The workflow falls back to alias string matching if the primary ID query returns zero, but that path is noisier.
+
+---
+
+## First Run
 
 ```bash
-curl -H "X-Pipeline-Secret: $PIPELINE_SECRET" http://localhost:5678/webhook/run-patent-pipeline
+curl -H "X-Pipeline-Secret: $PIPELINE_SECRET" \
+  http://localhost:5678/webhook/run-patent-pipeline
 ```
 
-The pipeline takes roughly 60–120s: fetch previous-run baseline + PatentsView fetch (in parallel), structural clean, classify + quality-weight, patent-count gate, six parallel Claude analyses, merge, signal aggregator (derives `investmentSignal` + `signalExpiresAt`), then three parallel branches:
-- **Persistence** — insert to `patent_runs` (`Prefer: return=representation` gives us the new row id), write any `pendingErrors` and `fetchErrors` to `error_log`.
-- **Newsletter** — gated on `totalPatentsAnalyzed >= 200`. Generates the ~400-word briefing with Claude, sends to all subscribers, records into `newsletter_runs`. Skipped runs log a `NEWSLETTER_SKIPPED` row to `error_log`.
-- **Mycroft emit** — POST to `YOUR_MYCROFT_ORCHESTRATION_ENDPOINT` with the normalized signals payload.
-
-The three branches converge into a `Merge waitForAll, numberInputs: 3` node, then the workflow responds to the original webhook with summary JSON.
+Takes 60–120 seconds. Check Supabase → `patent_runs` for a new row. If `total_patents_analyzed` is 0, the assignee IDs are still placeholders.
 
 ---
 
-## Webhook URL
-
-```
-http://localhost:5678/webhook/run-patent-pipeline
-```
-
-Requires `X-Pipeline-Secret` header. Returns 401 if missing/wrong.
-
----
-
-## Adding newsletter subscribers
-
-Insert directly via the Supabase SQL editor or REST:
+## Adding Newsletter Subscribers
 
 ```sql
 insert into newsletter_subscribers (email) values
@@ -194,88 +231,119 @@ insert into newsletter_subscribers (email) values
   ('researcher2@example.com');
 ```
 
-Or via PostgREST:
-
-```bash
-curl -X POST "$SUPABASE_URL/rest/v1/newsletter_subscribers" \
-  -H "apikey: $SUPABASE_ANON_KEY" \
-  -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"new@example.com"}'
-```
+The newsletter branch is gated on `totalPatentsAnalyzed >= 200` — below that threshold the run is too thin for a useful briefing and the branch is skipped, logging `NEWSLETTER_SKIPPED` to `error_log`.
 
 ---
 
-## Mycroft orchestration endpoint
-
-`YOUR_MYCROFT_ORCHESTRATION_ENDPOINT` is a **placeholder** until the Mycroft agent bus is live. Until then either:
-1. Replace it with `https://httpbin.org/post` (or any null endpoint) and ignore the response — the workflow logs non-2xx but does not fail.
-2. Disable that branch by removing the connection from `Signal Aggregator → Mycroft Orchestration Emit` and reducing `Converge Outputs.numberInputs` from 3 to 2.
-
-When the bus is ready, replace the placeholder with the production URL and rotate `YOUR_AGENT_SECRET`.
-
-The emitted payload shape:
+## Sample Output
 
 ```json
 {
-  "agentName": "PatentVelocityAgent",
-  "agentVersion": "1.0",
-  "runId": "<uuid from patent_runs insert>",
-  "timestamp": "<iso>",
+  "status": "success",
+  "runId": "f3a1c8e2-7b4d-4f9a-bc2e-1d3e5f7a9b0c",
+  "date": "2026-06-15",
+  "totalPatentsAnalyzed": 312,
   "signals": [
     {
       "company": "NVIDIA",
       "signalType": "PATENT_VELOCITY",
-      "direction": "ACCELERATING",
-      "strength": 87,
-      "confidence": 0.82,
+      "velocityScore": 87,
+      "trend": "ACCELERATING",
+      "noveltyScore": 74,
+      "newConcepts": ["speculative decoding", "world model training"],
+      "teamExpansionSignal": "EXPANDING",
+      "newInventorCount": 14,
+      "intent": "Expansive",
+      "breakthroughScore": 68,
+      "breakthroughPatents": ["US20260183421", "US20260191038"],
       "investmentSignal": "ACCUMULATE",
-      "breakthroughScore": 64,
-      "expiresAt": "<iso, +90 days>"
+      "signalExpiresAt": "2026-09-13T06:00:00.000Z",
+      "confidence": 0.84
+    },
+    {
+      "company": "Intel",
+      "signalType": "PATENT_VELOCITY",
+      "velocityScore": 31,
+      "trend": "DECELERATING",
+      "noveltyScore": 22,
+      "newConcepts": [],
+      "teamExpansionSignal": "CONTRACTING",
+      "newInventorCount": 2,
+      "intent": "Defensive",
+      "breakthroughScore": 18,
+      "breakthroughPatents": [],
+      "investmentSignal": "REDUCE",
+      "signalExpiresAt": "2026-09-13T06:00:00.000Z",
+      "confidence": 0.79
+    },
+    {
+      "company": "Google",
+      "signalType": "PATENT_VELOCITY",
+      "velocityScore": 91,
+      "trend": "ACCELERATING",
+      "noveltyScore": 88,
+      "newConcepts": ["mixture-of-experts routing", "in-context RL"],
+      "teamExpansionSignal": "EXPANDING",
+      "newInventorCount": 22,
+      "intent": "Foundational",
+      "breakthroughScore": 81,
+      "breakthroughPatents": ["US20260174892"],
+      "investmentSignal": "ACCUMULATE",
+      "signalExpiresAt": "2026-09-13T06:00:00.000Z",
+      "confidence": 0.91
     }
-  ]
+  ],
+  "convergence": {
+    "convergenceTopics": [
+      "transformer inference optimization",
+      "on-device neural processing"
+    ],
+    "divergenceTopics": [
+      "NVIDIA: world model simulation",
+      "Google: in-context learning primitives"
+    ],
+    "strategicInsight": "All five companies are converging on inference
+      efficiency IP while NVIDIA and Google are staking out divergent
+      bets in simulation and in-context learning respectively."
+  },
+  "newsletterStatus": "sent",
+  "newsletterSentTo": 3,
+  "processingMs": 84320
 }
 ```
 
 ---
 
-## Known limitations
+## Known Limitations
 
 1. **USPTO shows published patents, not filed.** PatentsView exposes the grant/publication date, which lags the filing date by roughly 18 months. Treat velocity as a medium-term trend signal, not real-time news.
-2. **Assignee IDs are placeholders.** `nvidia-assignee-id`, `amd-assignee-id`, etc. must be replaced with real PatentsView assignee identifiers before the first run. Look them up at https://patentsview.org/query/builder by searching the company name and inspecting the returned `assignee_id`. The workflow will fall back to alias string matching if the assignee_id query returns zero, but that path is noisier.
-3. **Company name normalization is incomplete for subsidiaries.** Aliases are hardcoded (e.g. `Alphabet`, `DeepMind`, `Google DeepMind Technologies Limited`). Acquisitions, joint ventures, and historical assignee strings outside that list are missed.
-4. **CPC scope may exclude relevant subcodes.** Currently `G06N` and `H01L` only. Neighboring areas (`G06F` general computing, `G11C` memory, parts of `H03K`) are out of scope and won't influence velocity numbers.
-5. **Concept novelty requires 2+ runs to be meaningful.** The first run has empty `previousConcepts`, so Claude 2 scores by within-batch dominance instead of true newness. Trust the signal only from the second run onward.
-6. **Signal Aggregator field-matching fails silently on unexpected Claude output shapes.** Each of the six outputs is identified by key presence (`velocityScore`+`trend`, `noveltyScore`, `teamExpansionSignal`, etc.). If a Claude response drifts schema, that signal silently defaults to empty — a row is written to `error_log` with `error_type: 'UNRECOGNISED_SHAPE'` but the pipeline continues.
-7. **Strategic intent stability across runs is unvalidated.** Claude 5 classifies each company into one of five buckets per run, but no cross-run drift check exists. Treat single-run intent with caution; trust patterns that persist across multiple runs.
-8. **Investment signal is experimental and is not financial advice.** The `ACCUMULATE / WATCH / HOLD / REDUCE` mapping is a deterministic rule derived from the other six signals for downstream orchestration. It is **not** a recommendation. Do not deploy capital on the basis of this output.
-9. **Newsletter is skipped when `totalPatentsAnalyzed < 200`.** Below that threshold the briefing would be too thin to be useful. The skip is logged to `error_log` with `error_type: 'NEWSLETTER_SKIPPED'`.
-10. **Mycroft orchestration endpoint is a placeholder** until the agent bus is built. The HTTP node is wired but writes to `YOUR_MYCROFT_ORCHESTRATION_ENDPOINT`. The pipeline does not fail on a non-2xx response from this branch — failures land in `error_log` instead.
-11. **PatentsView fetch uses page 1 / 100 results per alias only.** Companies with more than ~100 matching patents per assignee_id in the 2-year window will be truncated. Add pagination if you extend the scope.
+2. **Assignee IDs are placeholders.** Real PatentsView IDs must be substituted before the first run — see above.
+3. **Company name normalization is incomplete for subsidiaries.** Aliases are hardcoded (e.g. `Alphabet`, `DeepMind`, `Google DeepMind Technologies Limited`). Acquisitions and historical assignee strings outside that list are missed.
+4. **CPC scope may exclude relevant subcodes.** Currently `G06N` and `H01L` only. Neighboring areas (`G06F`, `G11C`, parts of `H03K`) are out of scope.
+5. **Concept novelty requires 2+ runs to be meaningful.** The first run has empty `previousConcepts` so Claude scores by within-batch dominance. Trust the signal from the second run onward.
+6. **Signal Aggregator field-matching fails silently on unexpected Claude output shapes.** If a Claude response drifts schema, that signal defaults to empty and a row is written to `error_log` with `error_type: UNRECOGNISED_SHAPE`.
+7. **Strategic intent stability across runs is unvalidated.** Single-run intent classifications should be treated with caution — trust patterns that persist across multiple runs.
+8. **Investment signal is experimental and is not financial advice.** The `ACCUMULATE / WATCH / HOLD / REDUCE` mapping is a deterministic rule derived from the other six signals. It is not a recommendation.
+9. **Newsletter is skipped when `totalPatentsAnalyzed < 200`.** The skip is logged to `error_log` with `error_type: NEWSLETTER_SKIPPED`.
+10. **Orchestration endpoint is a placeholder.** Replace `YOUR_MYCROFT_ORCHESTRATION_ENDPOINT` with `https://httpbin.org/post` for now — the workflow logs non-2xx responses but does not fail.
+11. **PatentsView fetch uses page 1 / 100 results per alias only.** Companies with more than ~100 matching patents in the date window will be truncated.
 
 ---
 
-## Project structure
+## Project Structure
 
 ```
-Patent_Filing_Velocity_Tracker/
-├── workflow.json    # n8n workflow — Settings → Import Workflow
-├── setup.sql        # Supabase schema (3 tables + subscribers)
-└── README.md        # this file
+patent-filing-velocity-tracker/
+├── workflow.json
+├── setup.sql
+└── README.md
 ```
 
 ---
 
-## Contributing
+## Author
 
-Mycroft is an open-source Humanitarians AI project. PRs and issues are welcome on the project repository — see https://www.humanitarians.ai/mycroft for the latest entry point. When proposing changes to this agent:
+**Sahiti Nallamolu**
 
-- Bump `agentVersion` and `promptVersion` in the Signal Aggregator code if you change any Claude prompt.
-- Add a row to `error_log` for any new failure mode rather than throwing — the orchestration layer expects the agent to always respond.
-- Don't add new signals without extending the field-detection logic in the Signal Aggregator; new shapes that aren't recognized are silently dropped.
-
----
-
-## License
-
-Open source under the [Humanitarians AI](https://www.humanitarians.ai) project umbrella. Patent data is sourced from the public USPTO PatentsView API and is in the public domain. Claude outputs derived from this data are governed by Anthropic's usage policies.
+- LinkedIn: [linkedin.com/in/sahitinallamolu](https://www.linkedin.com/in/sahitinallamolu/)
+- Humanitarians AI Fellow
