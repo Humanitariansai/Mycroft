@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: triangulation-validator
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mycroft_triangulation}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: false
+    show-sql: false
+
+  jackson:
+    serialization:
+      indent-output: true
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    com.mycroft: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+springdoc:
+  api-docs:
+    path: /v1/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+# Agent endpoint configurations
+agent:
+  talent:
+    url: ${TALENT_AGENT_URL:http://localhost:8081}
+  patent:
+    url: ${PATENT_AGENT_URL:http://localhost:8082}
+  news:
+    url: ${NEWS_AGENT_URL:http://localhost:8083}
+  market:
+    url: ${MARKET_AGENT_URL:http://localhost:8084}
+  regulatory:
+    url: ${REGULATORY_AGENT_URL:http://localhost:8085}
+
+# Signal configuration
+signal:
+  lookback:
+    days: ${SIGNAL_LOOKBACK_DAYS:7}
+  fetch:
+    timeout: ${SIGNAL_FETCH_TIMEOUT:5000}

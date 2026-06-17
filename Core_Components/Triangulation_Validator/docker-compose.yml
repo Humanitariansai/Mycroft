@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mycroft_triangulation
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/mycroft_triangulation
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      SIGNAL_LOOKBACK_DAYS: 7
+      AGENT_TALENT_URL: http://localhost:8081
+      AGENT_PATENT_URL: http://localhost:8082
+      AGENT_NEWS_URL: http://localhost:8083
+      AGENT_MARKET_URL: http://localhost:8084
+      AGENT_REGULATORY_URL: http://localhost:8085
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend
+    command: mvn spring-boot:run
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: frontend-builder
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    environment:
+      VITE_API_URL: http://localhost:8080
+    command: npm run dev
+
+  # Optional: Redis cache for future enhancements
+  cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: triangulation-network
