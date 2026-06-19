@@ -1,0 +1,10 @@
+mock_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', 'mock_analytics.duckdb') }}"
+      threads: 4
+      extensions:
+        - httpfs
+        - parquet

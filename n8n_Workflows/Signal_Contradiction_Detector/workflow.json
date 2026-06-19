@@ -1,0 +1,567 @@
+{
+  "name": "Mycroft — Signal Contradiction Detector (Agent 6)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                2
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "aaf5f04f-2a7e-40b8-8af9-55925c90de91",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -528,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "path": "run-contradiction-pipeline",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "444bc7ee-e0dd-4133-92f2-a461c855e4b5",
+      "name": "Manual Pipeline Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        464
+      ],
+      "webhookId": "run-contradiction-pipeline"
+    },
+    {
+      "parameters": {},
+      "id": "cbb544c2-4640-44b8-abc3-54a75eccff8d",
+      "name": "Fetch Watchlist",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "anxiety_runs",
+        "limit": 10,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "created_at",
+              "condition": "gt",
+              "keyValue": "={{ new Date(Date.now()-7*24*60*60*1000).toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "642a3bf7-5418-480d-be20-b906492fda00",
+      "name": "Read anxiety_runs",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "patent_runs",
+        "limit": 5
+      },
+      "id": "8a7dde78-4108-4ebf-b8fe-1b8d9afcf301",
+      "name": "Read patent_runs",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        176
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "media_narratives_raw",
+        "limit": 100,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "created_at",
+              "condition": "gt",
+              "keyValue": "={{ new Date(Date.now()-7*24*60*60*1000).toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "f9114645-5c61-40ad-9854-dfc9398d2508",
+      "name": "Read media_narratives_raw",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        352
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "github_signals",
+        "limit": 14
+      },
+      "id": "2e521498-db45-4c3c-a458-8fc7edbb4121",
+      "name": "Read github_signals",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        544
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "mindshare_signals",
+        "limit": 7
+      },
+      "id": "8c864992-c309-4c82-96b1-b40a6df66a00",
+      "name": "Read mindshare_signals",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        720
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "id": "31043e27-063c-4eec-a4b1-a591c4707aa1",
+      "name": "Merge All Signals",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2971dfa7-2eb9-4910-90f3-004c02633394",
+      "name": "Normalize Signal Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f22edee7-3b3d-48d1-ab2c-6c71775e7198",
+      "name": "Detect Contradiction Patterns",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "95705be4-b193-452c-bd65-57e39c98b5a2",
+      "name": "Score Contradictions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b1cf9676-e1b6-483a-bef7-d4b47ce7d74d",
+      "name": "Aggregate for Groq",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.2,\n  \"max_tokens\": 3000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a senior investment intelligence analyst specializing in cross-signal contradiction detection. You identify where independent data sources disagree and explain what those disagreements mean for investors. Return valid JSON only. No markdown, no preamble.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyze these cross-signal contradictions for AI sector companies. For each company with detected patterns, provide:\\n- contradiction_narrative: 2-3 sentences explaining what the contradiction means in plain English\\n- most_significant_pattern: which pattern is most important and why\\n- investor_implication: one sentence on what an investor should do with this information\\n- confidence: LOW | MEDIUM | HIGH — how confident are you in this contradiction analysis given the available data?\\n- data_gaps: list any signal that is missing or weak that would improve this analysis\\n\\nReturn ONLY a JSON array:\\n[{\\n  \\\"ticker\\\": \\\"<string>\\\",\\n  \\\"contradiction_narrative\\\": \\\"<string>\\\",\\n  \\\"most_significant_pattern\\\": \\\"<string>\\\",\\n  \\\"investor_implication\\\": \\\"<string>\\\",\\n  \\\"confidence\\\": \\\"<string>\\\",\\n  \\\"data_gaps\\\": [\\\"<string>\\\"]\\n}]\\n\\nData:\\n\" + JSON.stringify($json.groq_input)\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "7934e553-65d8-483b-a95c-89545a70fabe",
+      "name": "Groq: Contradiction Analyst",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1424,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "60cca1e1-81c2-490c-b8f0-f2768b5cdfdd",
+      "name": "Parse Groq Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "4d784dd8-8980-46ad-a8ba-781ab195219f",
+      "name": "Assemble Contradiction Report Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert"
+      },
+      "id": "fb15a653-07e2-4f44-8ab9-5f66d107e6f5",
+      "name": "Insert to Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "4450a55d-b047-4893-be35-d8d3ed9b2687",
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2304,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "a58b2e17-99ad-4714-8e6e-0072f497b99b",
+      "name": "Store Full Report",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2528,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Generate Report').first().json.report }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/markdown"
+              }
+            ]
+          }
+        }
+      },
+      "id": "2995c74a-b544-4a0b-be3e-662d7309aac6",
+      "name": "Pipeline Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2752,
+        352
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Pipeline Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Read anxiety_runs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read patent_runs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read media_narratives_raw",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read github_signals",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read mindshare_signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read anxiety_runs": {
+      "main": [
+        [
+          {
+            "node": "Merge All Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read patent_runs": {
+      "main": [
+        [
+          {
+            "node": "Merge All Signals",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All Signals": {
+      "main": [
+        [
+          {
+            "node": "Normalize Signal Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Signal Data": {
+      "main": [
+        [
+          {
+            "node": "Detect Contradiction Patterns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Contradiction Patterns": {
+      "main": [
+        [
+          {
+            "node": "Score Contradictions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Contradictions": {
+      "main": [
+        [
+          {
+            "node": "Aggregate for Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate for Groq": {
+      "main": [
+        [
+          {
+            "node": "Groq: Contradiction Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq: Contradiction Analyst": {
+      "main": [
+        [
+          {
+            "node": "Parse Groq Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Groq Response": {
+      "main": [
+        [
+          {
+            "node": "Assemble Contradiction Report Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble Contradiction Report Data": {
+      "main": [
+        [
+          {
+            "node": "Insert to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Store Full Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Full Report": {
+      "main": [
+        [
+          {
+            "node": "Pipeline Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read media_narratives_raw": {
+      "main": [
+        [
+          {
+            "node": "Merge All Signals",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Read github_signals": {
+      "main": [
+        [
+          {
+            "node": "Merge All Signals",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Read mindshare_signals": {
+      "main": [
+        [
+          {
+            "node": "Merge All Signals",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1a5b4e25-e081-4fcb-a52b-5c15582d3edf",
+  "meta": {
+    "instanceId": "f92ba833cfc01dd064a94201fa4bb20b3305c9c67348abfd124c90886d0575b8"
+  },
+  "id": "Kj4zPt8G5LIGUwwv",
+  "tags": []
+}

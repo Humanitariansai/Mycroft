@@ -1,0 +1,6 @@
+openai>=1.0.0
+weave>=0.1.0
+streamlit>=1.30.0
+ddgs>=6.0.0
+requests>=2.28.0
+PyYAML>=6.0

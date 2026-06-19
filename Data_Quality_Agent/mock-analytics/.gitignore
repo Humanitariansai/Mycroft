@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.local
+
+# dbt artifacts
+target/
+dbt_packages/
+logs/
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+
+# Raw extracted Parquet (regeneratable from Postgres)
+raw/*.parquet
+
+.DS_Store
+.ruff_cache/
