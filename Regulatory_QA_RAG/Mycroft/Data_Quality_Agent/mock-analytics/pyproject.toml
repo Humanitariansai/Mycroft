@@ -1,0 +1,31 @@
+[project]
+name = "mock-analytics"
+version = "0.1.0"
+description = "dbt project consuming mock-app-service's schema. The downstream half of the data contract demo."
+requires-python = ">=3.11"
+dependencies = [
+    "dbt-core>=1.8,<1.10",
+    "dbt-duckdb>=1.8,<1.10",
+    "psycopg2-binary>=2.9",
+    "pyarrow>=16.0",
+    "pandas>=2.2",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+# This is a dbt project, not an importable Python package. There are no modules
+# to install; `pip install -e .` is only used to pull in the dependencies above.
+[tool.setuptools]
+py-modules = []
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

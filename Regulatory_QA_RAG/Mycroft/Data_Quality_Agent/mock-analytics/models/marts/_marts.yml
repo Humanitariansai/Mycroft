@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: fct_mrr
+    description: |
+      Monthly Recurring Revenue, one row per active/trialing subscription.
+      Yearly subscriptions are normalized by dividing by 12.
+
+      SCENARIO TRAPS:
+        - Scenario 2 (semantic unit): amount_usd flows in from stg_subscriptions,
+          which converts amount_cents/100. A change in operational units that
+          doesn't update stg_subscriptions makes this mart silently 100x wrong.
+        - Scenario 3 (enum expansion): the WHERE filter on subscription_status
+          hard-codes ('active', 'trialing'). A new 'paused' value drops out
+          silently.
+    columns:
+      - name: subscription_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_subscriptions')
+              field: subscription_id
+      - name: monthly_amount_usd
+        description: "Monthly-normalized recurring revenue contribution in USD. Sum this column to get MRR."
+        tests:
+          - not_null
+      - name: subscription_status
+        tests:
+          - accepted_values:
+              values: ["active", "trialing"]
+
+  - name: fct_revenue
+    description: "Recognized revenue (succeeded transactions only), aggregated by month and account."
+    columns:
+      - name: revenue_month
+        tests:
+          - not_null
+      - name: revenue_usd
+        tests:
+          - not_null
+      - name: account_id
+        tests:
+          - not_null
+
+  - name: dim_users
+    description: "One row per user with their account portfolio and subscription rollup."
+    columns:
+      - name: user_id
+        tests:
+          - unique
+          - not_null
+      - name: signup_at
+        description: "When the user signed up. Sourced transitively from users.signup_date — the Scenario 1 trap propagates here."
+        tests:
+          - not_null
+
+  - name: fct_engagement
+    description: "Per-user engagement metrics derived from the events table."
+    columns:
+      - name: user_id
+        tests:
+          - unique
+          - not_null

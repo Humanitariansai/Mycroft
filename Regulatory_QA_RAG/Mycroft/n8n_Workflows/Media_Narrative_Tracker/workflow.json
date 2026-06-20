@@ -1,0 +1,711 @@
+{
+  "name": "Media Narrative Tracker — Mycroft Agent 3 (Groq)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "a7fc736c-cb23-401a-bcb9-ab5227756da5",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2944,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "path": "run-media-pipeline",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c744aef5-93aa-4bbb-8e03-0688a23b8873",
+      "name": "Manual Pipeline Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2928,
+        176
+      ],
+      "webhookId": "run-media-pipeline-hook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Fetch Watchlist — hardcoded AI sector companies\nconst watchlist = [\n  { ticker: \"NVDA\",  companyName: \"NVIDIA\",\n    aliases: [\"nvidia\", \"nvda\", \"jensen huang\"] },\n  { ticker: \"AMD\",   companyName: \"AMD\",\n    aliases: [\"amd\", \"advanced micro devices\", \"lisa su\"] },\n  { ticker: \"INTC\",  companyName: \"Intel\",\n    aliases: [\"intel\", \"intc\", \"pat gelsinger\"] },\n  { ticker: \"GOOGL\", companyName: \"Google\",\n    aliases: [\"google\", \"alphabet\", \"googl\", \"deepmind\"] },\n  { ticker: \"AAPL\",  companyName: \"Apple\",\n    aliases: [\"apple\", \"aapl\", \"tim cook\"] },\n  { ticker: \"MSFT\",  companyName: \"Microsoft\",\n    aliases: [\"microsoft\", \"msft\", \"azure\", \"satya nadella\"] },\n  { ticker: \"META\",  companyName: \"Meta\",\n    aliases: [\"meta\", \"facebook\", \"zuckerberg\", \"llama\"] }\n];\n\nreturn [{ json: { watchlist } }];"
+      },
+      "id": "99644b9f-cd02-42d4-a496-0e010239ffd8",
+      "name": "Fetch Watchlist",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2720,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.ft.com/rss/home",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Mycroft/1.0)"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "e2d5956a-1e31-47b7-a5de-3b06ff7a2bc9",
+      "name": "Fetch FT RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2400,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.reuters.com/reuters/businessNews",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Mycroft/1.0)"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "9eafdb32-19ea-44c9-8148-afcae9b05632",
+      "name": "Fetch Reuters RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2400,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://seekingalpha.com/feed.xml",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Mycroft/1.0)"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "fb1e903f-9644-4bbf-bcdb-d4b1f0cca39b",
+      "name": "Fetch Seeking Alpha RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2400,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.cnbc.com/id/10001147/device/rss/rss.html",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Mycroft/1.0)"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "7abb2344-4b0c-43e2-a672-289834392d19",
+      "name": "Fetch CNBC RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2400,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://finance.yahoo.com/rss/topstories",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Mycroft/1.0)"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "0d3e4c41-f027-4483-8ea1-2ef7de214184",
+      "name": "Fetch Yahoo Finance RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2400,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse & Clean Articles — regex XML parser, no external libs\nconst feeds = [\n  { node: \"Fetch FT RSS\",            source: \"Financial Times\" },\n  { node: \"Fetch Reuters RSS\",       source: \"Reuters\" },\n  { node: \"Fetch Seeking Alpha RSS\", source: \"Seeking Alpha\" },\n  { node: \"Fetch CNBC RSS\",          source: \"CNBC\" },\n  { node: \"Fetch Yahoo Finance RSS\", source: \"Yahoo Finance\" }\n];\n\nfunction stripHtml(s) {\n  return String(s || \"\")\n    .replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g, \"$1\")\n    .replace(/<[^>]*>/g, \" \")\n    .replace(/&nbsp;/gi, \" \")\n    .replace(/&amp;/gi, \"&\")\n    .replace(/&lt;/gi, \"<\")\n    .replace(/&gt;/gi, \">\")\n    .replace(/&quot;/gi, '\"')\n    .replace(/&#39;/gi, \"'\")\n    .replace(/&[a-z0-9#]+;/gi, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfunction unwrapCdata(s) {\n  const m = String(s || \"\").match(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/);\n  return m ? m[1] : s;\n}\n\nfunction tagValue(block, tag) {\n  const re = new RegExp(\"<\" + tag + \"[^>]*>([\\\\s\\\\S]*?)<\\\\/\" + tag + \">\", \"i\");\n  const m = block.match(re);\n  return m ? unwrapCdata(m[1]).trim() : \"\";\n}\n\nfunction toIso(d) {\n  if (!d) return null;\n  const t = Date.parse(d);\n  return isNaN(t) ? null : new Date(t).toISOString();\n}\n\nfunction rawText(nodeName) {\n  let item;\n  try { item = $(nodeName).first(); } catch (e) { return \"\"; }\n  if (!item || !item.json) return \"\";\n  const j = item.json;\n  return j.data || j.body || j.response || (typeof j === \"string\" ? j : \"\") || \"\";\n}\n\nconst articles = [];\nfor (const feed of feeds) {\n  const xml = rawText(feed.node);\n  if (!xml) continue;\n  const items = xml.match(/<item[\\s\\S]*?<\\/item>/gi)\n            || xml.match(/<entry[\\s\\S]*?<\\/entry>/gi)\n            || [];\n  for (const block of items) {\n    const headline = stripHtml(tagValue(block, \"title\"));\n    let link = tagValue(block, \"link\");\n    if (!link) {\n      const m = block.match(/<link[^>]*href=[\"']([^\"']+)[\"']/i);\n      link = m ? m[1] : \"\";\n    }\n    const article_url = (link || \"\").trim();\n    const pub = tagValue(block, \"pubDate\") || tagValue(block, \"published\") || tagValue(block, \"updated\");\n    let summary = stripHtml(tagValue(block, \"description\") || tagValue(block, \"summary\") || tagValue(block, \"content\"));\n    if (summary.length > 500) summary = summary.slice(0, 500);\n    if (!headline || !article_url) continue;\n    articles.push({\n      article_url,\n      headline,\n      summary,\n      source: feed.source,\n      published_at: toIso(pub) || new Date().toISOString()\n    });\n  }\n}\n\nconst watchlist = $('Fetch Watchlist').first().json.watchlist;\nreturn [{ json: { articles, watchlist, fetchedAt: new Date().toISOString() } }];"
+      },
+      "id": "c3e6a083-9329-408e-add4-c047b1bfc0db",
+      "name": "Parse & Clean Articles",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1920,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Deduplicate Against Supabase — drop URLs seen in last 7 days\nconst articles = $json.articles || [];\nconst watchlist = $json.watchlist || [];\nconst fetchedAt = $json.fetchedAt;\n\nconst SUPABASE_URL = $env.SUPABASE_URL;\nconst SUPABASE_KEY = $env.SUPABASE_KEY;\nconst sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();\n\nlet knownUrls = new Set();\ntry {\n  const url = SUPABASE_URL +\n    \"/rest/v1/media_narratives_raw?select=article_url&created_at=gte.\" +\n    encodeURIComponent(sevenDaysAgo);\n  const resp = await this.helpers.httpRequest({\n    method: \"GET\",\n    url,\n    headers: {\n      apikey: SUPABASE_KEY,\n      Authorization: \"Bearer \" + SUPABASE_KEY,\n      \"Content-Type\": \"application/json\"\n    },\n    json: true\n  });\n  const rows = Array.isArray(resp) ? resp : [];\n  knownUrls = new Set(rows.map(r => r.article_url));\n} catch (e) {\n  console.log(\"Dedup read failed, continuing without dedup:\", e.message);\n}\n\nconst newArticles = articles.filter(a => !knownUrls.has(a.article_url));\nconst skippedCount = articles.length - newArticles.length;\n\nif (newArticles.length === 0) {\n  return [{ json: { status: \"no_new_articles\", skippedCount, articles: [], watchlist } }];\n}\nreturn [{ json: { newArticles, skippedCount, watchlist, fetchedAt } }];"
+      },
+      "id": "a7df55ae-3327-41ab-bd5f-2c284a2fe8bf",
+      "name": "Deduplicate Against Supabase",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1696,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate for Groq — same payload for all 3 Groq nodes\nconst newArticles = $json.newArticles || [];\nconst watchlist = $json.watchlist || [];\nreturn [{\n  json: {\n    articles: newArticles,\n    watchlist,\n    articleCount: newArticles.length\n  }\n}];"
+      },
+      "id": "026d9aea-3811-4293-a948-ccb76db307c0",
+      "name": "Aggregate for Groq",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1472,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"model\": \"llama-3.3-70b-versatile\", \"temperature\": 0.1, \"max_tokens\": 4000, \"messages\": [ { \"role\": \"system\", \"content\": \"You are a financial journalist analyst. Extract the single core claim from each article. Return valid JSON only. No markdown, no preamble, no explanation.\" }, { \"role\": \"user\", \"content\": \"For each article extract the single most important factual claim. Ignore editorial framing, opinion, and context.\\nReturn ONLY a JSON array:\\n[{\\n  \\\"article_url\\\": \\\"<exact url>\\\",\\n  \\\"core_claim\\\": \\\"<one sentence factual claim>\\\",\\n  \\\"claim_type\\\": \\\"<one of: earnings | product | partnership | regulatory | personnel | market_move | macro | other>\\\"\\n}]\\n\\nArticles:\\n\" + JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary }))) } ] }) }}",
+        "options": {}
+      },
+      "id": "a1748c32-66c3-46fc-a285-8b53095e240c",
+      "name": "Groq 1: Core Claim Extractor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1216,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"model\": \"llama-3.3-70b-versatile\", \"temperature\": 0.1, \"max_tokens\": 4000, \"messages\": [ { \"role\": \"system\", \"content\": \"You are an analyst who detects whether financial news is genuinely new or recycled narrative. Return valid JSON only. No markdown, no preamble.\" }, { \"role\": \"user\", \"content\": \"Score each article's information age — how fresh is the underlying claim?\\n\\nScoring guide:\\n  80-100: Genuinely new — first time this specific claim has been made, new data, new event\\n  50-79:  Partially new — new development in ongoing story, adds something to existing narrative\\n  20-49:  Likely recycled — same claim seen before, new framing but old underlying information\\n  0-19:   Recycled — commentary, synthesis, or restatement of weeks-old news\\n\\nReturn ONLY a JSON array:\\n[{\\n  \\\"article_url\\\": \\\"<exact url>\\\",\\n  \\\"information_age_score\\\": <integer 0-100>,\\n  \\\"is_recycled\\\": <true if score < 40, else false>,\\n  \\\"narrative_label\\\": \\\"<3-5 word phrase naming the narrative e.g. AI chip export restrictions>\\\"\\n}]\\n\\nArticles:\\n\" + JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary, published_at: a.published_at, source: a.source }))) } ] }) }}",
+        "options": {}
+      },
+      "id": "dfb7a323-152c-4820-a447-96c16a86a7a5",
+      "name": "Groq 2: Information Age Scorer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1216,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"model\": \"llama-3.3-70b-versatile\", \"temperature\": 0.1, \"max_tokens\": 4000, \"messages\": [ { \"role\": \"system\", \"content\": \"You are a financial entity recognition system. Identify which watchlist companies appear in each article, including informal references via aliases. Return valid JSON only. No markdown, no preamble.\" }, { \"role\": \"user\", \"content\": \"For each article identify which companies from the watchlist are mentioned. Use aliases to catch informal references (e.g. \\\"Jensen\\\" or \\\"Jensen Huang\\\" -> NVIDIA).\\n\\nReturn ONLY a JSON array:\\n[{\\n  \\\"article_url\\\": \\\"<exact url>\\\",\\n  \\\"companies_mentioned\\\": [\\n    { \\\"ticker\\\": \\\"<string>\\\", \\\"companyName\\\": \\\"<string>\\\" }\\n  ]\\n}]\\nReturn empty array for companies_mentioned if none match.\\n\\nWatchlist: \" + JSON.stringify($json.watchlist) + \"\\n\\nArticles:\\n\" + JSON.stringify($json.articles.map(a => ({ article_url: a.article_url, headline: a.headline, summary: a.summary }))) } ] }) }}",
+        "options": {}
+      },
+      "id": "0046ad09-2441-4f08-a7f1-2723f6373276",
+      "name": "Groq 3: Company Mention Extractor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1216,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Signal Assembler — merge 3 Groq outputs by article_url\nfunction genUuid() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {\n    const r = Math.floor(Math.random() * 16);\n    const v = c === 'x' ? r : (r & 0x3) | 0x8;\n    return v.toString(16);\n  });\n}\n\nfunction parseGroq(item) {\n  if (!item || !item.json) return null;\n  let content = null;\n  const j = item.json;\n  try {\n    content = j.choices && j.choices[0] && j.choices[0].message\n      ? j.choices[0].message.content : null;\n  } catch (e) { content = null; }\n  if (content == null) {\n    // some HTTP nodes nest the body under .data / .body\n    const body = j.data || j.body;\n    if (body && body.choices) content = body.choices[0].message.content;\n  }\n  if (content == null) return null;\n  let text = String(content).trim();\n  text = text.replace(/^\\`\\`\\`(?:json)?/i, \"\").replace(/\\`\\`\\`$/, \"\").trim();\n  const start = text.indexOf(\"[\");\n  const end = text.lastIndexOf(\"]\");\n  if (start !== -1 && end !== -1 && end > start) text = text.slice(start, end + 1);\n  try { return JSON.parse(text); }\n  catch (e) { console.log(\"Groq parse failure:\", e.message); return null; }\n}\n\nconst all = $input.all();\nconst c1 = parseGroq(all[0]) || [];   // Core Claim Extractor\nconst c2 = parseGroq(all[1]) || [];   // Information Age Scorer\nconst c3 = parseGroq(all[2]) || [];   // Company Mention Extractor\n\nconst byUrl = {};\nconst ensure = (url) => (byUrl[url] = byUrl[url] || { article_url: url });\n\nfor (const r of (Array.isArray(c1) ? c1 : [])) {\n  if (!r || !r.article_url) continue;\n  const o = ensure(r.article_url);\n  o.core_claim = r.core_claim != null ? r.core_claim : null;\n  o.claim_type = r.claim_type != null ? r.claim_type : null;\n}\nfor (const r of (Array.isArray(c2) ? c2 : [])) {\n  if (!r || !r.article_url) continue;\n  const o = ensure(r.article_url);\n  o.information_age_score = typeof r.information_age_score === \"number\" ? r.information_age_score : null;\n  o.is_recycled = typeof r.is_recycled === \"boolean\" ? r.is_recycled : null;\n  o.narrative_label = r.narrative_label != null ? r.narrative_label : null;\n}\nfor (const r of (Array.isArray(c3) ? c3 : [])) {\n  if (!r || !r.article_url) continue;\n  ensure(r.article_url).companies_mentioned = r.companies_mentioned || [];\n}\n\nlet sourceArticles = [];\ntry { sourceArticles = $('Aggregate for Groq').first().json.articles || []; } catch (e) {}\nconst metaByUrl = {};\nfor (const a of sourceArticles) metaByUrl[a.article_url] = a;\n\nconst runId = genUuid();\nconst now = new Date().toISOString();\n\nconst records = Object.values(byUrl).map(o => {\n  const meta = metaByUrl[o.article_url] || {};\n  return {\n    article_url: o.article_url,\n    headline: meta.headline || null,\n    summary: meta.summary || null,\n    source: meta.source || null,\n    published_at: meta.published_at || null,\n    core_claim: o.core_claim || null,\n    claim_type: o.claim_type || null,\n    information_age_score: o.information_age_score == null ? null : o.information_age_score,\n    is_recycled: o.is_recycled == null ? null : o.is_recycled,\n    narrative_label: o.narrative_label || null,\n    companies_mentioned: o.companies_mentioned || [],\n    first_appearance_date: now,\n    appearance_count: 1,\n    agent_run_id: runId,\n    processed_at: now\n  };\n});\n\n// One item per record so the Supabase upsert maps cleanly.\n// Run-level metadata is recomputed by Generate Report from these records.\nreturn records.map(r => ({ json: r }));"
+      },
+      "id": "4590b555-cae2-4bb3-bdb6-fa11f1c9602f",
+      "name": "Signal Assembler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert"
+      },
+      "id": "4db6b5bb-f5fa-4e39-b5aa-95a1ed7ede07",
+      "name": "Insert to Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate Report — build the markdown signal report\nconst records = $('Signal Assembler').all().map(i => i.json);\nconst runId = records.length ? records[0].agent_run_id : \"n/a\";\nconst runTimestamp = new Date().toISOString();\n\nconst total = records.length;\nconst novel = records.filter(r => (r.information_age_score || 0) >= 60);\nconst recycled = records.filter(r => r.is_recycled === true);\nconst novelCount = novel.length;\nconst recycledCount = recycled.length;\n\nconst fmt = v => (v == null || v === \"\" ? \"—\" : v);\nconst companiesOf = r => {\n  const cm = r.companies_mentioned || [];\n  return cm.length ? cm.map(c => c.ticker || c.companyName).join(\", \") : \"None\";\n};\n\n// company coverage\nconst compStats = {};\nfor (const r of records) {\n  for (const c of (r.companies_mentioned || [])) {\n    const key = c.ticker || c.companyName;\n    if (!key) continue;\n    if (!compStats[key]) compStats[key] = { ticker: c.ticker || \"—\", name: c.companyName || key, count: 0, sum: 0 };\n    compStats[key].count++;\n    compStats[key].sum += (r.information_age_score || 0);\n  }\n}\nconst companyList = Object.values(compStats).sort((a, b) => b.count - a.count);\n\n// narrative clusters\nconst clusters = {};\nfor (const r of records) {\n  const label = r.narrative_label || \"Unlabeled\";\n  if (!clusters[label]) clusters[label] = { count: 0, sum: 0, sources: new Set() };\n  clusters[label].count++;\n  clusters[label].sum += (r.information_age_score || 0);\n  if (r.source) clusters[label].sources.add(r.source);\n}\nconst clusterList = Object.entries(clusters)\n  .map(([label, c]) => ({ label, count: c.count, avg: Math.round(c.sum / c.count), sources: [...c.sources] }))\n  .sort((a, b) => b.count - a.count);\nconst topNarrative = clusterList.length ? clusterList[0].label : \"—\";\n\n// classification buckets\nconst bucket = (lo, hi) => records.filter(r => (r.information_age_score || 0) >= lo && (r.information_age_score || 0) <= hi).length;\nconst b80 = bucket(80, 100), b50 = bucket(50, 79), b20 = bucket(20, 49), b0 = bucket(0, 19);\n\nconst L = [];\nL.push(\"# Media Narrative Tracker — Signal Report\");\nL.push(\"**Run ID:** \" + runId);\nL.push(\"**Generated:** \" + runTimestamp);\nL.push(\"**Period:** Last 6 hours\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Executive Summary\");\nL.push(\"\");\nL.push(\"| Metric | Value |\");\nL.push(\"|--------|-------|\");\nL.push(\"| Articles processed | \" + total + \" |\");\nL.push(\"| Novel signals (score ≥ 60) | \" + novelCount + \" |\");\nL.push(\"| Recycled narratives | \" + recycledCount + \" |\");\nL.push(\"| Companies mentioned | \" + (companyList.map(c => c.name).join(\", \") || \"None\") + \" |\");\nL.push(\"| Most active narrative | \" + topNarrative + \" |\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Novel Signals\");\nL.push(\"*Articles with information age score ≥ 60 — worth reading*\");\nL.push(\"\");\nif (!novel.length) {\n  L.push(\"_No novel signals in this run._\");\n  L.push(\"\");\n} else {\n  for (const r of novel.sort((a, b) => (b.information_age_score || 0) - (a.information_age_score || 0))) {\n    L.push(\"### \" + fmt(r.headline));\n    L.push(\"**Source:** \" + fmt(r.source) + \" | **Score:** \" + fmt(r.information_age_score) + \"/100 | **Claim type:** \" + fmt(r.claim_type) + \" | **Companies:** \" + companiesOf(r));\n    L.push(\"**Core claim:** \" + fmt(r.core_claim));\n    L.push(\"**Narrative:** \" + fmt(r.narrative_label));\n    L.push(\"**Published:** \" + fmt(r.published_at));\n    L.push(\"**URL:** \" + fmt(r.article_url));\n    L.push(\"\");\n  }\n}\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Recycled Narratives\");\nL.push(\"*Articles with information age score < 40 — noise*\");\nL.push(\"\");\nconst recList = records.filter(r => (r.information_age_score || 0) < 40);\nif (!recList.length) {\n  L.push(\"_No recycled narratives in this run._\");\n  L.push(\"\");\n} else {\n  L.push(\"| Headline | Source | Score | Narrative Label |\");\n  L.push(\"|----------|--------|-------|-----------------|\");\n  for (const r of recList.sort((a, b) => (a.information_age_score || 0) - (b.information_age_score || 0))) {\n    L.push(\"| \" + fmt(r.headline) + \" | \" + fmt(r.source) + \" | \" + fmt(r.information_age_score) + \" | \" + fmt(r.narrative_label) + \" |\");\n  }\n  L.push(\"\");\n}\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Narrative Clusters\");\nL.push(\"*Articles grouped by narrative label*\");\nL.push(\"\");\nif (!clusterList.length) {\n  L.push(\"_No narratives to cluster._\");\n  L.push(\"\");\n} else {\n  for (const c of clusterList) {\n    L.push(\"**\" + c.label + \"** — \" + c.count + \" articles, avg score: \" + c.avg);\n    L.push(\"Sources: \" + (c.sources.join(\", \") || \"—\"));\n    L.push(\"\");\n  }\n}\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Company Coverage\");\nL.push(\"*Which watchlist companies appeared in this run*\");\nL.push(\"\");\nL.push(\"| Company | Ticker | Mentions | Avg Age Score |\");\nL.push(\"|---------|--------|----------|---------------|\");\nif (!companyList.length) {\n  L.push(\"| None | — | 0 | — |\");\n} else {\n  for (const c of companyList) {\n    L.push(\"| \" + c.name + \" | \" + c.ticker + \" | \" + c.count + \" | \" + Math.round(c.sum / c.count) + \" |\");\n  }\n}\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Signal Classification Summary\");\nL.push(\"\");\nL.push(\"| Score Range | Label | Count |\");\nL.push(\"|-------------|-------|-------|\");\nL.push(\"| 80–100 | Genuinely New | \" + b80 + \" |\");\nL.push(\"| 50–79 | Partially New | \" + b50 + \" |\");\nL.push(\"| 20–49 | Likely Recycled | \" + b20 + \" |\");\nL.push(\"| 0–19 | Recycled | \" + b0 + \" |\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"## Known Limitations\");\nL.push(\"- RSS coverage limited to 5 outlets (FT, Reuters, Seeking Alpha, CNBC, Yahoo Finance). Trade press narratives may not appear until picked up here.\");\nL.push(\"- Information age scores are Groq estimates, not validated against a labeled ground truth dataset.\");\nL.push(\"- Narrative label consistency across runs is unvalidated. Same narrative may receive slightly different labels.\");\nL.push(\"\");\nL.push(\"---\");\nL.push(\"\");\nL.push(\"*Mycroft — Media Narrative Tracker | Agent 3*\");\nL.push(\"*Stack: n8n + Groq (llama-3.3-70b-versatile) + Supabase*\");\n\nconst report = L.join(\"\\n\");\n\nreturn [{\n  json: {\n    report,\n    runId,\n    totalProcessed: total,\n    novelCount,\n    recycledCount\n  }\n}];"
+      },
+      "id": "6e48fa80-fa63-415c-b35e-8e7e84763e89",
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "1e1931f6-d96f-42e7-94e4-7489c170291d",
+      "name": "Store Report in Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Generate Report').first().json.report }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/markdown"
+              }
+            ]
+          }
+        }
+      },
+      "id": "566e08e0-4949-40a0-bbfc-3c8ee8b3e31e",
+      "name": "Pipeline Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2128,
+        320
+      ],
+      "id": "4e622c00-07ec-4ec5-8287-f67108180941",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -944,
+        320
+      ],
+      "id": "84d641d9-f021-4e8e-a7d0-f07320fd2976",
+      "name": "Merge1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Pipeline Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch FT RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Reuters RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Seeking Alpha RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch CNBC RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Yahoo Finance RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch FT RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Reuters RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Parse & Clean Articles": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Against Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate Against Supabase": {
+      "main": [
+        [
+          {
+            "node": "Aggregate for Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate for Groq": {
+      "main": [
+        [
+          {
+            "node": "Groq 1: Core Claim Extractor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Groq 2: Information Age Scorer",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Groq 3: Company Mention Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq 1: Core Claim Extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq 2: Information Age Scorer": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Signal Assembler": {
+      "main": [
+        [
+          {
+            "node": "Insert to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Store Report in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Report in Supabase": {
+      "main": [
+        [
+          {
+            "node": "Pipeline Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq 3: Company Mention Extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Fetch Seeking Alpha RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Parse & Clean Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CNBC RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Fetch Yahoo Finance RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Signal Assembler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4e8f70db-55fe-4df8-8313-fc931efc7beb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f92ba833cfc01dd064a94201fa4bb20b3305c9c67348abfd124c90886d0575b8"
+  },
+  "id": "EZ4Vpy8t3EdoEt98",
+  "tags": [
+    {
+      "createdAt": "2026-06-15T18:33:54.819Z",
+      "updatedAt": "2026-06-15T18:33:54.819Z",
+      "id": "9DCG5PHwGn4kTDnF",
+      "name": "Agent 3"
+    },
+    {
+      "createdAt": "2026-06-15T18:33:54.815Z",
+      "updatedAt": "2026-06-15T18:33:54.815Z",
+      "id": "P8dQHhDADapCADQb",
+      "name": "Mycroft"
+    }
+  ]
+}

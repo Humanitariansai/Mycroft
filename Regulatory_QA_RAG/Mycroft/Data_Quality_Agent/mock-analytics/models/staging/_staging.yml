@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: stg_users
+    description: "Thin pass-through of operational users. Renames signup_date → signup_at."
+    columns:
+      - name: user_id
+        tests:
+          - unique
+          - not_null
+      - name: signup_at
+        description: "When the user signed up. Aliased from the operational `signup_date` column."
+
+  - name: stg_accounts
+    columns:
+      - name: account_id
+        tests:
+          - unique
+          - not_null
+      - name: owner_user_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_users')
+              field: user_id
+
+  - name: stg_subscriptions
+    description: "Subscriptions with amount converted from cents to dollars. The conversion lives in this layer; downstream marts assume USD."
+    columns:
+      - name: subscription_id
+        tests:
+          - unique
+          - not_null
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+      - name: amount_usd
+        description: "Subscription price in dollars. Derived as amount_cents / 100.0 from the operational source."
+        tests:
+          - not_null
+      - name: subscription_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["active", "trialing", "cancelled"]
+              config:
+                severity: warn
+
+  - name: stg_transactions
+    columns:
+      - name: transaction_id
+        tests:
+          - unique
+          - not_null
+      - name: amount_usd
+        tests:
+          - not_null
+
+  - name: stg_events
+    columns:
+      - name: event_id
+        tests:
+          - unique
+          - not_null

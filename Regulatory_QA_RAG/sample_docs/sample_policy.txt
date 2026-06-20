@@ -1,0 +1,13 @@
+The company provides data analytics services across healthcare, finance, and e-commerce domains.
+
+The analytics team uses Python, SQL, dashboards, and machine learning models to support business decision-making.
+
+For document analysis, the team uses Retrieval-Augmented Generation, also called RAG. RAG retrieves relevant context from documents before generating an answer.
+
+Semantic search is better than keyword search when users ask questions using different wording than the original document.
+
+FAISS is used for efficient vector similarity search. It helps retrieve the most relevant document chunks quickly.
+
+FastAPI is used to expose machine learning workflows as APIs. Docker is used to make deployment reproducible.
+
+Model evaluation includes checking answer relevance, retrieved context quality, latency, and hallucination rate.

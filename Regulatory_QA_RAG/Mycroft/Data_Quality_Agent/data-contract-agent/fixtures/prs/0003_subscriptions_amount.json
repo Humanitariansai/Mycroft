@@ -1,0 +1,6 @@
+{
+  "migration": "0003_subscriptions_amount.py",
+  "branch": "standardize-amount-column",
+  "title": "Standardize amount column for new pricing tables",
+  "description": "Going forward we'd like the canonical money column on `subscriptions` to be `amount` (NUMERIC(12,2)) rather than `amount_cents` (BIGINT). Aligns with the format of the upcoming `pricing_plans` and `invoice_line_items` tables and saves a `/100` conversion on the API side. Backfills existing rows."
+}

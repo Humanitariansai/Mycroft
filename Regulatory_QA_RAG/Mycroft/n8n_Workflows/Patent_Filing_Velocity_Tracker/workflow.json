@@ -1,0 +1,649 @@
+{
+  "name": "Patent Filing Velocity Tracker — Mycroft Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "run-patent-pipeline",
+        "httpMethod": "GET",
+        "responseMode": "responseNode",
+        "options": { "rawBody": false }
+      },
+      "id": "c1000000-0000-4000-8000-000000000001",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-3200, 0],
+      "webhookId": "run-patent-pipeline-hook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const trigger = $('Webhook Trigger').first().json || {}\nconst headers = trigger.headers || {}\nconst secret = headers['x-pipeline-secret'] || headers['X-Pipeline-Secret']\nconst expected = $env.PIPELINE_SECRET\n\nif (!secret || secret !== expected) {\n  return [{ json: { authorized: false, error: 'unauthorized', status: 401 } }]\n}\n\nreturn [{ json: { authorized: true, startTime: Date.now() } }]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000002",
+      "name": "Security Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-2960, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "auth-check",
+              "leftValue": "={{ $json.authorized }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000003",
+      "name": "IF Authorized",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-2720, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 401,
+        "responseBody": "={{ JSON.stringify({ status: 'unauthorized', message: 'Invalid or missing X-Pipeline-Secret header' }) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" }
+            ]
+          }
+        }
+      },
+      "id": "c1000000-0000-4000-8000-000000000004",
+      "name": "Unauthorized Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-2480, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "YOUR_SUPABASE_URL/rest/v1/patent_runs?order=created_at.desc&limit=1&select=leaderboard,quarterly_stats",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Authorization", "value": "Bearer YOUR_SUPABASE_ANON_KEY" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000005",
+      "name": "Fetch Previous Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-2480, -120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const companies = [\n  { name: 'NVIDIA', assigneeId: 'nvidia-assignee-id',\n    aliases: ['NVIDIA Corporation', 'NVIDIA Corp', 'Nvidia'] },\n  { name: 'AMD', assigneeId: 'amd-assignee-id',\n    aliases: ['Advanced Micro Devices', 'Advanced Micro Devices Inc', 'AMD'] },\n  { name: 'Intel', assigneeId: 'intel-assignee-id',\n    aliases: ['Intel Corporation', 'Intel Corp', 'Intel'] },\n  { name: 'Google', assigneeId: 'google-assignee-id',\n    aliases: ['Google LLC', 'Google Inc', 'Alphabet', 'DeepMind', 'Google DeepMind Technologies Limited'] },\n  { name: 'Apple', assigneeId: 'apple-assignee-id',\n    aliases: ['Apple Inc', 'Apple Computer', 'Apple'] }\n]\n\nconst CPC_CODES = ['G06N', 'H01L']\n\nconst now = new Date()\nconst eightQuartersAgo = new Date(now)\neightQuartersAgo.setFullYear(eightQuartersAgo.getFullYear() - 2)\nconst dateFrom = eightQuartersAgo.toISOString().split('T')[0]\nconst dateTo = now.toISOString().split('T')[0]\n\nconst FIELDS = ['patent_id', 'patent_title', 'patent_abstract',\n  'patent_date', 'assignee_organization', 'inventor_last_name',\n  'inventor_first_name', 'cpc_section_id', 'cpc_subgroup_id']\n\nasync function patentsViewQuery(qFilter) {\n  const body = {\n    q: { _and: [\n      { _or: CPC_CODES.map(code => ({ cpc_section_id: { _text_phrase: code } })) },\n      qFilter,\n      { patent_date: { _gte: dateFrom, _lte: dateTo } }\n    ]},\n    f: FIELDS,\n    o: { per_page: 100, page: 1 }\n  }\n  try {\n    const response = await $helpers.httpRequest({\n      method: 'POST',\n      url: 'https://api.patentsview.org/patents/query',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify(body)\n    })\n    const data = typeof response === 'string' ? JSON.parse(response) : response\n    return data.patents || []\n  } catch (e) {\n    return { __error: e.message }\n  }\n}\n\nconst rawResults = []\nconst errors = []\n\nfor (const company of companies) {\n  const seen = new Set()\n  let combined = []\n\n  const byId = await patentsViewQuery({ assignee_id: { _text_phrase: company.assigneeId } })\n  if (Array.isArray(byId)) {\n    for (const p of byId) { if (p.patent_id && !seen.has(p.patent_id)) { seen.add(p.patent_id); combined.push(p) } }\n  } else if (byId && byId.__error) {\n    errors.push({ company: company.name, source: 'assignee_id', error: byId.__error })\n  }\n\n  if (combined.length === 0) {\n    for (const alias of company.aliases) {\n      const byAlias = await patentsViewQuery({ assignee_organization: { _text_phrase: alias } })\n      if (Array.isArray(byAlias)) {\n        for (const p of byAlias) { if (p.patent_id && !seen.has(p.patent_id)) { seen.add(p.patent_id); combined.push(p) } }\n      } else if (byAlias && byAlias.__error) {\n        errors.push({ company: company.name, source: 'alias:' + alias, error: byAlias.__error })\n      }\n    }\n  }\n\n  if (combined.length > 0) {\n    rawResults.push({ company: company.name, patents: combined, fetchedAt: new Date().toISOString() })\n  } else {\n    rawResults.push({ company: company.name, patents: [], fetchedAt: new Date().toISOString() })\n  }\n}\n\nreturn [{ json: { rawResults, fetchErrors: errors, fetchedAt: new Date().toISOString() } }]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000006",
+      "name": "Fetch Patent Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-2480, 100]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2,
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000007",
+      "name": "Merge Fetch Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [-2240, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all()\n\nlet previousRow = null\nlet rawResults = []\nlet fetchedAt = new Date().toISOString()\nlet fetchErrors = []\n\nfor (const it of items) {\n  const j = it.json || {}\n  if (Array.isArray(j) && j.length > 0 && (j[0].leaderboard !== undefined || j[0].quarterly_stats !== undefined)) {\n    previousRow = j[0]\n  } else if (j.leaderboard !== undefined || j.quarterly_stats !== undefined) {\n    previousRow = j\n  } else if (Array.isArray(j.rawResults)) {\n    rawResults = j.rawResults\n    fetchedAt = j.fetchedAt || fetchedAt\n    fetchErrors = j.fetchErrors || []\n  }\n}\n\nfunction parseMaybe(v) {\n  if (v == null) return null\n  if (typeof v === 'object') return v\n  try { const p = JSON.parse(v); return typeof p === 'string' ? JSON.parse(p) : p } catch (e) { return null }\n}\n\nconst prevLeaderboard = previousRow ? (parseMaybe(previousRow.leaderboard) || []) : []\nconst previousConcepts = {}\nconst previousInventors = {}\nfor (const c of prevLeaderboard) {\n  if (c && c.company) {\n    previousConcepts[c.company] = [...(c.newConcepts || []), ...(c.emergingThemes || [])]\n    previousInventors[c.company] = c.knownInventors || []\n  }\n}\n\nconst seen = new Set()\nconst cleaned = []\nfor (const result of rawResults) {\n  for (const patent of (result.patents || [])) {\n    const id = patent.patent_id\n    if (!id || seen.has(id)) continue\n    seen.add(id)\n\n    const title = (patent.patent_title || '').trim()\n    if (!title) continue\n\n    const dateRaw = patent.patent_date\n    const date = dateRaw ? new Date(dateRaw) : null\n    if (!date || isNaN(date.getTime())) continue\n\n    const year = date.getUTCFullYear()\n    const quarter = Math.floor(date.getUTCMonth() / 3) + 1\n    const quarterLabel = `${year}-Q${quarter}`\n\n    let inventors = []\n    if (Array.isArray(patent.inventors) && patent.inventors.length) {\n      inventors = patent.inventors.map(inv =>\n        `${(inv.inventor_first_name || '').trim()} ${(inv.inventor_last_name || '').trim()}`.trim()\n      ).filter(Boolean)\n    } else if (Array.isArray(patent.inventor_last_name)) {\n      const firsts = Array.isArray(patent.inventor_first_name) ? patent.inventor_first_name : []\n      inventors = patent.inventor_last_name.map((ln, idx) => {\n        const f = (firsts[idx] && (firsts[idx].inventor_first_name || firsts[idx])) || ''\n        const l = (ln && (ln.inventor_last_name || ln)) || ''\n        return `${String(f).trim()} ${String(l).trim()}`.trim()\n      }).filter(Boolean)\n    }\n\n    let cpcCodes = []\n    if (Array.isArray(patent.cpcs)) cpcCodes = patent.cpcs.map(c => c.cpc_subgroup_id || c.cpc_section_id).filter(Boolean)\n    else if (Array.isArray(patent.cpc_subgroup_id)) cpcCodes = patent.cpc_subgroup_id.map(c => c.cpc_subgroup_id || c).filter(Boolean)\n    else if (patent.cpc_section_id) cpcCodes = [patent.cpc_section_id]\n\n    cleaned.push({\n      patentId: id,\n      company: result.company,\n      title,\n      abstract: (patent.patent_abstract || '').slice(0, 500),\n      filingDate: dateRaw,\n      quarterLabel, year, quarter,\n      inventors,\n      inventorCount: inventors.length,\n      cpcCodes,\n      assignee: patent.assignee_organization || result.company\n    })\n  }\n}\n\nreturn [{ json: {\n  patents: cleaned, totalCount: cleaned.length, fetchedAt,\n  previousConcepts, previousInventors, fetchErrors\n} }]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000008",
+      "name": "1A: Structural Clean",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-2000, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { patents, previousConcepts, previousInventors, fetchErrors } = $input.first().json\n\nconst CPC_CATEGORIES = {\n  'G06N': 'AI/ML Algorithms',\n  'G06N3': 'Neural Networks',\n  'G06N3/063': 'AI Hardware',\n  'G06N20': 'Machine Learning',\n  'H01L': 'Semiconductor Devices',\n  'H01L29': 'Transistors',\n  'H01L21': 'Semiconductor Manufacturing'\n}\n\nfunction maxCpcDepth(codes) {\n  let maxDepth = 0\n  for (const c of codes || []) {\n    const depth = String(c).split(/[\\/]/).join('').length / 4\n    if (depth > maxDepth) maxDepth = depth\n  }\n  return Math.min(maxDepth, 4)\n}\n\nconst categorized = patents.map(p => {\n  const primaryCategory = (p.cpcCodes || []).reduce((best, code) => {\n    const match = Object.keys(CPC_CATEGORIES)\n      .sort((a, b) => b.length - a.length)\n      .find(k => String(code).startsWith(k))\n    return match ? CPC_CATEGORIES[match] : best\n  }, 'General Technology')\n\n  const abstractScore = Math.min((p.abstract || '').length / 500, 1) * 0.4\n  const inventorScore = Math.min((p.inventorCount || 0) / 5, 1) * 0.3\n  const cpcScore = (maxCpcDepth(p.cpcCodes) / 4) * 0.3\n  const qualityWeight = Math.round((abstractScore + inventorScore + cpcScore) * 1000) / 1000\n\n  return { ...p, primaryCategory, qualityWeight }\n})\n\nconst quarterlyMap = {}\nfor (const patent of categorized) {\n  const key = `${patent.company}::${patent.quarterLabel}`\n  if (!quarterlyMap[key]) {\n    quarterlyMap[key] = {\n      company: patent.company, quarter: patent.quarterLabel,\n      year: patent.year, quarterNum: patent.quarter,\n      count: 0, weighted: 0, patents: [], inventors: new Set()\n    }\n  }\n  quarterlyMap[key].count++\n  quarterlyMap[key].weighted += patent.qualityWeight\n  quarterlyMap[key].patents.push({ title: patent.title, abstract: patent.abstract })\n  patent.inventors.forEach(inv => quarterlyMap[key].inventors.add(inv))\n}\n\nconst companies = ['NVIDIA', 'AMD', 'Intel', 'Google', 'Apple']\nconst quarterlyStats = []\n\nfor (const company of companies) {\n  const companyQuarters = Object.values(quarterlyMap)\n    .filter(q => q.company === company)\n    .sort((a, b) => a.year !== b.year ? a.year - b.year : a.quarterNum - b.quarterNum)\n\n  for (let i = 0; i < companyQuarters.length; i++) {\n    const current = companyQuarters[i]\n    const prior = companyQuarters[i - 1]\n    const priorYear = companyQuarters.find(q => q.year === current.year - 1 && q.quarterNum === current.quarterNum)\n\n    const qoqChange = prior ? ((current.count - prior.count) / Math.max(prior.count, 1)) * 100 : 0\n    const yoyChange = priorYear ? ((current.count - priorYear.count) / Math.max(priorYear.count, 1)) * 100 : 0\n    const velocityScore = Math.min(100, Math.max(0, Math.round(50 + qoqChange * 0.5)))\n    const zone = qoqChange > 50 ? 'ACCELERATING' : qoqChange < -20 ? 'DECELERATING' : 'STEADY'\n\n    quarterlyStats.push({\n      company, quarter: current.quarter, year: current.year, quarterNum: current.quarterNum,\n      filingCount: current.count,\n      weightedFilingCount: Math.round(current.weighted * 100) / 100,\n      qoqChange: Math.round(qoqChange), yoyChange: Math.round(yoyChange),\n      velocityScore, zone, uniqueInventors: current.inventors.size,\n      patents: current.patents\n    })\n  }\n}\n\nconst latestPerCompany = companies.map(c => {\n  const qs = quarterlyStats.filter(q => q.company === c)\n  return qs[qs.length - 1] || { company: c, filingCount: 0, weightedFilingCount: 0, qoqChange: 0, yoyChange: 0, velocityScore: 0, zone: 'STEADY' }\n})\n\nreturn [{ json: {\n  quarterlyStats, latestPerCompany,\n  allPatents: categorized,\n  previousConcepts, previousInventors,\n  fetchErrors,\n  timestamp: new Date().toISOString(),\n  date: new Date().toISOString().split('T')[0]\n}}]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000009",
+      "name": "1B: Classify + Quality Weight",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1760, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json\nconst MIN_PATENTS = 5\n\nconst sufficientCompanies = []\nconst insufficientCompanies = []\n\nfor (const c of (data.latestPerCompany || [])) {\n  if ((c.filingCount || 0) >= MIN_PATENTS) {\n    sufficientCompanies.push(c)\n  } else {\n    insufficientCompanies.push({\n      company: c.company,\n      velocityScore: null,\n      trend: 'INSUFFICIENT_DATA',\n      velocityInsight: 'Fewer than 5 patents in date range.',\n      filingCount: c.filingCount || 0,\n      qoqChange: c.qoqChange || 0,\n      yoyChange: c.yoyChange || 0,\n      noveltyScore: null,\n      newConcepts: [],\n      emergingThemes: [],\n      teamExpansionSignal: 'INSUFFICIENT_DATA',\n      newInventorCount: null,\n      inventorInsight: 'Fewer than 5 patents in date range.',\n      strategicIntent: 'INSUFFICIENT_DATA',\n      intentConfidence: null,\n      intentReasoning: '',\n      keyTechnicalThemes: [],\n      breakthroughScore: null,\n      breakthroughPatents: [],\n      confidenceLevel: null\n    })\n  }\n}\n\nreturn [{ json: { ...data, sufficientCompanies, insufficientCompanies } }]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000010",
+      "name": "Patent Count Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1520, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json\nconst { allPatents, sufficientCompanies, previousConcepts, previousInventors } = data\nconst sufficientNames = new Set(sufficientCompanies.map(c => c.company))\n\nconst abstractsByCompany = {}\nconst inventorsByCompany = {}\nfor (const company of sufficientNames) {\n  const list = allPatents.filter(p => p.company === company)\n  abstractsByCompany[company] = list.slice(-20).map(p => ({\n    title: p.title, abstract: p.abstract, quarter: p.quarterLabel, qualityWeight: p.qualityWeight\n  }))\n  inventorsByCompany[company] = [...new Set(list.flatMap(p => p.inventors || []))]\n}\n\nreturn [{ json: {\n  ...data,\n  latestPerCompany: sufficientCompanies,\n  abstractsByCompany,\n  inventorsByCompany,\n  previousConcepts: previousConcepts || {},\n  previousInventors: previousInventors || {}\n}}]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000011",
+      "name": "Aggregate for Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1280, 0]
+    },
+    { "parameters": { "model": "claude-sonnet-4-6", "options": { "maxTokensToSample": 1500 } }, "id": "c1000000-0000-4000-8000-000000000020", "name": "Anthropic Model 1", "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic", "typeVersion": 1.3, "position": [-1040, 220], "credentials": { "anthropicApi": { "id": "YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "YOUR_ANTHROPIC_CREDENTIAL_NAME" } } },
+    { "parameters": { "model": "claude-sonnet-4-6", "options": { "maxTokensToSample": 1500 } }, "id": "c1000000-0000-4000-8000-000000000021", "name": "Anthropic Model 2", "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic", "typeVersion": 1.3, "position": [-840, 220], "credentials": { "anthropicApi": { "id": "YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "YOUR_ANTHROPIC_CREDENTIAL_NAME" } } },
+    { "parameters": { "model": "claude-sonnet-4-6", "options": { "maxTokensToSample": 1500 } }, "id": "c1000000-0000-4000-8000-000000000022", "name": "Anthropic Model 3", "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic", "typeVersion": 1.3, "position": [-640, 220], "credentials": { "anthropicApi": { "id": "YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "YOUR_ANTHROPIC_CREDENTIAL_NAME" } } },
+    { "parameters": { "model": "claude-sonnet-4-6", "options": { "maxTokensToSample": 1500 } }, "id": "c1000000-0000-4000-8000-000000000023", "name": "Anthropic Model 4", "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic", "typeVersion": 1.3, "position": [-440, 220], "credentials": { "anthropicApi": { "id": "YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "YOUR_ANTHROPIC_CREDENTIAL_NAME" } } },
+    { "parameters": { "model": "claude-sonnet-4-6", "options": { "maxTokensToSample": 1500 } }, "id": "c1000000-0000-4000-8000-000000000024", "name": "Anthropic Model 5", "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic", "typeVersion": 1.3, "position": [-240, 220], "credentials": { "anthropicApi": { "id": "YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "YOUR_ANTHROPIC_CREDENTIAL_NAME" } } },
+    { "parameters": { "model": "claude-sonnet-4-6", "options": { "maxTokensToSample": 1500 } }, "id": "c1000000-0000-4000-8000-000000000025", "name": "Anthropic Model 6", "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic", "typeVersion": 1.3, "position": [-40, 220], "credentials": { "anthropicApi": { "id": "YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "YOUR_ANTHROPIC_CREDENTIAL_NAME" } } },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyse the patent filing velocity for these AI chip companies and score each on acceleration. Calibrate scores against absolute filing counts not just percentages — a company going from 1 to 3 patents is 200% growth but should NOT score 95.\n\nFor each company provide:\n- velocityScore (0-100)\n- trend: ACCELERATING / STEADY / DECELERATING\n- insight: one sentence on what the velocity pattern suggests\n- confidenceLevel (0-1): based on patent count sample size\n\nReturn ONLY valid JSON array:\n[{ \"company\": string, \"velocityScore\": number, \"trend\": string, \"insight\": string, \"confidenceLevel\": number }]\n\nData: {{ JSON.stringify($json.latestPerCompany.map(c => ({\n  company: c.company,\n  currentQuarter: c.filingCount,\n  weightedFilingCount: c.weightedFilingCount,\n  qoqChange: c.qoqChange + '%',\n  yoyChange: c.yoyChange + '%',\n  zone: c.zone\n}))) }}",
+        "messages": { "messageValues": [ { "message": "You are a patent analytics expert specialising in semiconductor and AI hardware technology. PROMPT_VERSION: v1.0 Always respond with valid JSON only. No markdown, no explanation." } ] }
+      },
+      "id": "c1000000-0000-4000-8000-000000000030",
+      "name": "Claude 1: Velocity Score",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [-1040, 0]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyse these patent abstracts and identify NEW technical concepts not present in previous quarters.\n\nPrevious known concepts: {{ JSON.stringify($json.previousConcepts) }}\n\nFor each company identify:\n- newConcepts: technical terms appearing for the first time\n- emergingThemes: 2-3 word themes clustering new concepts\n- noveltyScore (0-100): how novel is this quarter's vocabulary\n- confidenceLevel (0-1): based on abstract count and quality\n\nIf previousConcepts is empty this is the first run — score by dominance within the current batch.\n\nReturn ONLY valid JSON array:\n[{ \"company\": string, \"newConcepts\": string[], \"emergingThemes\": string[], \"noveltyScore\": number, \"confidenceLevel\": number }]\n\nPatent abstracts: {{ JSON.stringify($json.abstractsByCompany) }}",
+        "messages": { "messageValues": [ { "message": "You are a technology intelligence analyst specialising in AI hardware patents. PROMPT_VERSION: v1.0 Always respond with valid JSON only. No markdown, no explanation." } ] }
+      },
+      "id": "c1000000-0000-4000-8000-000000000031",
+      "name": "Claude 2: Concept Novelty",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [-840, 0]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyse inventor lists for these companies and identify changes. Normalise name variants before classifying — John Smith and J. Smith are the same person.\n\nPrevious known inventors: {{ JSON.stringify($json.previousInventors) }}\nCurrent inventors: {{ JSON.stringify($json.inventorsByCompany) }}\n\nFor each company:\n- newInventorCount: names appearing for the first time\n- teamExpansionSignal: EXPANDING / STABLE / CONTRACTING\n- insight: one sentence on what inventor changes suggest\n- confidenceLevel (0-1)\n\nReturn ONLY valid JSON array:\n[{ \"company\": string, \"newInventorCount\": number, \"teamExpansionSignal\": string, \"insight\": string, \"confidenceLevel\": number }]",
+        "messages": { "messageValues": [ { "message": "You are a talent intelligence analyst specialising in AI hardware research teams. PROMPT_VERSION: v1.0 Always respond with valid JSON only. No markdown, no explanation." } ] }
+      },
+      "id": "c1000000-0000-4000-8000-000000000032",
+      "name": "Claude 3: Inventor Network",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [-640, 0]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyse cross-company patent patterns to detect convergence and divergence.\n\nReturn ONLY valid JSON object (NOT an array):\n{\n  \"convergenceTopics\": string[],\n  \"divergenceTopics\": [{ \"topic\": string, \"company\": string }],\n  \"leaderByCategory\": [{ \"category\": string, \"leader\": string }],\n  \"strategicInsight\": string,\n  \"confidenceLevel\": number\n}\n\nPatent data: {{ JSON.stringify($json.abstractsByCompany) }}",
+        "messages": { "messageValues": [ { "message": "You are a competitive intelligence analyst specialising in semiconductor strategy. PROMPT_VERSION: v1.0 Always respond with valid JSON only. No markdown, no explanation." } ] }
+      },
+      "id": "c1000000-0000-4000-8000-000000000033",
+      "name": "Claude 4: Cross-Company Convergence",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [-440, 0]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify the strategic intent behind each company's current patent batch. Choose exactly one per company: DEFENSIVE / EXPANSIVE / FOUNDATIONAL / INCREMENTAL / EXPLORATORY.\n\nReturn ONLY valid JSON array:\n[{ \"company\": string, \"intent\": string, \"confidence\": number, \"reasoning\": string, \"keyTechnicalThemes\": string[] }]\n\nPatent abstracts: {{ JSON.stringify($json.abstractsByCompany) }}",
+        "messages": { "messageValues": [ { "message": "You are a technology strategy analyst reading patent abstracts. PROMPT_VERSION: v1.0 Always respond with valid JSON only. No markdown, no explanation." } ] }
+      },
+      "id": "c1000000-0000-4000-8000-000000000034",
+      "name": "Claude 5: Strategic Intent",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [-240, 0]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Identify patents filing in CPC subcodes or technical areas that have NOT appeared in previous quarters for each company. Focus on genuinely new technical directions, not incremental improvements.\n\nPrevious known concepts: {{ JSON.stringify($json.previousConcepts) }}\n\nFor each company:\n- breakthroughPatents: patents representing genuinely new directions [{ title, cpcCode, noveltyReason }]\n- breakthroughScore (0-100): how significant is the new direction\n- confidenceLevel (0-1)\n\nIf no breakthroughs found return empty breakthroughPatents array and breakthroughScore of 0.\n\nReturn ONLY valid JSON array:\n[{ \"company\": string, \"breakthroughPatents\": [{ \"title\": string, \"cpcCode\": string, \"noveltyReason\": string }], \"breakthroughScore\": number, \"confidenceLevel\": number }]\n\nPatent abstracts: {{ JSON.stringify($json.abstractsByCompany) }}",
+        "messages": { "messageValues": [ { "message": "You are a patent intelligence analyst identifying novel technical directions. PROMPT_VERSION: v1.0 Always respond with valid JSON only. No markdown, no explanation." } ] }
+      },
+      "id": "c1000000-0000-4000-8000-000000000035",
+      "name": "Claude 6: Breakthrough Detection",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [-40, 0]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 6,
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000040",
+      "name": "Merge Claude Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [200, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseLlm(text) {\n  if (text == null) return null\n  if (typeof text === 'object') return text\n  try {\n    const clean = (text + '').replace(/^```[\\w]*\\n?/m, '').replace(/\\n?```$/m, '').trim()\n    return JSON.parse(clean)\n  } catch (e) { return { __parseError: e.message } }\n}\n\nconst pipelineData = $('Aggregate for Claude').first().json\nconst startTimeRaw = (() => { try { return $('Security Gate').first().json.startTime } catch (e) { return null } })()\nconst startTime = typeof startTimeRaw === 'number' ? startTimeRaw : Date.now() - 1\n\nconst items = $input.all()\nlet velocityScores = null, conceptNovelty = null, inventorNetwork = null\nlet convergence = null, strategicIntent = null, breakthroughData = null\nconst pendingErrors = []\n\nfor (let idx = 0; idx < items.length; idx++) {\n  const parsed = parseLlm(items[idx].json && items[idx].json.text)\n  if (!parsed || parsed.__parseError) {\n    pendingErrors.push({ source: `claude_output_${idx}`, type: 'PARSE_FAILURE', detail: parsed && parsed.__parseError ? parsed.__parseError : 'null output' })\n    continue\n  }\n\n  if (Array.isArray(parsed) && parsed.length > 0) {\n    const first = parsed[0]\n    if ('velocityScore' in first && 'trend' in first) velocityScores = parsed\n    else if ('breakthroughScore' in first) breakthroughData = parsed\n    else if ('noveltyScore' in first) conceptNovelty = parsed\n    else if ('teamExpansionSignal' in first) inventorNetwork = parsed\n    else if ('intent' in first && 'keyTechnicalThemes' in first) strategicIntent = parsed\n    else pendingErrors.push({ source: `claude_output_${idx}`, type: 'UNRECOGNISED_SHAPE', detail: Object.keys(first) })\n  } else if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {\n    if ('convergenceTopics' in parsed) convergence = parsed\n    else pendingErrors.push({ source: `claude_output_${idx}`, type: 'UNRECOGNISED_SHAPE', detail: Object.keys(parsed) })\n  }\n}\n\nvelocityScores  = velocityScores  || []\nconceptNovelty  = conceptNovelty  || []\ninventorNetwork = inventorNetwork || []\nconvergence     = convergence     || {}\nstrategicIntent = strategicIntent || []\nbreakthroughData = breakthroughData || []\n\nconst byCompany = {}\nfor (const v of velocityScores) {\n  if (!v || !v.company) continue\n  byCompany[v.company] = { company: v.company, velocityScore: v.velocityScore, trend: v.trend, velocityInsight: v.insight, velocityConfidence: v.confidenceLevel }\n}\nfor (const c of conceptNovelty) {\n  if (!c || !c.company) continue\n  byCompany[c.company] = byCompany[c.company] || { company: c.company }\n  Object.assign(byCompany[c.company], { newConcepts: c.newConcepts || [], emergingThemes: c.emergingThemes || [], noveltyScore: c.noveltyScore, noveltyConfidence: c.confidenceLevel })\n}\nfor (const i of inventorNetwork) {\n  if (!i || !i.company) continue\n  byCompany[i.company] = byCompany[i.company] || { company: i.company }\n  Object.assign(byCompany[i.company], { newInventorCount: i.newInventorCount, teamExpansionSignal: i.teamExpansionSignal, inventorInsight: i.insight, inventorConfidence: i.confidenceLevel })\n}\nfor (const s of strategicIntent) {\n  if (!s || !s.company) continue\n  byCompany[s.company] = byCompany[s.company] || { company: s.company }\n  Object.assign(byCompany[s.company], { strategicIntent: s.intent, intentConfidence: s.confidence, intentReasoning: s.reasoning, keyTechnicalThemes: s.keyTechnicalThemes || [] })\n}\nfor (const b of breakthroughData) {\n  if (!b || !b.company) continue\n  byCompany[b.company] = byCompany[b.company] || { company: b.company }\n  Object.assign(byCompany[b.company], { breakthroughPatents: b.breakthroughPatents || [], breakthroughScore: b.breakthroughScore, breakthroughConfidence: b.confidenceLevel })\n}\n\nconst latestMap = {}\nfor (const c of (pipelineData.latestPerCompany || [])) latestMap[c.company] = c\nfor (const company of Object.keys(byCompany)) {\n  const q = latestMap[company] || {}\n  byCompany[company].filingCount = q.filingCount || 0\n  byCompany[company].qoqChange = q.qoqChange || 0\n  byCompany[company].yoyChange = q.yoyChange || 0\n  byCompany[company].knownInventors = (pipelineData.inventorsByCompany && pipelineData.inventorsByCompany[company]) || []\n}\n\nfunction investmentSignalFor(c) {\n  const core = [c.velocityScore, c.trend, c.teamExpansionSignal]\n  if (core.some(v => v == null || v === 'INSUFFICIENT_DATA')) return 'INSUFFICIENT_DATA'\n  if (c.velocityScore > 70 && c.trend === 'ACCELERATING' && c.teamExpansionSignal === 'EXPANDING') return 'ACCUMULATE'\n  if ((c.breakthroughScore || 0) > 60) return 'WATCH'\n  if (c.trend === 'STEADY') return 'HOLD'\n  if (c.trend === 'DECELERATING') return 'REDUCE'\n  return 'HOLD'\n}\n\nconst signalExpiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()\nfor (const company of Object.keys(byCompany)) {\n  byCompany[company].investmentSignal = investmentSignalFor(byCompany[company])\n  byCompany[company].signalExpiresAt = signalExpiresAt\n}\n\nconst insufficient = (pipelineData.insufficientCompanies || []).map(c => ({\n  ...c,\n  investmentSignal: 'INSUFFICIENT_DATA',\n  signalExpiresAt\n}))\n\nconst leaderboard = [\n  ...Object.values(byCompany),\n  ...insufficient\n].sort((a, b) => {\n  const av = a.velocityScore == null ? -Infinity : a.velocityScore\n  const bv = b.velocityScore == null ? -Infinity : b.velocityScore\n  return bv - av\n})\n\nconst agentMetadata = {\n  agentName: 'PatentVelocityAgent',\n  agentVersion: '1.0',\n  promptVersion: 'v1.0',\n  modelUsed: 'claude-sonnet-4-6',\n  runDurationMs: Date.now() - startTime,\n  pendingErrors,\n  fetchErrors: pipelineData.fetchErrors || []\n}\n\nreturn [{ json: {\n  leaderboard,\n  convergence,\n  quarterlyStats: pipelineData.quarterlyStats || [],\n  timestamp: pipelineData.timestamp,\n  date: pipelineData.date,\n  totalPatentsAnalyzed: (pipelineData.allPatents || []).length,\n  agentMetadata,\n  insufficientCompanies: pipelineData.insufficientCompanies || []\n}}]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000041",
+      "name": "Signal Aggregator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_SUPABASE_URL/rest/v1/patent_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Authorization", "value": "Bearer YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "date", "value": "={{ $json.date }}" },
+            { "name": "timestamp", "value": "={{ $json.timestamp }}" },
+            { "name": "leaderboard", "value": "={{ $json.leaderboard }}" },
+            { "name": "convergence", "value": "={{ $json.convergence }}" },
+            { "name": "quarterly_stats", "value": "={{ $json.quarterlyStats }}" },
+            { "name": "total_patents_analyzed", "value": "={{ $json.totalPatentsAnalyzed }}" },
+            { "name": "agent_metadata", "value": "={{ $json.agentMetadata }}" }
+          ]
+        },
+        "options": {
+          "response": { "response": { "neverError": true, "responseFormat": "json", "fullResponse": true } }
+        }
+      },
+      "id": "c1000000-0000-4000-8000-000000000050",
+      "name": "Insert to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, -200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Inspect insert response. If non-2xx, write a row to error_log.\n// Also writes any pendingErrors from agentMetadata as separate error_log rows.\nconst http = $input.first().json || {}\nconst body = http.body || http\nconst statusCode = http.statusCode || http.status || 0\nconst sigItems = $('Signal Aggregator').first().json || {}\nconst agentMeta = sigItems.agentMetadata || {}\n\nconst inserted = Array.isArray(body) ? body[0] : (body && body.id ? body : null)\nconst runId = inserted ? inserted.id : null\n\nconst rows = []\nif (statusCode < 200 || statusCode >= 300) {\n  rows.push({\n    run_id: runId,\n    node_name: 'Insert to Supabase',\n    error_type: 'INSERT_FAILED',\n    error_detail: { status: statusCode, body }\n  })\n}\nfor (const e of (agentMeta.pendingErrors || [])) {\n  rows.push({ run_id: runId, node_name: 'Signal Aggregator', error_type: e.type || 'CLAUDE_OUTPUT_ERROR', error_detail: e })\n}\nfor (const e of (agentMeta.fetchErrors || [])) {\n  rows.push({ run_id: runId, node_name: 'Fetch Patent Data', error_type: 'FETCH_FAILED', error_detail: e })\n}\n\nreturn [{ json: {\n  runId,\n  insertStatus: statusCode,\n  insertOk: statusCode >= 200 && statusCode < 300,\n  errorRows: rows,\n  // forward original aggregated data so downstream nodes still have it\n  ...sigItems\n}}]"
+      },
+      "id": "c1000000-0000-4000-8000-000000000051",
+      "name": "Parse Insert + Build Errors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, -200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_SUPABASE_URL/rest/v1/error_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Authorization", "value": "Bearer YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.errorRows) }}",
+        "options": {
+          "response": { "response": { "neverError": true } }
+        }
+      },
+      "id": "c1000000-0000-4000-8000-000000000052",
+      "name": "Write Error Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, -200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "newsletter-gate",
+              "leftValue": "={{ $json.totalPatentsAnalyzed }}",
+              "rightValue": 200,
+              "operator": { "type": "number", "operation": "gte" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000060",
+      "name": "Newsletter Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_SUPABASE_URL/rest/v1/error_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Authorization", "value": "Bearer YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "node_name", "value": "Generate Newsletter" },
+            { "name": "error_type", "value": "NEWSLETTER_SKIPPED" },
+            { "name": "error_detail", "value": "={{ { reason: 'insufficient data', totalPatentsAnalyzed: $json.totalPatentsAnalyzed } }}" }
+          ]
+        },
+        "options": { "response": { "response": { "neverError": true } } }
+      },
+      "id": "c1000000-0000-4000-8000-000000000061",
+      "name": "Log Newsletter Skipped",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 160]
+    },
+    {
+      "parameters": {
+        "model": "claude-sonnet-4-6",
+        "options": { "maxTokensToSample": 1500 }
+      },
+      "id": "c1000000-0000-4000-8000-000000000062",
+      "name": "Anthropic Model Newsletter",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [920, 220],
+      "credentials": {
+        "anthropicApi": {
+          "id": "YOUR_ANTHROPIC_CREDENTIAL_ID",
+          "name": "YOUR_ANTHROPIC_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a ~400 word patent intelligence briefing with exactly these sections:\n\n## Lead mover this week\n(company with biggest velocity change and why it matters)\n\n## Convergence signal worth watching\n(one technical area where multiple companies are filing)\n\n## Divergence signal worth watching\n(one area where only one company is filing — what might this mean)\n\n## What this suggests for AI chip sector positioning\n(2-3 sentences connecting patent signals to investment context)\n\nKeep it factual. Cite filing counts and percentage changes where relevant. Do not invent data not present in the input.\n\nLeaderboard: {{ JSON.stringify($json.leaderboard) }}\nConvergence: {{ JSON.stringify($json.convergence) }}",
+        "messages": { "messageValues": [ { "message": "You are writing the weekly Mycroft Patent Intelligence briefing for Humanitarians AI. PROMPT_VERSION: v1.0 Tone: analytical, educational, no hype. Write for AI sector researchers and contributors learning about patent analysis as an investment signal." } ] }
+      },
+      "id": "c1000000-0000-4000-8000-000000000063",
+      "name": "Generate Newsletter",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [920, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "YOUR_SUPABASE_URL/rest/v1/newsletter_subscribers?select=email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Authorization", "value": "Bearer YOUR_SUPABASE_ANON_KEY" }
+          ]
+        },
+        "options": { "response": { "response": { "neverError": true, "responseFormat": "json" } } }
+      },
+      "id": "c1000000-0000-4000-8000-000000000064",
+      "name": "Fetch Subscribers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 0]
+    },
+    {
+      "parameters": {
+        "fromEmail": "intelligence@humanitarians.ai",
+        "toEmail": "={{ ($('Fetch Subscribers').first().json || []).map(r => r.email).filter(Boolean).join(',') }}",
+        "subject": "=Mycroft Patent Intelligence — {{ $('Signal Aggregator').first().json.date }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000065",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1400, 0],
+      "credentials": {
+        "smtp": {
+          "id": "YOUR_SMTP_CREDENTIAL_ID",
+          "name": "YOUR_SMTP_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_SUPABASE_URL/rest/v1/newsletter_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Authorization", "value": "Bearer YOUR_SUPABASE_ANON_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "run_id", "value": "={{ $('Parse Insert + Build Errors').first().json.runId }}" },
+            { "name": "subject", "value": "=Mycroft Patent Intelligence — {{ $('Signal Aggregator').first().json.date }}" },
+            { "name": "body", "value": "={{ $('Generate Newsletter').first().json.text }}" },
+            { "name": "sent_to", "value": "={{ (($('Fetch Subscribers').first().json) || []).length }}" },
+            { "name": "status", "value": "sent" }
+          ]
+        },
+        "options": { "response": { "response": { "neverError": true } } }
+      },
+      "id": "c1000000-0000-4000-8000-000000000066",
+      "name": "Insert Newsletter Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1640, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_MYCROFT_ORCHESTRATION_ENDPOINT",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "X-Agent-Secret", "value": "YOUR_AGENT_SECRET" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  agentName: 'PatentVelocityAgent',\n  agentVersion: '1.0',\n  runId: $('Parse Insert + Build Errors').first().json.runId,\n  timestamp: $('Signal Aggregator').first().json.timestamp,\n  signals: ($('Signal Aggregator').first().json.leaderboard || []).map(c => ({\n    company: c.company,\n    signalType: 'PATENT_VELOCITY',\n    direction: c.trend,\n    strength: c.velocityScore,\n    confidence: c.intentConfidence,\n    investmentSignal: c.investmentSignal,\n    breakthroughScore: c.breakthroughScore,\n    expiresAt: c.signalExpiresAt\n  }))\n}) }}",
+        "options": { "response": { "response": { "neverError": true, "fullResponse": true } } }
+      },
+      "id": "c1000000-0000-4000-8000-000000000070",
+      "name": "Mycroft Orchestration Emit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000080",
+      "name": "Converge Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1880, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  status: 'success',\n  message: 'PatentVelocityAgent run complete',\n  date: $('Signal Aggregator').first().json.date,\n  totalPatents: $('Signal Aggregator').first().json.totalPatentsAnalyzed,\n  topCompany: ($('Signal Aggregator').first().json.leaderboard[0] || {}).company,\n  topVelocityScore: ($('Signal Aggregator').first().json.leaderboard[0] || {}).velocityScore,\n  topInvestmentSignal: ($('Signal Aggregator').first().json.leaderboard[0] || {}).investmentSignal,\n  newsletterSent: $('Signal Aggregator').first().json.totalPatentsAnalyzed >= 200,\n  mycroftEmitted: true,\n  agentMetadata: $('Signal Aggregator').first().json.agentMetadata\n}) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "c1000000-0000-4000-8000-000000000090",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2120, 0]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{ "node": "Security Gate", "type": "main", "index": 0 }]]
+    },
+    "Security Gate": {
+      "main": [[{ "node": "IF Authorized", "type": "main", "index": 0 }]]
+    },
+    "IF Authorized": {
+      "main": [
+        [
+          { "node": "Fetch Previous Run", "type": "main", "index": 0 },
+          { "node": "Fetch Patent Data", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Unauthorized Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Previous Run": {
+      "main": [[{ "node": "Merge Fetch Outputs", "type": "main", "index": 0 }]]
+    },
+    "Fetch Patent Data": {
+      "main": [[{ "node": "Merge Fetch Outputs", "type": "main", "index": 1 }]]
+    },
+    "Merge Fetch Outputs": {
+      "main": [[{ "node": "1A: Structural Clean", "type": "main", "index": 0 }]]
+    },
+    "1A: Structural Clean": {
+      "main": [[{ "node": "1B: Classify + Quality Weight", "type": "main", "index": 0 }]]
+    },
+    "1B: Classify + Quality Weight": {
+      "main": [[{ "node": "Patent Count Gate", "type": "main", "index": 0 }]]
+    },
+    "Patent Count Gate": {
+      "main": [[{ "node": "Aggregate for Claude", "type": "main", "index": 0 }]]
+    },
+    "Aggregate for Claude": {
+      "main": [[
+        { "node": "Claude 1: Velocity Score", "type": "main", "index": 0 },
+        { "node": "Claude 2: Concept Novelty", "type": "main", "index": 0 },
+        { "node": "Claude 3: Inventor Network", "type": "main", "index": 0 },
+        { "node": "Claude 4: Cross-Company Convergence", "type": "main", "index": 0 },
+        { "node": "Claude 5: Strategic Intent", "type": "main", "index": 0 },
+        { "node": "Claude 6: Breakthrough Detection", "type": "main", "index": 0 }
+      ]]
+    },
+    "Anthropic Model 1": { "ai_languageModel": [[{ "node": "Claude 1: Velocity Score", "type": "ai_languageModel", "index": 0 }]] },
+    "Anthropic Model 2": { "ai_languageModel": [[{ "node": "Claude 2: Concept Novelty", "type": "ai_languageModel", "index": 0 }]] },
+    "Anthropic Model 3": { "ai_languageModel": [[{ "node": "Claude 3: Inventor Network", "type": "ai_languageModel", "index": 0 }]] },
+    "Anthropic Model 4": { "ai_languageModel": [[{ "node": "Claude 4: Cross-Company Convergence", "type": "ai_languageModel", "index": 0 }]] },
+    "Anthropic Model 5": { "ai_languageModel": [[{ "node": "Claude 5: Strategic Intent", "type": "ai_languageModel", "index": 0 }]] },
+    "Anthropic Model 6": { "ai_languageModel": [[{ "node": "Claude 6: Breakthrough Detection", "type": "ai_languageModel", "index": 0 }]] },
+    "Anthropic Model Newsletter": { "ai_languageModel": [[{ "node": "Generate Newsletter", "type": "ai_languageModel", "index": 0 }]] },
+    "Claude 1: Velocity Score": { "main": [[{ "node": "Merge Claude Outputs", "type": "main", "index": 0 }]] },
+    "Claude 2: Concept Novelty": { "main": [[{ "node": "Merge Claude Outputs", "type": "main", "index": 1 }]] },
+    "Claude 3: Inventor Network": { "main": [[{ "node": "Merge Claude Outputs", "type": "main", "index": 2 }]] },
+    "Claude 4: Cross-Company Convergence": { "main": [[{ "node": "Merge Claude Outputs", "type": "main", "index": 3 }]] },
+    "Claude 5: Strategic Intent": { "main": [[{ "node": "Merge Claude Outputs", "type": "main", "index": 4 }]] },
+    "Claude 6: Breakthrough Detection": { "main": [[{ "node": "Merge Claude Outputs", "type": "main", "index": 5 }]] },
+    "Merge Claude Outputs": {
+      "main": [[{ "node": "Signal Aggregator", "type": "main", "index": 0 }]]
+    },
+    "Signal Aggregator": {
+      "main": [[
+        { "node": "Insert to Supabase", "type": "main", "index": 0 },
+        { "node": "Newsletter Gate", "type": "main", "index": 0 },
+        { "node": "Mycroft Orchestration Emit", "type": "main", "index": 0 }
+      ]]
+    },
+    "Insert to Supabase": {
+      "main": [[{ "node": "Parse Insert + Build Errors", "type": "main", "index": 0 }]]
+    },
+    "Parse Insert + Build Errors": {
+      "main": [[
+        { "node": "Write Error Log", "type": "main", "index": 0 },
+        { "node": "Converge Outputs", "type": "main", "index": 0 }
+      ]]
+    },
+    "Write Error Log": { "main": [[]] },
+    "Newsletter Gate": {
+      "main": [
+        [{ "node": "Generate Newsletter", "type": "main", "index": 0 }],
+        [{ "node": "Log Newsletter Skipped", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Newsletter Skipped": {
+      "main": [[{ "node": "Converge Outputs", "type": "main", "index": 1 }]]
+    },
+    "Generate Newsletter": {
+      "main": [[{ "node": "Fetch Subscribers", "type": "main", "index": 0 }]]
+    },
+    "Fetch Subscribers": {
+      "main": [[{ "node": "Send Email", "type": "main", "index": 0 }]]
+    },
+    "Send Email": {
+      "main": [[{ "node": "Insert Newsletter Run", "type": "main", "index": 0 }]]
+    },
+    "Insert Newsletter Run": {
+      "main": [[{ "node": "Converge Outputs", "type": "main", "index": 1 }]]
+    },
+    "Mycroft Orchestration Emit": {
+      "main": [[{ "node": "Converge Outputs", "type": "main", "index": 2 }]]
+    },
+    "Converge Outputs": {
+      "main": [[{ "node": "Webhook Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "active": false,
+  "pinData": {},
+  "versionId": "patent-velocity-mycroft-v3",
+  "triggerCount": 1,
+  "tags": []
+}
