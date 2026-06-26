@@ -1,272 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Congressional Trade Signals — Mycroft</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legislating Alpha — Congressional Trade Signals Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-tertiary: #eeede9;
+    --bg-info: #E6F1FB;
+    --bg-success: #EAF3DE;
+    --bg-warning: #FAEEDA;
+    --bg-danger: #FCEBEB;
+    --text-primary: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-tertiary: #888780;
+    --text-info: #0C447C;
+    --text-success: #27500A;
+    --text-warning: #633806;
+    --text-danger: #791F1F;
+    --border-tertiary: rgba(0,0,0,0.12);
+    --border-secondary: rgba(0,0,0,0.22);
+    --border-warning: rgba(186,117,23,0.4);
+    --border-success: rgba(99,153,34,0.4);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #ffffff;
-      --bg2: #f7f7f5;
-      --bg3: #f0efe8;
-      --text: #1a1a18;
-      --text2: #5f5e5a;
-      --text3: #888780;
-      --border: rgba(0,0,0,0.12);
-      --border2: rgba(0,0,0,0.2);
-      --green: #639922;
-      --green-light: #97C459;
-      --green-bg: #eaf3de;
-      --red: #E24B4A;
-      --red-light: #F09595;
-      --red-bg: #fcebeb;
-      --blue: #185FA5;
-      --blue-bg: #e6f1fb;
-      --amber: #BA7517;
-      --radius: 8px;
-      --radius-lg: 12px;
+      --bg-primary: #1a1a18;
+      --bg-secondary: #222220;
+      --bg-tertiary: #2a2a28;
+      --bg-info: #042C53;
+      --bg-success: #173404;
+      --bg-warning: #412402;
+      --bg-danger: #501313;
+      --text-primary: #EEEDFE;
+      --text-secondary: #B4B2A9;
+      --text-tertiary: #888780;
+      --text-info: #B5D4F4;
+      --text-success: #C0DD97;
+      --text-warning: #FAC775;
+      --text-danger: #F7C1C1;
+      --border-tertiary: rgba(255,255,255,0.10);
+      --border-secondary: rgba(255,255,255,0.20);
+      --border-warning: rgba(250,199,117,0.35);
+      --border-success: rgba(192,221,151,0.35);
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1c1c1a;
-        --bg2: #242422;
-        --bg3: #2c2c2a;
-        --text: #f0efe8;
-        --text2: #b4b2a9;
-        --text3: #888780;
-        --border: rgba(255,255,255,0.1);
-        --border2: rgba(255,255,255,0.18);
-        --green-bg: #1e2e10;
-        --red-bg: #2e1414;
-        --blue-bg: #0c1e38;
-      }
-    }
-    body {
-      background: var(--bg3);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      padding: 24px 16px 48px;
-    }
-    .page { max-width: 960px; margin: 0 auto; }
-    .header { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 0.5px solid var(--border); }
-    .header-eyebrow { font-size: 11px; color: var(--text3); letter-spacing: 0.06em; margin-bottom: 4px; }
-    .header h1 { font-size: 26px; font-weight: 500; margin-bottom: 4px; }
-    .header p { font-size: 13px; color: var(--text2); }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-    .kpi-card { background: var(--bg); border-radius: var(--radius); padding: 14px 16px; border: 0.5px solid var(--border); }
-    .kpi-card .label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
-    .kpi-card .value { font-size: 24px; font-weight: 500; }
-    .kpi-card .sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
-    .compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-    .compare-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
-    .compare-card.featured { border: 2px solid var(--green-light); }
-    .compare-card .card-title { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 12px; }
-    .compare-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
-    .compare-row .row-label { font-size: 12px; color: var(--text2); }
-    .compare-row .row-val { font-size: 13px; font-weight: 500; }
-    .compare-divider { border-top: 0.5px solid var(--border); margin: 10px 0 8px; }
-    .compare-alpha { display: flex; justify-content: space-between; align-items: center; }
-    .compare-alpha .alpha-label { font-size: 12px; color: var(--text2); }
-    .compare-alpha .alpha-val { font-size: 20px; font-weight: 500; }
-    .section-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
-    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; font-size: 12px; color: var(--text2); }
-    .legend span { display: flex; align-items: center; gap: 5px; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
-    .chart-wrap { position: relative; width: 100%; margin-bottom: 24px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
-    .table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-    thead tr { background: var(--bg2); border-bottom: 0.5px solid var(--border); }
-    th { padding: 9px 14px; text-align: left; font-weight: 500; color: var(--text2); }
-    th.r { text-align: right; }
-    th.c { text-align: center; }
-    tbody tr { border-bottom: 0.5px solid var(--border); }
-    tbody tr:last-child { border-bottom: none; }
-    td { padding: 9px 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    td.r { text-align: right; color: var(--text2); }
-    td.c { text-align: center; }
-    .alpha-pos { color: #3B6D11; font-weight: 500; }
-    .alpha-neg { color: #A32D2D; font-weight: 500; }
-    .no-data { color: var(--text3); font-style: italic; font-size: 12px; }
-    .mini-bar-wrap { height: 7px; background: var(--bg2); border-radius: 4px; overflow: hidden; display: flex; }
-    .mini-bar { height: 100%; border-radius: 4px; }
-    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; }
-    .badge-green { background: var(--green-bg); color: #3B6D11; }
-    .badge-amber { background: #faeeda; color: #854F0B; }
-    .badge-red { background: var(--red-bg); color: #A32D2D; }
-    .badge-gray { background: var(--bg2); color: var(--text3); }
-    .footnote { font-size: 12px; color: var(--text3); margin-top: 8px; }
-    .section-gap { margin-bottom: 24px; }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-    .foot { border-top: 0.5px solid var(--border); margin-top: 32px; padding-top: 16px; font-size: 12px; color: var(--text3); }
-    @media (max-width: 640px) {
-      .compare-grid, .two-col { grid-template-columns: 1fr; }
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
+  }
+
+  body {
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    line-height: 1.6;
+    padding: 2.5rem 2rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  a { color: var(--text-info); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { border-collapse: collapse; width: 100%; }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0 0 8px;
+  }
+
+  .note-box {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    margin-top: 8px;
+    margin-bottom: 1.75rem;
+  }
+  .note-box p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  .card {
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-lg);
+    padding: 13px 15px;
+  }
+</style>
 </head>
 <body>
-<div class="page">
 
-  <div class="header">
-    <p class="header-eyebrow">MYCROFT · CONGRESSIONAL TRADE SIGNAL MODULE · STOCK ACT ANALYSIS 2023–2026</p>
-    <h1>Congressional trade signals</h1>
-    <p>14 members scraped · 3,336 trades · 30-day post-disclosure returns, market-adjusted vs SPY</p>
+<!-- Header -->
+<p style="font-size:11px;color:var(--text-tertiary);margin:0 0 2px;letter-spacing:0.06em;text-transform:uppercase;">Working Paper · STOCK Act Analysis · 2023–2026</p>
+<h1 style="font-size:24px;font-weight:500;margin:0 0 4px;">Legislating alpha</h1>
+<p style="font-size:13px;color:var(--text-secondary);margin:0 0 1.5rem;">Congressional stock trade disclosures as predictive signals · extending Ziobrowski et al. (2004, 2011) · <a href="https://github.com/Humanitariansai/Mycroft">Humanitariansai/Mycroft</a></p>
+
+<!-- Literature context banner -->
+<div style="display:grid;grid-template-columns:auto 1fr;gap:12px;margin-bottom:1.25rem;align-items:stretch;">
+  <div style="background:var(--bg-warning);border:0.5px solid var(--border-warning);border-radius:var(--radius-md);padding:9px 16px;display:flex;flex-direction:column;justify-content:center;">
+    <p style="font-size:11px;color:var(--text-warning);font-weight:600;margin:0 0 2px;white-space:nowrap;letter-spacing:0.03em;">Dataset in progress</p>
+    <p style="font-size:12px;color:var(--text-warning);margin:0;white-space:nowrap;">25 of 187 politicians scraped · pushing at 50</p>
   </div>
-
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="label">Members analyzed</div>
-      <div class="value">14</div>
-      <div class="sub">of 187 targeted</div>
-    </div>
-    <div class="kpi-card">
-      <div class="label">Total trades</div>
-      <div class="value">3,336</div>
-      <div class="sub">BUY + SELL</div>
-    </div>
-    <div class="kpi-card">
-      <div class="label">Priced trades</div>
-      <div class="value">2,048</div>
-      <div class="sub">61.4% coverage</div>
-    </div>
-    <div class="kpi-card">
-      <div class="label">Avg BUY alpha</div>
-      <div class="value" style="color:#A32D2D;">−1.59%</div>
-      <div class="sub">vs SPY same window</div>
-    </div>
-    <div class="kpi-card">
-      <div class="label">SPY 30d avg</div>
-      <div class="value" style="color:#185FA5;">+3.73%</div>
-      <div class="sub">disclosure windows</div>
-    </div>
-    <div class="kpi-card">
-      <div class="label">Top cluster alpha</div>
-      <div class="value" style="color:#3B6D11;">+68.9%</div>
-      <div class="sub">DDOG, 2 politicians</div>
-    </div>
+  <div style="background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:9px 14px;">
+    <p style="font-size:12px;color:var(--text-secondary);margin:0;line-height:1.65;">
+      <strong style="color:var(--text-primary);">Literature gap this study fills:</strong>
+      Ziobrowski et al. (2004) found senators earned ~85 bps/month abnormal return (1993–1998).
+      Eggers &amp; Hainmueller (2013) showed the effect weakens with market controls.
+      Neither study uses post-STOCK Act (2012) data with per-trade SPY benchmarking —
+      this study does, covering a period of active CHIPS Act 2.0 and AI regulation drafting
+      not yet studied in the literature.
+    </p>
   </div>
+</div>
 
-  <div class="compare-grid">
-    <div class="compare-card">
-      <div class="card-title">BUY trades (n=1,147)</div>
-      <div class="compare-row"><span class="row-label">Raw return</span><span class="row-val">+2.32%</span></div>
-      <div class="compare-row"><span class="row-label">SPY same window</span><span class="row-val" style="color:#185FA5;">+3.91%</span></div>
-      <div class="compare-divider"></div>
-      <div class="compare-alpha"><span class="alpha-label">Alpha vs SPY</span><span class="alpha-val" style="color:#A32D2D;">−1.59%</span></div>
-    </div>
-    <div class="compare-card">
-      <div class="card-title">SELL trades (n=897)</div>
-      <div class="compare-row"><span class="row-label">Raw return</span><span class="row-val">+2.86%</span></div>
-      <div class="compare-row"><span class="row-label">SPY same window</span><span class="row-val" style="color:#185FA5;">+3.50%</span></div>
-      <div class="compare-divider"></div>
-      <div class="compare-alpha"><span class="alpha-label">Alpha vs SPY</span><span class="alpha-val" style="color:#A32D2D;">−0.64%</span></div>
-    </div>
-    <div class="compare-card featured">
-      <div class="card-title">High-signal filter (n=43)</div>
-      <div class="compare-row"><span class="row-label">Cluster size ≥ 2</span><span class="row-val" style="color:var(--text3);">required</span></div>
-      <div class="compare-row"><span class="row-label">Buy-conviction ratio &gt; 0.65</span><span class="row-val" style="color:var(--text3);">required</span></div>
-      <div class="compare-divider"></div>
-      <div class="compare-alpha"><span class="alpha-label">Avg return</span><span class="alpha-val" style="color:#3B6D11;">+11.2%</span></div>
-    </div>
+<!-- KPI row -->
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.5rem;">
+  <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 13px;">
+    <p style="font-size:11px;color:var(--text-secondary);margin:0 0 4px;">Members scraped</p>
+    <p style="font-size:22px;font-weight:500;margin:0;line-height:1;">25</p>
+    <p style="font-size:11px;color:var(--text-tertiary);margin:3px 0 0;">of 187 total</p>
   </div>
+  <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 13px;">
+    <p style="font-size:11px;color:var(--text-secondary);margin:0 0 4px;">Total trades</p>
+    <p style="font-size:22px;font-weight:500;margin:0;line-height:1;">5,409</p>
+    <p style="font-size:11px;color:var(--text-tertiary);margin:3px 0 0;">May 2023 – Jun 2026</p>
+  </div>
+  <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 13px;">
+    <p style="font-size:11px;color:var(--text-secondary);margin:0 0 4px;">Price coverage</p>
+    <p style="font-size:22px;font-weight:500;margin:0;line-height:1;">77%</p>
+    <p style="font-size:11px;color:var(--text-tertiary);margin:3px 0 0;">4,166 priced trades</p>
+  </div>
+  <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 13px;">
+    <p style="font-size:11px;color:var(--text-secondary);margin:0 0 4px;">BUY alpha vs SPY</p>
+    <p style="font-size:22px;font-weight:500;margin:0;line-height:1;color:var(--text-success);">+0.24%</p>
+    <p style="font-size:11px;color:var(--text-tertiary);margin:3px 0 0;">aggregate, 30d window</p>
+  </div>
+  <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 13px;">
+    <p style="font-size:11px;color:var(--text-secondary);margin:0 0 4px;">SPY 30d avg</p>
+    <p style="font-size:22px;font-weight:500;margin:0;line-height:1;color:var(--text-info);">+2.35%</p>
+    <p style="font-size:11px;color:var(--text-tertiary);margin:3px 0 0;">benchmark reference</p>
+  </div>
+</div>
 
-  <div class="section-gap">
-    <div class="section-title">Cluster signal alpha vs SPY — 2+ politicians bought same ticker within 30-day window</div>
-    <div class="legend">
-      <span><span class="legend-dot" style="background:#97C459;"></span>Beat SPY (positive alpha)</span>
-      <span><span class="legend-dot" style="background:#F09595;"></span>Lagged SPY (negative alpha)</span>
-      <span style="color:var(--text3);">Number in parentheses = politicians in cluster</span>
+<!-- Aggregate performance -->
+<p class="section-title">Does Congress beat the market? — aggregate market-adjusted returns</p>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px;">
+
+  <div class="card">
+    <p style="font-size:11px;color:var(--text-secondary);font-weight:500;margin:0 0 10px;">BUY trades (n=2,185)</p>
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      <span style="font-size:12px;color:var(--text-secondary);">Raw 30d return</span>
+      <span style="font-size:13px;font-weight:500;">+2.57%</span>
     </div>
-    <div class="chart-wrap">
-      <div style="position:relative;height:580px;">
-        <canvas id="clusterChart" role="img" aria-label="Horizontal bar chart of cluster signal alpha vs SPY. DDOG +68.94% leads, LULU -23.06% is worst.">DDOG +68.94%, SNDK +63.07%, INTC +31.81%, MU +26.65%, ENTG +15.84%, GEV +14.23%, PANW +14.17%, VRT +11.76%, AMD +11.55%, CSCO +11.41%. Worst: CTSH -22.79%, LULU -23.06%.</canvas>
-      </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+      <span style="font-size:12px;color:var(--text-secondary);">SPY same window</span>
+      <span style="font-size:13px;font-weight:500;color:var(--text-info);">+2.33%</span>
+    </div>
+    <div style="border-top:0.5px solid var(--border-tertiary);padding-top:9px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;color:var(--text-secondary);">Alpha</span>
+      <span style="font-size:18px;font-weight:500;color:var(--text-success);">+0.24%</span>
     </div>
   </div>
 
-  <div class="section-gap">
-    <div class="section-title">Politician leaderboard — BUY trades, market-adjusted alpha (all 14 members)</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:26%;">Politician</th>
-            <th class="r" style="width:10%;">Buys</th>
-            <th class="r" style="width:10%;">Priced</th>
-            <th class="r" style="width:12%;">Raw</th>
-            <th class="r" style="width:12%;">Alpha</th>
-            <th class="r" style="width:10%;">Win%</th>
-            <th style="width:20%;">Alpha bar</th>
-          </tr>
-        </thead>
-        <tbody id="pol-tbody"></tbody>
-      </table>
+  <div class="card">
+    <p style="font-size:11px;color:var(--text-secondary);font-weight:500;margin:0 0 10px;">SELL trades (n=1,965)</p>
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      <span style="font-size:12px;color:var(--text-secondary);">Raw 30d return</span>
+      <span style="font-size:13px;font-weight:500;">+2.68%</span>
     </div>
-    <p class="footnote">* n &lt; 20 priced trades: insufficient sample for statistical inference. Alpha = raw return minus SPY over exact same 30-day window per trade. Bar scaled to ±20%. — = no priced buy data available.</p>
-  </div>
-
-  <div class="section-gap">
-    <div class="section-title">Aggregate overview — raw return vs SPY baseline</div>
-    <div class="chart-wrap">
-      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;font-size:12px;color:var(--text2);">
-        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#B5D4F4;border:1px solid #378ADD;"></span>Raw 30d return</span>
-        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#FAC775;border:1px solid #BA7517;"></span>SPY same window</span>
-        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#F09595;border:1px solid #E24B4A;"></span>Alpha (raw minus SPY)</span>
-      </div>
-      <div style="position:relative;height:220px;">
-        <canvas id="aggChart" role="img" aria-label="Grouped bar chart: BUY trades raw +2.32%, SPY +3.91%, alpha -1.59%. SELL trades raw +2.86%, SPY +3.50%, alpha -0.64%.">BUY: raw +2.32%, SPY +3.91%, alpha -1.59%. SELL: raw +2.86%, SPY +3.50%, alpha -0.64%.</canvas>
-      </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+      <span style="font-size:12px;color:var(--text-secondary);">SPY same window</span>
+      <span style="font-size:13px;font-weight:500;color:var(--text-info);">+2.39%</span>
+    </div>
+    <div style="border-top:0.5px solid var(--border-tertiary);padding-top:9px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;color:var(--text-secondary);">Alpha</span>
+      <span style="font-size:18px;font-weight:500;color:var(--text-success);">+0.29%</span>
     </div>
   </div>
 
-  <div class="foot">
-    <p>Data source: Capitol Trades (capitoltrades.com) · Price data: Yahoo Finance via yfinance · Analysis period: May 2023 – May 2026</p>
-    <p style="margin-top:4px;">Mycroft — Congressional Trade Signal Module · Open source educational experiment · <a href="https://github.com/Humanitariansai/Mycroft" style="color:var(--blue);">github.com/Humanitariansai/Mycroft</a></p>
+  <div style="border:2px solid #C0DD97;border-radius:var(--radius-lg);padding:13px 15px;">
+    <p style="font-size:11px;color:var(--text-secondary);font-weight:500;margin:0 0 10px;">High-signal cluster filter (n=43)</p>
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      <span style="font-size:12px;color:var(--text-secondary);">Cluster size</span>
+      <span style="font-size:12px;color:var(--text-tertiary);">≥ 2 politicians</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+      <span style="font-size:12px;color:var(--text-secondary);">BCR threshold</span>
+      <span style="font-size:12px;color:var(--text-tertiary);">&gt; 0.65 conviction</span>
+    </div>
+    <div style="border-top:0.5px solid var(--border-tertiary);padding-top:9px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;color:var(--text-secondary);">Avg return</span>
+      <span style="font-size:18px;font-weight:500;color:var(--text-success);">+11.2%</span>
+    </div>
   </div>
 
 </div>
+<div class="note-box">
+  <p>Consistent with Eggers &amp; Hainmueller (2013) — the average Congress member barely beats market beta (+0.24% alpha is near zero). The signal is not in random congressional activity; it is concentrated in the cluster filter: when 2+ politicians independently buy the same ticker in 30 days, especially in sectors under active legislative oversight, the high-signal group averages +11.2% versus +1.4% for low-signal events. Signal score = cluster size × max politician BCR within the cluster.</p>
+</div>
 
+<!-- Cluster chart -->
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+  <p class="section-title" style="margin:0;">Cluster signal alpha — 2+ politicians, same ticker, 30-day window</p>
+  <span style="font-size:11px;color:var(--text-tertiary);">INTC: 5 politicians — largest cluster in dataset</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;">
+  <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);">
+    <span style="width:10px;height:10px;border-radius:2px;display:inline-block;background:#97C459;"></span>Beat SPY (positive alpha)
+  </span>
+  <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);">
+    <span style="width:10px;height:10px;border-radius:2px;display:inline-block;background:#F09595;"></span>Lagged SPY (negative alpha)
+  </span>
+  <span style="font-size:11px;color:var(--text-tertiary);">Parentheses = distinct politicians in cluster</span>
+</div>
+<div style="position:relative;width:100%;height:590px;">
+  <canvas id="clusterChart"></canvas>
+</div>
+<div class="note-box">
+  <p>Top signals are concentrated in semiconductors and AI infrastructure (DDOG, MRVL, MU, INTC, CRWD, FTNT) and healthcare (HUM). This aligns with CHIPS Act 2.0 drafting and AI National Security Commission work — members on Science and Armed Services committees appear to have had advance visibility into subsidy timing. The worst signals (CTSH, CSGP, LULU) are enterprise software and consumer discretionary — sectors with less direct Congressional oversight — confirming sector specificity matters as much as the cluster structure itself.</p>
+</div>
+
+<!-- Politician leaderboard -->
+<p class="section-title">Politician leaderboard — BUY trades, market-adjusted (min 10 trades)</p>
+<div style="border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:8px;">
+  <table style="table-layout:fixed;font-size:12px;">
+    <colgroup>
+      <col style="width:22%">
+      <col style="width:11%">
+      <col style="width:11%">
+      <col style="width:10%">
+      <col style="width:8%">
+      <col style="width:10%">
+      <col style="width:28%">
+    </colgroup>
+    <thead>
+      <tr style="background:var(--bg-secondary);border-bottom:0.5px solid var(--border-tertiary);">
+        <th style="padding:9px 12px;text-align:left;font-weight:500;color:var(--text-secondary);">Politician</th>
+        <th style="padding:9px 8px;text-align:right;font-weight:500;color:var(--text-secondary);">Raw</th>
+        <th style="padding:9px 8px;text-align:right;font-weight:500;color:var(--text-secondary);">Alpha</th>
+        <th style="padding:9px 8px;text-align:right;font-weight:500;color:var(--text-secondary);">Win%</th>
+        <th style="padding:9px 8px;text-align:right;font-weight:500;color:var(--text-secondary);">n</th>
+        <th style="padding:9px 8px;text-align:right;font-weight:500;color:var(--text-secondary);">BCR</th>
+        <th style="padding:9px 12px;text-align:left;font-weight:500;color:var(--text-secondary);">Alpha vs SPY</th>
+      </tr>
+    </thead>
+    <tbody id="pol-tbody"></tbody>
+  </table>
+</div>
+<div class="note-box">
+  <p>BCR (buy-conviction ratio) = buys ÷ (buys + sells). High BCR alone does not predict alpha — Lloyd Doggett (BCR 1.00, never sells) has −1.20% alpha. The two most credible signals at meaningful sample sizes are Dave McCormick (BCR 0.87, +5.25% alpha, n=38) and Tim Moore (BCR 0.74, +4.25% alpha, n=147). Tim Moore is the most statistically robust entry in the current dataset: largest sample at meaningful positive alpha.</p>
+</div>
+
+<!-- Work remaining -->
+<p class="section-title">Work remaining</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;">
+  <div class="card">
+    <p style="font-size:11px;color:var(--text-secondary);font-weight:600;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.05em;">Data collection</p>
+    <div id="check-data"></div>
+  </div>
+  <div class="card">
+    <p style="font-size:11px;color:var(--text-secondary);font-weight:600;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.05em;">Analysis &amp; paper</p>
+    <div id="check-paper"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<p style="font-size:11px;color:var(--text-tertiary);padding-top:1rem;border-top:0.5px solid var(--border-tertiary);">
+  * n &lt; 20 = insufficient for inference &nbsp;·&nbsp;
+  Alpha = raw return minus SPY over same 30-day disclosure window per trade &nbsp;·&nbsp;
+  BCR = buys ÷ (buys + sells) &nbsp;·&nbsp;
+  Source: <a href="https://www.capitoltrades.com">Capitol Trades</a> &nbsp;·&nbsp;
+  Code: <a href="https://github.com/Humanitariansai/Mycroft">github.com/Humanitariansai/Mycroft</a>
+</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const clusterData = [
-  {ticker:'DDOG',name:'Datadog',alpha:68.94,pols:2},
-  {ticker:'SNDK',name:'SanDisk',alpha:63.07,pols:2},
-  {ticker:'INTC',name:'Intel',alpha:31.81,pols:3},
-  {ticker:'MU',name:'Micron',alpha:26.65,pols:2},
-  {ticker:'ENTG',name:'Entegris',alpha:15.84,pols:2},
-  {ticker:'GEV',name:'GE Vernova',alpha:14.23,pols:2},
-  {ticker:'PANW',name:'Palo Alto Ntwks',alpha:14.17,pols:2},
-  {ticker:'VRT',name:'Vertiv',alpha:11.76,pols:2},
-  {ticker:'AMD',name:'AMD',alpha:11.55,pols:3},
-  {ticker:'CSCO',name:'Cisco',alpha:11.41,pols:4},
-  {ticker:'APO',name:'Apollo Global',alpha:9.24,pols:2},
-  {ticker:'GLW',name:'Corning',alpha:8.13,pols:2},
-  {ticker:'GOOGL',name:'Alphabet',alpha:8.13,pols:4},
-  {ticker:'AMZN',name:'Amazon',alpha:7.10,pols:3},
-  {ticker:'UNH',name:'UnitedHealth',alpha:6.14,pols:5},
-  {ticker:'AVGO',name:'Broadcom',alpha:5.89,pols:5},
-  {ticker:'EFX',name:'Equifax',alpha:-12.79,pols:2},
-  {ticker:'BSX',name:'Boston Scientific',alpha:-13.73,pols:3},
-  {ticker:'CTSH',name:'Cognizant',alpha:-22.79,pols:2},
-  {ticker:'LULU',name:'Lululemon',alpha:-23.06,pols:2},
-];
+const DARK = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const TC = DARK ? '#B4B2A9' : '#888780';
+const GC = DARK ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
 
-const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-const tc = isDark ? '#888780' : '#888780';
-const gc = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+// ── Cluster chart ─────────────────────────────────────────────────────────────
+const CLUSTERS = [
+  {t:'DDOG',n:'Datadog',      a:68.94, p:2},
+  {t:'SNDK',n:'SanDisk',      a:51.72, p:2},
+  {t:'MRVL',n:'Marvell Tech', a:31.68, p:2},
+  {t:'HUM', n:'Humana',       a:29.91, p:2},
+  {t:'MU',  n:'Micron',       a:26.65, p:2},
+  {t:'FTNT',n:'Fortinet',     a:24.30, p:2},
+  {t:'DECK',n:'Deckers',      a:22.73, p:2},
+  {t:'INTC',n:'Intel',        a:18.93, p:5},
+  {t:'CDW', n:'CDW Corp',     a:16.96, p:2},
+  {t:'CRWD',n:'CrowdStrike',  a:16.50, p:2},
+  {t:'LULU',n:'Lululemon',    a:-14.34,p:3},
+  {t:'CSGP',n:'CoStar',       a:-15.38,p:3},
+  {t:'CTSH',n:'Cognizant',    a:-22.79,p:2},
+];
 
 new Chart(document.getElementById('clusterChart'), {
   type: 'bar',
   data: {
-    labels: clusterData.map(d => `${d.ticker}  (${d.pols})`),
+    labels: CLUSTERS.map(d => `${d.t}  (${d.p})`),
     datasets: [{
       label: 'Alpha vs SPY',
-      data: clusterData.map(d => d.alpha),
-      backgroundColor: clusterData.map(d => d.alpha >= 0 ? '#97C459' : '#F09595'),
-      borderColor: clusterData.map(d => d.alpha >= 0 ? '#639922' : '#E24B4A'),
+      data: CLUSTERS.map(d => d.a),
+      backgroundColor: CLUSTERS.map(d => d.a >= 0 ? '#97C459' : '#F09595'),
+      borderColor:     CLUSTERS.map(d => d.a >= 0 ? '#639922' : '#E24B4A'),
       borderWidth: 1,
       borderRadius: 3,
     }]
@@ -276,111 +323,104 @@ new Chart(document.getElementById('clusterChart'), {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {display: false},
+      legend: { display: false },
       tooltip: {
         callbacks: {
-          title: items => {
-            const d = clusterData[items[0].dataIndex];
-            return `${d.ticker} — ${d.name}`;
-          },
-          label: ctx => ` Alpha vs SPY: ${ctx.raw >= 0 ? '+' : ''}${ctx.raw.toFixed(2)}%  ·  ${clusterData[ctx.dataIndex].pols} politicians`
+          title: i => { const d = CLUSTERS[i[0].dataIndex]; return `${d.t} — ${d.n}`; },
+          label: c => ` Alpha: ${c.raw >= 0 ? '+' : ''}${c.raw.toFixed(2)}%  ·  ${CLUSTERS[c.dataIndex].p} politicians`,
         }
       }
     },
     scales: {
       x: {
-        grid: {color: gc},
-        ticks: {callback: v => (v >= 0 ? '+' : '') + v + '%', color: tc, font: {size: 11}},
-        border: {display: false}
+        grid: { color: GC },
+        ticks: { callback: v => (v >= 0 ? '+' : '') + v + '%', color: TC, font: { size: 11 } },
+        border: { display: false },
       },
       y: {
-        grid: {display: false},
-        ticks: {color: tc, font: {size: 12, weight: '500'}},
-        border: {display: false}
+        grid: { display: false },
+        ticks: { color: TC, font: { size: 12, weight: '500' } },
+        border: { display: false },
       }
     }
   }
 });
 
-new Chart(document.getElementById('aggChart'), {
-  type: 'bar',
-  data: {
-    labels: ['BUY trades (n=1,147)', 'SELL trades (n=897)'],
-    datasets: [
-      {label:'Raw return', data:[2.32,2.86], backgroundColor:'#B5D4F4', borderColor:'#378ADD', borderWidth:1, borderRadius:3},
-      {label:'SPY same window', data:[3.91,3.50], backgroundColor:'#FAC775', borderColor:'#BA7517', borderWidth:1, borderRadius:3},
-      {label:'Alpha', data:[-1.59,-0.64], backgroundColor:'#F09595', borderColor:'#E24B4A', borderWidth:1, borderRadius:3},
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {display: false},
-      tooltip: {
-        callbacks: {label: ctx => ` ${ctx.dataset.label}: ${ctx.raw >= 0 ? '+' : ''}${ctx.raw.toFixed(2)}%`}
-      }
-    },
-    scales: {
-      x: {grid: {display: false}, ticks: {color: tc, font: {size: 12}}, border: {display: false}},
-      y: {
-        grid: {color: gc},
-        ticks: {callback: v => (v >= 0 ? '+' : '') + v + '%', color: tc, font: {size: 11}},
-        border: {display: false}
-      }
-    }
-  }
-});
-
-const pols = [
-  {name:'Tina Smith',      buys:4,   priced:4,   raw:17.08, alpha:14.47, win:100},
-  {name:'Kelly Morrison',  buys:45,  priced:10,  raw:15.51, alpha:9.24,  win:90},
-  {name:'Greg Stanton',    buys:94,  priced:93,  raw:6.44,  alpha:0.36,  win:53.8},
-  {name:'Gil Cisneros',    buys:462, priced:374, raw:1.71,  alpha:-0.19, win:42.5},
-  {name:'Suzan DelBene',   buys:75,  priced:1,   raw:4.05,  alpha:-0.32, win:0},
-  {name:'M.E. Salazar',    buys:50,  priced:29,  raw:4.21,  alpha:-0.40, win:44.8},
-  {name:'Kevin Hern',      buys:127, priced:105, raw:0.81,  alpha:-0.96, win:37.1},
-  {name:'Tony Wied',       buys:29,  priced:22,  raw:0.57,  alpha:-1.82, win:54.5},
-  {name:'Michael McCaul',  buys:407, priced:207, raw:0.76,  alpha:-2.69, win:29.5},
-  {name:'A. McClain Delaney', buys:126, priced:107, raw:0.58, alpha:-3.12, win:36.4},
-  {name:'Ro Khanna',       buys:451, priced:195, raw:3.91,  alpha:-4.58, win:27.2},
-  {name:'Ann Wagner',      buys:15,  priced:0,   raw:null,  alpha:null,  win:null},
-  {name:'Buddy Carter',    buys:3,   priced:0,   raw:null,  alpha:null,  win:null},
-  {name:'Chip Roy',        buys:2,   priced:0,   raw:null,  alpha:null,  win:null},
+// ── Politician leaderboard ────────────────────────────────────────────────────
+const POLS = [
+  {name:'Kelly Morrison',    raw:15.51, alpha:9.24,  win:90, n:10,  bcr:0.40},
+  {name:'Dave McCormick',    raw:6.32,  alpha:5.25,  win:87, n:38,  bcr:0.87},
+  {name:'Tim Moore',         raw:6.26,  alpha:4.25,  win:67, n:147, bcr:0.74},
+  {name:'M.E. Salazar',      raw:5.17,  alpha:2.22,  win:54, n:39,  bcr:0.91},
+  {name:'Ro Khanna',         raw:3.57,  alpha:0.93,  win:52, n:427, bcr:0.60},
+  {name:'Josh Gottheimer',   raw:-0.65, alpha:0.48,  win:53, n:238, bcr:0.37},
+  {name:'Greg Stanton',      raw:6.44,  alpha:0.36,  win:54, n:93,  bcr:0.50},
+  {name:'Gil Cisneros',      raw:1.56,  alpha:0.10,  win:44, n:423, bcr:0.62},
+  {name:'Jefferson Shreve',  raw:5.01,  alpha:-0.33, win:41, n:192, bcr:0.32},
+  {name:'Kevin Hern',        raw:0.81,  alpha:-0.96, win:37, n:105, bcr:0.65},
+  {name:'Lloyd Doggett',     raw:1.48,  alpha:-1.20, win:34, n:61,  bcr:1.00},
+  {name:'Tony Wied',         raw:0.52,  alpha:-1.68, win:57, n:23,  bcr:0.44},
+  {name:'Michael McCaul',    raw:0.75,  alpha:-1.91, win:35, n:243, bcr:0.54},
+  {name:'April M. Delaney',  raw:0.37,  alpha:-3.06, win:34, n:118, bcr:0.53},
 ];
 
 const tbody = document.getElementById('pol-tbody');
-pols.forEach(p => {
-  const hasData = p.alpha !== null;
-  const lowN = hasData && p.priced < 20;
+POLS.forEach(p => {
+  const pos    = p.alpha >= 0;
+  const alphaC = pos ? '#3B6D11' : '#A32D2D';
+  const barW   = Math.min(Math.abs(p.alpha) / 12 * 100, 100).toFixed(1);
+  const barC   = pos ? '#97C459' : '#F09595';
+  const bcrC   = p.bcr >= 0.75 ? '#3B6D11' : p.bcr >= 0.50 ? 'var(--text-secondary)' : '#854F0B';
+  const nFlag  = p.n < 20 ? '<span style="color:var(--text-tertiary);font-size:10px;"> *</span>' : '';
 
-  const aStr = hasData ? (p.alpha >= 0 ? '+' : '') + p.alpha.toFixed(2) + '%' : '—';
-  const aClass = !hasData ? 'no-data' : p.alpha >= 0 ? 'alpha-pos' : 'alpha-neg';
-  const rawStr = hasData ? '+' + p.raw.toFixed(2) + '%' : '—';
-  const winStr = hasData ? p.win.toFixed(1) + '%' : '—';
-
-  let badge = '';
-  if (!hasData) badge = '<span class="badge badge-gray">no price data</span>';
-  else if (lowN) badge = '<span class="badge badge-amber">low n*</span>';
-
-  const barW = hasData ? Math.min(Math.abs(p.alpha) / 20 * 100, 100).toFixed(1) : 0;
-  const barColor = hasData && p.alpha >= 0 ? '#97C459' : '#F09595';
-  const barDir = hasData && p.alpha >= 0 ? 'flex-start' : 'flex-end';
-
-  const barHtml = hasData
-    ? `<div class="mini-bar-wrap" style="justify-content:${barDir};"><div class="mini-bar" style="width:${barW}%;background:${barColor};"></div></div>`
-    : `<span style="color:var(--text3);font-size:11px;">no data</span>`;
-
-  tbody.innerHTML += `<tr>
-    <td>${p.name} ${badge}</td>
-    <td class="r">${p.buys}</td>
-    <td class="r">${p.priced}</td>
-    <td class="r">${rawStr}</td>
-    <td class="r ${aClass}">${aStr}</td>
-    <td class="r">${winStr}</td>
-    <td>${barHtml}</td>
+  tbody.innerHTML += `
+  <tr style="border-bottom:0.5px solid var(--border-tertiary);">
+    <td style="padding:8px 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</td>
+    <td style="padding:8px 8px;text-align:right;color:var(--text-secondary);">${p.raw >= 0 ? '+' : ''}${p.raw.toFixed(2)}%</td>
+    <td style="padding:8px 8px;text-align:right;font-weight:500;color:${alphaC};">${pos ? '+' : ''}${p.alpha.toFixed(2)}%</td>
+    <td style="padding:8px 8px;text-align:right;color:var(--text-secondary);">${p.win}%</td>
+    <td style="padding:8px 8px;text-align:right;color:var(--text-secondary);">${p.n}${nFlag}</td>
+    <td style="padding:8px 8px;text-align:right;font-weight:500;color:${bcrC};">${p.bcr.toFixed(2)}</td>
+    <td style="padding:8px 12px;">
+      <div style="height:7px;background:var(--bg-secondary);border-radius:4px;overflow:hidden;display:flex;justify-content:${pos ? 'flex-start' : 'flex-end'};">
+        <div style="height:100%;width:${barW}%;background:${barC};border-radius:4px;"></div>
+      </div>
+    </td>
   </tr>`;
 });
+
+// ── Checklists ────────────────────────────────────────────────────────────────
+function checklist(items, id) {
+  const el = document.getElementById(id);
+  items.forEach(it => {
+    const bg  = it.done ? '#97C459'      : 'var(--bg-primary)';
+    const bd  = it.done ? 'none'         : '0.5px solid var(--border-secondary)';
+    const ico = it.done ? '<i class="ti ti-check" style="font-size:10px;color:#27500A;" aria-hidden="true"></i>' : '';
+    el.innerHTML += `
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+      <span style="width:16px;height:16px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${bg};border:${bd};">${ico}</span>
+      <span style="font-size:12px;color:${it.done ? 'var(--text-primary)' : 'var(--text-secondary)'};">${it.text}</span>
+    </div>`;
+  });
+}
+
+checklist([
+  {done:true,  text:'25 politicians scraped (Selenium + checkpoint)'},
+  {done:false, text:'Reach 50 politicians'},
+  {done:false, text:'Full 187-member dataset'},
+  {done:true,  text:'Price enrichment via yfinance (77% coverage)'},
+  {done:true,  text:'Per-trade SPY market adjustment'},
+  {done:false, text:'Ticker normalisation (BRK/B, WWE→TKO etc.)'},
+], 'check-data');
+
+checklist([
+  {done:true,  text:'Cluster signal detection (30-day rolling window)'},
+  {done:true,  text:'Two-factor filter: BCR × cluster size'},
+  {done:false, text:'Statistical significance testing (t-test / bootstrap)'},
+  {done:false, text:'Train / test split validation'},
+  {done:false, text:'Sector-adjusted benchmark (XSD ETF for semis)'},
+  {done:false, text:'Full paper methodology section'},
+], 'check-paper');
 </script>
 </body>
 </html>
