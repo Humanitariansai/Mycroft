@@ -1,0 +1,82 @@
+digraph AgentGuardArena {
+    rankdir=TB;
+    bgcolor="#0d1117";
+    fontname="Helvetica";
+    labelloc="t";
+    fontcolor="#c9d1d9";
+    fontsize=26;
+    label="AgentGuard Arena — Self-Adversarial AI Hardening Workflow";
+
+    node [fontname="Helvetica", style="filled,rounded", shape=box, fontcolor="#0d1117", penwidth=0, margin="0.18,0.12"];
+    edge [color="#8b949e", fontname="Helvetica", fontsize=11, fontcolor="#8b949e", penwidth=1.4];
+
+    /* ---------- OFFLINE PREP ---------- */
+    subgraph cluster_prep {
+        label="① OFFLINE PREP  ·  build_research_kb.py (scraper only — no LLM)";
+        fontcolor="#7ee787"; color="#238636"; style="rounded"; penwidth=1.5;
+        owasp   [label="OWASP Top 10\nfor LLM Apps", fillcolor="#7ee787"];
+        mitre   [label="MITRE ATLAS\natlas.mitre.org\n(101 techniques)", fillcolor="#7ee787"];
+        ddg     [label="DuckDuckGo\nper-domain web intel", fillcolor="#7ee787"];
+        kb      [label="research_kb.md\n(knowledge base)", shape=note, fillcolor="#e3b341"];
+        owasp -> kb; mitre -> kb; ddg -> kb;
+    }
+
+    /* ---------- CONFIG ---------- */
+    user [label=" User selects\nProfile + Max Rounds +\nTurns/Round + Context Poisoning",
+          fillcolor="#d2a8ff", shape=box];
+    profiles [label="profiles.py\nFinTech · HealthTech ·\nLegalTech · EdTech\n(role, secrets, tools, baseline prompt)",
+              shape=note, fillcolor="#e3b341"];
+
+    /* ---------- RESEARCH (ONCE) ---------- */
+    subgraph cluster_research {
+        label="② RESEARCH AGENT  ·  runs ONCE per run";
+        fontcolor="#d2a8ff"; color="#a371f7"; style="rounded"; penwidth=1.5;
+        research [label=" Research Agent\nDeepSeek-V4-Flash\nKB → Attack Intelligence Brief",
+                  fillcolor="#a371f7", fontcolor="#ffffff"];
+    }
+
+    /* ---------- ADVERSARIAL LOOP ---------- */
+    subgraph cluster_loop {
+        label="③ ADVERSARIAL LOOP  ·  repeats each round";
+        fontcolor="#ffa198"; color="#f85149"; style="rounded"; penwidth=1.5;
+
+        primer [label=" Context-Poisoning Primer\nNemotron-120B\nfabricated 'authorized session'",
+                fillcolor="#ff7b72"];
+        attacker [label=" Attacker\nNemotron-120B\nmulti-turn payloads",
+                  fillcolor="#f85149", fontcolor="#ffffff"];
+        target [label=" Target (under test)\nLlama-3.1-8B-Instruct\ncurrent system prompt",
+                fillcolor="#79c0ff"];
+        judge [label=" Judge\nQwen3-235B\n{vulnerable, severity 0-10, mechanism}",
+               fillcolor="#f0cf7a"];
+        patcher [label=" Patcher\nDeepSeek-V4-Flash\nhardens system prompt",
+                 fillcolor="#e3b341"];
+
+        primer -> attacker [label="seed target context"];
+        attacker -> target [label="turn 1..N  (conversation)"];
+        target -> attacker [label="reply (adapt & escalate)", constraint=false, style=dashed];
+        target -> judge [label="full exchange"];
+        judge -> patcher [label="VULNERABLE\n(append defense clause)", color="#f85149", fontcolor="#ffa198"];
+        patcher -> primer [label="next round\n(hardened prompt)", color="#e3b341", fontcolor="#f0cf7a", constraint=false];
+    }
+
+    /* ---------- OUTCOME ---------- */
+    done [label=" HARDENING COMPLETE\n2 consecutive defenses\nor max rounds reached",
+          fillcolor="#3fb950", fontcolor="#ffffff"];
+    output [label=" Output\nHardened system prompt +\nseverity 8→1 improvement curve",
+            fillcolor="#7ee787", shape=note];
+    weave [label=" W&B Weave\nevery @weave.op() call traced live",
+           fillcolor="#56d364"];
+
+    /* ---------- FLOW ---------- */
+    kb -> research [label="loads profile slice", color="#a371f7", fontcolor="#d2a8ff"];
+    user -> profiles [style=invis];
+    profiles -> research [label="role / secrets / tools"];
+    user -> research [label="launch run"];
+    research -> primer [label="Attack Intelligence Brief\n(reused all rounds)", color="#a371f7", fontcolor="#d2a8ff"];
+    judge -> done [label="DEFENDED ×2", color="#3fb950", fontcolor="#7ee787"];
+    done -> output;
+
+    research -> weave [style=dotted, color="#56d364", constraint=false];
+    judge -> weave [style=dotted, color="#56d364", constraint=false];
+    patcher -> weave [style=dotted, color="#56d364", constraint=false];
+}

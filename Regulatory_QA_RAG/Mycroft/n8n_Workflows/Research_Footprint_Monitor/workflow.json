@@ -1,0 +1,1544 @@
+{
+  "name": "Mycroft Agent 5 — Research Footprint Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "5a6d09fc-02ea-473b-9ef6-d722a5c0f3d8",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -976,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "path": "run-research-pipeline",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1ed22f00-bb84-4d1f-8fe7-d3a946f2d35e",
+      "name": "Manual Pipeline Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -976,
+        528
+      ],
+      "webhookId": "104b268f-272d-455d-a0ce-b14062dffc07"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mycroft Agent 5 — Research Footprint Monitor\n// Static watchlist of AI-sector companies tracked across two signals.\nconst watchlist = [\n  { ticker: \"NVDA\",  company: \"NVIDIA\",\n    wikipedia_title: \"Nvidia\",\n    scholar_queries: [\"NVIDIA\", \"NVIDIA Research\"] },\n  { ticker: \"AMD\",   company: \"AMD\",\n    wikipedia_title: \"Advanced_Micro_Devices\",\n    scholar_queries: [\"AMD\", \"Advanced Micro Devices\"] },\n  { ticker: \"INTC\",  company: \"Intel\",\n    wikipedia_title: \"Intel\",\n    scholar_queries: [\"Intel\", \"Intel Labs\"] },\n  { ticker: \"GOOGL\", company: \"Google\",\n    wikipedia_title: \"Google\",\n    scholar_queries: [\"Google\", \"Google DeepMind\", \"Google Brain\", \"DeepMind\"] },\n  { ticker: \"AAPL\",  company: \"Apple\",\n    wikipedia_title: \"Apple_Inc.\",\n    scholar_queries: [\"Apple Inc\", \"Apple Machine Learning\"] },\n  { ticker: \"MSFT\",  company: \"Microsoft\",\n    wikipedia_title: \"Microsoft\",\n    scholar_queries: [\"Microsoft\", \"Microsoft Research\"] },\n  { ticker: \"META\",  company: \"Meta\",\n    wikipedia_title: \"Meta_Platforms\",\n    scholar_queries: [\"Meta\", \"Meta AI\", \"FAIR\", \"Facebook AI Research\"] }\n];\n\nreturn [{ json: { watchlist } }];\n"
+      },
+      "id": "f3d4d5c0-560f-4052-8e13-ad2fffa14d3f",
+      "name": "Fetch Watchlist",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.watchlist[0].scholar_queries[0] }}"
+            },
+            {
+              "name": "fields",
+              "value": "title,authors,venue,year,citationCount,externalIds"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "year",
+              "value": "2023-"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "16f27541-e61a-4328-ae98-a25022dc42a0",
+      "name": "Scholar: NVIDIA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.watchlist[1].scholar_queries[0] }}"
+            },
+            {
+              "name": "fields",
+              "value": "title,authors,venue,year,citationCount,externalIds"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "year",
+              "value": "2023-"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4a675d05-eb6d-4b90-bb24-15347b9bb200",
+      "name": "Scholar: AMD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.watchlist[2].scholar_queries[0] }}"
+            },
+            {
+              "name": "fields",
+              "value": "title,authors,venue,year,citationCount,externalIds"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "year",
+              "value": "2023-"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "f2ed498a-774c-4251-8565-9c2af0382ad4",
+      "name": "Scholar: Intel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.watchlist[3].scholar_queries[0] }}"
+            },
+            {
+              "name": "fields",
+              "value": "title,authors,venue,year,citationCount,externalIds"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "year",
+              "value": "2023-"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4be22e23-8659-4217-bf30-be14ace1ceed",
+      "name": "Scholar: Google",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.watchlist[4].scholar_queries[0] }}"
+            },
+            {
+              "name": "fields",
+              "value": "title,authors,venue,year,citationCount,externalIds"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "year",
+              "value": "2023-"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "bf124b3e-a0c7-4d81-a3f8-5dc52b981c73",
+      "name": "Scholar: Apple",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.watchlist[5].scholar_queries[0] }}"
+            },
+            {
+              "name": "fields",
+              "value": "title,authors,venue,year,citationCount,externalIds"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "year",
+              "value": "2023-"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "e24f48ff-d4cd-4ea9-ba4d-cd695804c6e9",
+      "name": "Scholar: Microsoft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.watchlist[6].scholar_queries[0] }}"
+            },
+            {
+              "name": "fields",
+              "value": "title,authors,venue,year,citationCount,externalIds"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "year",
+              "value": "2023-"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "137e77fe-3d1e-41b4-ba14-21bf2d0b95dd",
+      "name": "Scholar: Meta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 7,
+        "options": {}
+      },
+      "id": "78b08a41-5e8f-4bad-9efd-8b785a63d453",
+      "name": "Merge Scholar Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        240,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Layer A — Semantic Scholar responses.\n// Read each Scholar node by name so parsing is independent of merge mode.\nconst watchlist = $('Fetch Watchlist').first().json.watchlist;\nconst nodeNames = [\n  'Scholar: NVIDIA', 'Scholar: AMD', 'Scholar: Intel', 'Scholar: Google',\n  'Scholar: Apple', 'Scholar: Microsoft', 'Scholar: Meta'\n];\n\nfunction venueHas(venues, ...needles) {\n  const blob = venues.join(' ').toLowerCase();\n  return needles.some(n => blob.includes(n.toLowerCase()));\n}\n\nconst scholar_data = nodeNames.map((nodeName, idx) => {\n  const wl = watchlist[idx];\n  let resp = {};\n  try { resp = $(nodeName).first().json || {}; } catch (e) { resp = {}; }\n  const papers = Array.isArray(resp.data) ? resp.data : [];\n\n  let total_citations = 0;\n  let top_paper = null;\n  for (const p of papers) {\n    const cites = Number(p.citationCount || 0);\n    total_citations += cites;\n    if (!top_paper || cites > Number(top_paper.citationCount || 0)) {\n      top_paper = { title: p.title, venue: p.venue, year: p.year, citationCount: cites };\n    }\n  }\n\n  const paper_count = papers.length;\n  const top_venues = [...new Set(papers.map(p => p.venue).filter(Boolean))];\n  const avg_citations = paper_count ? Math.round((total_citations / paper_count) * 100) / 100 : 0;\n\n  return {\n    ticker: wl.ticker,\n    company: wl.company,\n    paper_count,\n    top_venues,\n    top_paper,\n    total_citations,\n    avg_citations,\n    conference_presence: top_venues,\n    has_neurips: venueHas(top_venues, 'neurips', 'neural information processing'),\n    has_icml:    venueHas(top_venues, 'icml', 'international conference on machine learning'),\n    has_cvpr:    venueHas(top_venues, 'cvpr', 'computer vision and pattern recognition'),\n    has_iclr:    venueHas(top_venues, 'iclr', 'learning representations')\n  };\n});\n\nreturn [{ json: { scholar_data, watchlist } }];\n"
+      },
+      "id": "ea4f7ba8-6a78-4559-b9dc-76801ef3e194",
+      "name": "Parse Scholar Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/w/api.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "query"
+            },
+            {
+              "name": "prop",
+              "value": "revisions"
+            },
+            {
+              "name": "titles",
+              "value": "={{ $json.watchlist[0].wikipedia_title }}"
+            },
+            {
+              "name": "rvprop",
+              "value": "timestamp|user|comment"
+            },
+            {
+              "name": "rvlimit",
+              "value": "50"
+            },
+            {
+              "name": "rvstart",
+              "value": "={{ new Date(Date.now() - 7*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "origin",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4b543070-c33d-4030-a8cd-f911304e5c14",
+      "name": "Wikipedia: NVIDIA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/w/api.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "query"
+            },
+            {
+              "name": "prop",
+              "value": "revisions"
+            },
+            {
+              "name": "titles",
+              "value": "={{ $json.watchlist[1].wikipedia_title }}"
+            },
+            {
+              "name": "rvprop",
+              "value": "timestamp|user|comment"
+            },
+            {
+              "name": "rvlimit",
+              "value": "50"
+            },
+            {
+              "name": "rvstart",
+              "value": "={{ new Date(Date.now() - 7*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "origin",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "e3e882eb-615e-4178-914b-26679c64e1ab",
+      "name": "Wikipedia: AMD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -416,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/w/api.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "query"
+            },
+            {
+              "name": "prop",
+              "value": "revisions"
+            },
+            {
+              "name": "titles",
+              "value": "={{ $json.watchlist[2].wikipedia_title }}"
+            },
+            {
+              "name": "rvprop",
+              "value": "timestamp|user|comment"
+            },
+            {
+              "name": "rvlimit",
+              "value": "50"
+            },
+            {
+              "name": "rvstart",
+              "value": "={{ new Date(Date.now() - 7*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "origin",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "b7e71186-fe85-4ee1-864e-fa86887359aa",
+      "name": "Wikipedia: Intel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/w/api.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "query"
+            },
+            {
+              "name": "prop",
+              "value": "revisions"
+            },
+            {
+              "name": "titles",
+              "value": "={{ $json.watchlist[3].wikipedia_title }}"
+            },
+            {
+              "name": "rvprop",
+              "value": "timestamp|user|comment"
+            },
+            {
+              "name": "rvlimit",
+              "value": "50"
+            },
+            {
+              "name": "rvstart",
+              "value": "={{ new Date(Date.now() - 7*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "origin",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "6a609f60-1bec-453f-9d72-d833f5d6a756",
+      "name": "Wikipedia: Google",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        1392
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/w/api.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "query"
+            },
+            {
+              "name": "prop",
+              "value": "revisions"
+            },
+            {
+              "name": "titles",
+              "value": "={{ $json.watchlist[4].wikipedia_title }}"
+            },
+            {
+              "name": "rvprop",
+              "value": "timestamp|user|comment"
+            },
+            {
+              "name": "rvlimit",
+              "value": "50"
+            },
+            {
+              "name": "rvstart",
+              "value": "={{ new Date(Date.now() - 7*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "origin",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "f6c7899c-d627-4d98-a3a0-97b2734dda6f",
+      "name": "Wikipedia: Apple",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -368,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/w/api.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "query"
+            },
+            {
+              "name": "prop",
+              "value": "revisions"
+            },
+            {
+              "name": "titles",
+              "value": "={{ $json.watchlist[5].wikipedia_title }}"
+            },
+            {
+              "name": "rvprop",
+              "value": "timestamp|user|comment"
+            },
+            {
+              "name": "rvlimit",
+              "value": "50"
+            },
+            {
+              "name": "rvstart",
+              "value": "={{ new Date(Date.now() - 7*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "origin",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "1b3d2df9-4b8a-47e0-b8b4-e56cc473a58d",
+      "name": "Wikipedia: Microsoft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -368,
+        1760
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/w/api.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "query"
+            },
+            {
+              "name": "prop",
+              "value": "revisions"
+            },
+            {
+              "name": "titles",
+              "value": "={{ $json.watchlist[6].wikipedia_title }}"
+            },
+            {
+              "name": "rvprop",
+              "value": "timestamp|user|comment"
+            },
+            {
+              "name": "rvlimit",
+              "value": "50"
+            },
+            {
+              "name": "rvstart",
+              "value": "={{ new Date(Date.now() - 7*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "origin",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Research-Monitor/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "df07ceb1-5bef-4f34-8d57-f7826770b4ad",
+      "name": "Wikipedia: Meta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        1968
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 7,
+        "options": {}
+      },
+      "id": "e3e722d7-ca43-41d1-9a57-bd2b82a0ef3a",
+      "name": "Merge Wikipedia Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -128,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Layer B — Wikipedia MediaWiki revisions responses.\nconst watchlist = $('Fetch Watchlist').first().json.watchlist;\nconst nodeNames = [\n  'Wikipedia: NVIDIA', 'Wikipedia: AMD', 'Wikipedia: Intel', 'Wikipedia: Google',\n  'Wikipedia: Apple', 'Wikipedia: Microsoft', 'Wikipedia: Meta'\n];\n\nconst wikipedia_data = nodeNames.map((nodeName, idx) => {\n  const wl = watchlist[idx];\n  let resp = {};\n  try { resp = $(nodeName).first().json || {}; } catch (e) { resp = {}; }\n  const pages = (resp.query && resp.query.pages) || {};\n  const page = Object.values(pages)[0] || {};\n  const revisions = Array.isArray(page.revisions) ? page.revisions : [];\n\n  const unique_editors = [...new Set(revisions.map(r => r.user).filter(Boolean))].length;\n  const edit_count_7d = revisions.length;\n  const last_edit_timestamp = revisions.length ? revisions[0].timestamp : null;\n\n  return {\n    ticker: wl.ticker,\n    company: wl.company,\n    edit_count_7d,\n    unique_editors,\n    last_edit_timestamp,\n    edit_velocity: Math.round((edit_count_7d / 7) * 100) / 100,\n    is_spike: edit_count_7d > 10\n  };\n});\n\nreturn [{ json: { wikipedia_data } }];\n"
+      },
+      "id": "b10cd436-461c-4618-9314-c3fc87af2de7",
+      "name": "Parse Wikipedia Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "db72430d-b0b3-40e3-a4bb-573d9f32e7cb",
+      "name": "Combine Signals",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        720,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Composite research_footprint_score (0-100) per company.\nconst scholar = $('Parse Scholar Data').first().json.scholar_data || [];\nconst wiki = $('Parse Wikipedia Data').first().json.wikipedia_data || [];\n\nconst wikiByTicker = {};\nwiki.forEach(w => { wikiByTicker[w.ticker] = w; });\n\nconst companies = scholar.map(s => {\n  const w = wikiByTicker[s.ticker] || {};\n\n  // --- Scholar component (0-60) ---\n  let scholar_component = 0;\n  if (s.paper_count >= 8) scholar_component += 30;\n  else if (s.paper_count >= 4) scholar_component += 20;\n  else if (s.paper_count >= 1) scholar_component += 10;\n  if (s.has_neurips) scholar_component += 8;\n  if (s.has_icml)    scholar_component += 7;\n  if (s.has_cvpr)    scholar_component += 5;\n  if (s.has_iclr)    scholar_component += 5;\n  if (s.avg_citations > 50) scholar_component += 5;\n  scholar_component = Math.min(60, scholar_component);\n\n  // --- Wikipedia component (0-40) ---\n  const ec = w.edit_count_7d || 0;\n  let wikipedia_component = 0;\n  if (ec >= 20) wikipedia_component += 20;\n  else if (ec >= 10) wikipedia_component += 15;\n  else if (ec >= 5) wikipedia_component += 10;\n  else wikipedia_component += 5; // baseline\n  if ((w.unique_editors || 0) >= 10) wikipedia_component += 10;\n  else if ((w.unique_editors || 0) >= 5) wikipedia_component += 5;\n  if (w.is_spike) wikipedia_component += 10;\n  wikipedia_component = Math.min(40, wikipedia_component);\n\n  const research_footprint_score = Math.min(100, scholar_component + wikipedia_component);\n\n  let footprint_tier = 'MINIMAL';\n  if (research_footprint_score >= 75) footprint_tier = 'DOMINANT';\n  else if (research_footprint_score >= 50) footprint_tier = 'STRONG';\n  else if (research_footprint_score >= 25) footprint_tier = 'PRESENT';\n\n  return {\n    ticker: s.ticker,\n    company: s.company,\n    paper_count: s.paper_count,\n    top_venues: s.top_venues,\n    top_paper: s.top_paper,\n    total_citations: s.total_citations,\n    avg_citations: s.avg_citations,\n    conference_presence: s.conference_presence,\n    has_neurips: s.has_neurips,\n    has_icml: s.has_icml,\n    has_cvpr: s.has_cvpr,\n    has_iclr: s.has_iclr,\n    edit_count_7d: w.edit_count_7d || 0,\n    unique_editors: w.unique_editors || 0,\n    last_edit_timestamp: w.last_edit_timestamp || null,\n    edit_velocity: w.edit_velocity || 0,\n    is_spike: w.is_spike || false,\n    scholar_component,\n    wikipedia_component,\n    research_footprint_score,\n    footprint_tier\n  };\n});\n\nreturn [{ json: { companies } }];\n"
+      },
+      "id": "14c456f2-0803-4f0b-acc5-c9419550805d",
+      "name": "Calculate Footprint Scores",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build a compact payload for the Groq analyst.\nconst companies = $json.companies || [];\nconst groq_input = {\n  companies: companies.map(c => ({\n    ticker: c.ticker,\n    company: c.company,\n    paper_count: c.paper_count,\n    top_venues: c.top_venues,\n    total_citations: c.total_citations,\n    conference_presence: c.conference_presence,\n    edit_count_7d: c.edit_count_7d,\n    unique_editors: c.unique_editors,\n    is_spike: c.is_spike,\n    research_footprint_score: c.research_footprint_score,\n    footprint_tier: c.footprint_tier\n  }))\n};\n\nreturn [{ json: { companies, groq_input } }];\n"
+      },
+      "id": "63d28220-7fd6-4fa4-85eb-5fd8798db3de",
+      "name": "Aggregate for Groq",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\"model\": \"llama-3.3-70b-versatile\",\"temperature\": 0.1,\"max_tokens\": 2000,\"messages\": [{\"role\": \"system\", \"content\": \"You are a research intelligence analyst for the AI investment sector. Analyze company research footprint data combining academic paper output and Wikipedia public knowledge activity. Return valid JSON only. No markdown, no preamble.\"},{\"role\": \"user\", \"content\": \"Analyze the research footprint for these AI companies. For each company provide:\\\\n- research_narrative: 1-2 sentences summarizing their research presence and public mindshare\\\\n- academic_signal: LEADING | CONTRIBUTING | FOLLOWING | ABSENT\\\\n- wikipedia_signal: SURGING | ACTIVE | QUIET | DORMANT\\\\n- combined_insight: one sentence on what the combination of academic output and public knowledge activity says about this company\\\\n- watch_flag: true if either signal shows an unusual pattern worth monitoring\\\\n\\\\nReturn ONLY a JSON array:\\\\n[{\\\\n  \\\\\\\"ticker\\\\\\\": \\\\\\\"<string>\\\\\\\",\\\\n  \\\\\\\"research_narrative\\\\\\\": \\\\\\\"<string>\\\\\\\",\\\\n  \\\\\\\"academic_signal\\\\\\\": \\\\\\\"<string>\\\\\\\",\\\\n  \\\\\\\"wikipedia_signal\\\\\\\": \\\\\\\"<string>\\\\\\\",\\\\n  \\\\\\\"combined_insight\\\\\\\": \\\\\\\"<string>\\\\\\\",\\\\n  \\\\\\\"watch_flag\\\\\\\": <boolean>\\\\n}]\\\\n\\\\nData:\\\\n\" + JSON.stringify($json.groq_input)}]}) }}",
+        "options": {}
+      },
+      "id": "fd72fd72-e461-46cf-ade5-f7bd5e73e4cf",
+      "name": "Groq: Footprint Analyst",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and parse the Groq JSON array; fall back to null on failure.\nconst prevData = $('Aggregate for Groq').first().json;\n\nlet content = '';\ntry { content = $json.choices[0].message.content || ''; } catch (e) { content = ''; }\n\nlet groq_classifications = null;\ntry {\n  const cleaned = content\n    .replace(/```json/gi, '')\n    .replace(/```/g, '')\n    .trim();\n  groq_classifications = JSON.parse(cleaned);\n} catch (e) {\n  groq_classifications = null;\n}\n\nreturn [{ json: { ...prevData, groq_classifications } }];\n"
+      },
+      "id": "33f645b9-d9a8-4a30-adbc-82affc5f6d2a",
+      "name": "Parse Groq Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge Groq classifications into company records.\n// Emits ONE n8n item per company (flat DB columns) so the Supabase\n// upsert writes 7 rows. Run-level summary is carried on every item.\nconst data = $json;\nconst companies = data.companies || [];\nconst classifications = Array.isArray(data.groq_classifications) ? data.groq_classifications : [];\n\nconst classByTicker = {};\nclassifications.forEach(c => { if (c && c.ticker) classByTicker[c.ticker] = c; });\n\nfunction uuidv4() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (ch) {\n    const r = Math.random() * 16 | 0;\n    const v = ch === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nfunction isoWeek(d) {\n  const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));\n  const dayNum = (date.getUTCDay() + 6) % 7;\n  date.setUTCDate(date.getUTCDate() - dayNum + 3);\n  const firstThursday = new Date(Date.UTC(date.getUTCFullYear(), 0, 4));\n  const week = 1 + Math.round(\n    ((date - firstThursday) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7\n  );\n  return date.getUTCFullYear() + '-W' + String(week).padStart(2, '0');\n}\n\nconst now = new Date();\nconst run_timestamp = now.toISOString();\nconst run_week = isoWeek(now);\nconst agent_run_id = uuidv4();\n\nconst records = companies.map(c => {\n  const g = classByTicker[c.ticker] || {};\n  return {\n    ticker: c.ticker,\n    company: c.company,\n    run_timestamp,\n    run_week,\n    agent_run_id,\n    paper_count: c.paper_count,\n    top_venues: c.top_venues,\n    total_citations: c.total_citations,\n    avg_citations: c.avg_citations,\n    conference_presence: c.conference_presence,\n    has_neurips: c.has_neurips,\n    has_icml: c.has_icml,\n    has_cvpr: c.has_cvpr,\n    has_iclr: c.has_iclr,\n    edit_count_7d: c.edit_count_7d,\n    unique_editors: c.unique_editors,\n    last_edit_timestamp: c.last_edit_timestamp,\n    edit_velocity: c.edit_velocity,\n    is_spike: c.is_spike,\n    research_footprint_score: c.research_footprint_score,\n    footprint_tier: c.footprint_tier,\n    research_narrative: g.research_narrative || 'No narrative available (Groq parse fallback).',\n    academic_signal: g.academic_signal || 'ABSENT',\n    wikipedia_signal: g.wikipedia_signal || 'DORMANT',\n    combined_insight: g.combined_insight || 'No insight available.',\n    watch_flag: typeof g.watch_flag === 'boolean' ? g.watch_flag : false\n  };\n});\n\nconst dominant = records.filter(r => r.footprint_tier === 'DOMINANT');\nconst watchFlags = records.filter(r => r.watch_flag === true);\nconst wikiSpikes = records.filter(r => r.is_spike === true);\n\nconst summary = {\n  runId: agent_run_id,\n  runTimestamp: run_timestamp,\n  runWeek: run_week,\n  dominantCount: dominant.length,\n  watchFlagCount: watchFlags.length,\n  wikiSpikeCount: wikiSpikes.length\n};\n\n// One item per company record (flat columns) for the Supabase upsert.\nreturn records.map(r => ({ json: { ...r, _summary: summary } }));\n"
+      },
+      "id": "d94a3834-13d2-48cf-91dc-f0c439101439",
+      "name": "Signal Assembler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert"
+      },
+      "id": "46b23378-6aba-4c19-a86f-9947f2f85735",
+      "name": "Upsert to Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build the full markdown signal report.\n// Reads the assembled records (one item per company) from Signal Assembler.\nconst items = $('Signal Assembler').all();\nconst records = items.map(i => i.json);\nconst summary = records.length ? records[0]._summary : {\n  runId: 'unknown', runTimestamp: new Date().toISOString(), runWeek: 'unknown',\n  dominantCount: 0, watchFlagCount: 0, wikiSpikeCount: 0\n};\n\n// Recompute scholar/wiki score components from raw fields for the breakdown table.\nfunction components(r) {\n  let s = 0;\n  if (r.paper_count >= 8) s += 30;\n  else if (r.paper_count >= 4) s += 20;\n  else if (r.paper_count >= 1) s += 10;\n  if (r.has_neurips) s += 8;\n  if (r.has_icml) s += 7;\n  if (r.has_cvpr) s += 5;\n  if (r.has_iclr) s += 5;\n  if (r.avg_citations > 50) s += 5;\n  s = Math.min(60, s);\n\n  let w = 0;\n  const ec = r.edit_count_7d || 0;\n  if (ec >= 20) w += 20;\n  else if (ec >= 10) w += 15;\n  else if (ec >= 5) w += 10;\n  else w += 5;\n  if ((r.unique_editors || 0) >= 10) w += 10;\n  else if ((r.unique_editors || 0) >= 5) w += 5;\n  if (r.is_spike) w += 10;\n  w = Math.min(40, w);\n\n  return { scholar: s, wiki: w };\n}\n\nconst ranked = [...records].sort((a, b) => b.research_footprint_score - a.research_footprint_score);\nconst totalPapers = records.reduce((acc, r) => acc + (r.paper_count || 0), 0);\nconst totalCitations = records.reduce((acc, r) => acc + (r.total_citations || 0), 0);\nconst check = b => (b ? '✓' : '✗');\n\nlet md = '';\nmd += '# Research Footprint Monitor — Signal Report\\n';\nmd += '**Run ID:** ' + summary.runId + '  \\n';\nmd += '**Generated:** ' + summary.runTimestamp + '  \\n';\nmd += '**Week:** ' + summary.runWeek + '\\n\\n';\nmd += '---\\n\\n';\n\nmd += '## Executive Summary\\n\\n';\nmd += '| Metric | Value |\\n|---|---|\\n';\nmd += '| Companies tracked | ' + records.length + ' |\\n';\nmd += '| Dominant footprint | ' + summary.dominantCount + ' |\\n';\nmd += '| Watch flags | ' + summary.watchFlagCount + ' |\\n';\nmd += '| Wikipedia spikes | ' + summary.wikiSpikeCount + ' |\\n';\nmd += '| Total papers found | ' + totalPapers + ' |\\n';\nmd += '| Total citations | ' + totalCitations + ' |\\n\\n';\nmd += '---\\n\\n';\n\nmd += '## Research Footprint Rankings\\n\\n';\nranked.forEach((r, i) => {\n  md += '### ' + (i + 1) + '. ' + r.company + ' (' + r.ticker + ') — Score: ' + r.research_footprint_score + '/100\\n';\n  md += '**Tier:** ' + r.footprint_tier + ' ';\n  md += '| **Academic signal:** ' + r.academic_signal + ' ';\n  md += '| **Wikipedia signal:** ' + r.wikipedia_signal + '  \\n';\n  md += '**Research narrative:** ' + r.research_narrative + '  \\n';\n  md += '**Combined insight:** ' + r.combined_insight + '  \\n';\n  md += '**Conference presence:** ' + ((r.conference_presence && r.conference_presence.length) ? r.conference_presence.join(', ') : 'none detected') + '  \\n';\n  md += '**Wikipedia edits (7d):** ' + r.edit_count_7d + ' (' + r.unique_editors + ' unique editors)  \\n';\n  md += '**Watch flag:** ' + (r.watch_flag ? '⚠ YES' : 'No') + '\\n\\n';\n});\nmd += '---\\n\\n';\n\nmd += '## Watch Flags\\n\\n';\nconst flags = records.filter(r => r.watch_flag);\nif (flags.length) {\n  md += '| Ticker | Combined Insight |\\n|---|---|\\n';\n  flags.forEach(r => { md += '| ' + r.ticker + ' | ' + r.combined_insight + ' |\\n'; });\n} else {\n  md += '_No watch flags this run._\\n';\n}\nmd += '\\n---\\n\\n';\n\nmd += '## Wikipedia Spikes\\n\\n';\nconst spikes = records.filter(r => r.is_spike);\nif (spikes.length) {\n  md += '| Ticker | Edits (7d) | Last Edit |\\n|---|---|---|\\n';\n  spikes.forEach(r => { md += '| ' + r.ticker + ' | ' + r.edit_count_7d + ' | ' + (r.last_edit_timestamp || 'n/a') + ' |\\n'; });\n} else {\n  md += '_No Wikipedia spikes (>10 edits/week) this run._\\n';\n}\nmd += '\\n_Note: Wikipedia spikes often precede news cycles by 24-72 hrs._\\n\\n';\nmd += '---\\n\\n';\n\nmd += '## Conference Presence Matrix\\n\\n';\nmd += '| Company | NeurIPS | ICML | CVPR | ICLR | Papers | Citations |\\n|---|---|---|---|---|---|---|\\n';\nranked.forEach(r => {\n  md += '| ' + r.company + ' | ' + check(r.has_neurips) + ' | ' + check(r.has_icml) + ' | ' + check(r.has_cvpr) + ' | ' + check(r.has_iclr) + ' | ' + r.paper_count + ' | ' + r.total_citations + ' |\\n';\n});\nmd += '\\n---\\n\\n';\n\nmd += '## Score Breakdown\\n\\n';\nmd += '| Company | Scholar Score (/60) | Wikipedia Score (/40) | Total (/100) | Tier |\\n|---|---|---|---|---|\\n';\nranked.forEach(r => {\n  const c = components(r);\n  md += '| ' + r.company + ' | ' + c.scholar + ' | ' + c.wiki + ' | ' + r.research_footprint_score + ' | ' + r.footprint_tier + ' |\\n';\n});\nmd += '\\n---\\n\\n';\n\nmd += '## Known Limitations\\n';\nmd += '- Semantic Scholar query matches on company name in paper metadata — may include papers not from the company\\'s official research arm.\\n';\nmd += '- Wikipedia edit count covers all edit types including minor bot edits — not all edits represent human knowledge-building activity.\\n';\nmd += '- Conference presence based on venue field in Semantic Scholar, which is inconsistently populated.\\n';\nmd += '- First run has no week-over-week comparison.\\n\\n';\nmd += '---\\n\\n';\n\nmd += '*Mycroft — Research Footprint Monitor | Agent 5*  \\n';\nmd += '*Stack: n8n + Semantic Scholar API + Wikipedia MediaWiki API*  \\n';\nmd += '*+ Groq (llama-3.3-70b) + Supabase*\\n';\n\nreturn [{ json: {\n  report: md,\n  run_id: summary.runId,\n  report_markdown: md,\n  companies_tracked: records.length,\n  dominant_count: summary.dominantCount,\n  watch_flag_count: summary.watchFlagCount,\n  wiki_spike_count: summary.wikiSpikeCount\n}}];\n"
+      },
+      "id": "22867a63-f3bc-4c19-8a7f-466f29dc2b86",
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "research_reports",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "run_id",
+              "fieldValue": "={{ $json.run_id }}"
+            },
+            {
+              "fieldId": "report_markdown",
+              "fieldValue": "={{ $json.report_markdown }}"
+            },
+            {
+              "fieldId": "companies_tracked",
+              "fieldValue": "={{ $json.companies_tracked }}"
+            },
+            {
+              "fieldId": "dominant_count",
+              "fieldValue": "={{ $json.dominant_count }}"
+            },
+            {
+              "fieldId": "watch_flag_count",
+              "fieldValue": "={{ $json.watch_flag_count }}"
+            },
+            {
+              "fieldId": "wiki_spike_count",
+              "fieldValue": "={{ $json.wiki_spike_count }}"
+            }
+          ]
+        }
+      },
+      "id": "1873e575-ee60-4e8d-868a-907bbc454e4b",
+      "name": "Store Report in Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Generate Report').first().json.report }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/markdown"
+              }
+            ]
+          }
+        }
+      },
+      "id": "76b3dcb0-b616-4d55-855b-a350a19254a2",
+      "name": "Pipeline Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        432
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Pipeline Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Scholar: NVIDIA",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scholar: AMD",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scholar: Intel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scholar: Google",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scholar: Apple",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scholar: Microsoft",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scholar: Meta",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wikipedia: NVIDIA",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wikipedia: AMD",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wikipedia: Intel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wikipedia: Google",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wikipedia: Apple",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wikipedia: Microsoft",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wikipedia: Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scholar: NVIDIA": {
+      "main": [
+        [
+          {
+            "node": "Merge Scholar Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scholar: AMD": {
+      "main": [
+        [
+          {
+            "node": "Merge Scholar Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Scholar: Intel": {
+      "main": [
+        [
+          {
+            "node": "Merge Scholar Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Scholar: Google": {
+      "main": [
+        [
+          {
+            "node": "Merge Scholar Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Scholar: Apple": {
+      "main": [
+        [
+          {
+            "node": "Merge Scholar Results",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Scholar: Microsoft": {
+      "main": [
+        [
+          {
+            "node": "Merge Scholar Results",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Scholar: Meta": {
+      "main": [
+        [
+          {
+            "node": "Merge Scholar Results",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Merge Scholar Results": {
+      "main": [
+        [
+          {
+            "node": "Parse Scholar Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia: NVIDIA": {
+      "main": [
+        [
+          {
+            "node": "Merge Wikipedia Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia: AMD": {
+      "main": [
+        [
+          {
+            "node": "Merge Wikipedia Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wikipedia: Intel": {
+      "main": [
+        [
+          {
+            "node": "Merge Wikipedia Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Wikipedia: Google": {
+      "main": [
+        [
+          {
+            "node": "Merge Wikipedia Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Wikipedia: Apple": {
+      "main": [
+        [
+          {
+            "node": "Merge Wikipedia Results",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Wikipedia: Microsoft": {
+      "main": [
+        [
+          {
+            "node": "Merge Wikipedia Results",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Wikipedia: Meta": {
+      "main": [
+        [
+          {
+            "node": "Merge Wikipedia Results",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Merge Wikipedia Results": {
+      "main": [
+        [
+          {
+            "node": "Parse Wikipedia Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Scholar Data": {
+      "main": [
+        [
+          {
+            "node": "Combine Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Wikipedia Data": {
+      "main": [
+        [
+          {
+            "node": "Combine Signals",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine Signals": {
+      "main": [
+        [
+          {
+            "node": "Calculate Footprint Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Footprint Scores": {
+      "main": [
+        [
+          {
+            "node": "Aggregate for Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate for Groq": {
+      "main": [
+        [
+          {
+            "node": "Groq: Footprint Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq: Footprint Analyst": {
+      "main": [
+        [
+          {
+            "node": "Parse Groq Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Groq Response": {
+      "main": [
+        [
+          {
+            "node": "Signal Assembler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signal Assembler": {
+      "main": [
+        [
+          {
+            "node": "Upsert to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Store Report in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Report in Supabase": {
+      "main": [
+        [
+          {
+            "node": "Pipeline Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1eff4da4-3bf1-41f1-be32-08109a1ca903",
+  "meta": {
+    "instanceId": "f92ba833cfc01dd064a94201fa4bb20b3305c9c67348abfd124c90886d0575b8"
+  },
+  "id": "95Z31NRoFY4gun6V",
+  "tags": [
+    {
+      "createdAt": "2025-10-07T13:31:08.437Z",
+      "updatedAt": "2025-10-07T13:31:08.437Z",
+      "id": "S3THHpn1iOB37iKF",
+      "name": "mycroft"
+    },
+    {
+      "name": "research-footprint",
+      "id": "fgR90dyfQf0IW35R",
+      "createdAt": "2026-06-17T03:49:09.516Z",
+      "updatedAt": "2026-06-17T03:49:09.516Z"
+    },
+    {
+      "name": "agent-5",
+      "id": "wT0BECSbLdxYH2aE",
+      "createdAt": "2026-06-17T03:49:09.510Z",
+      "updatedAt": "2026-06-17T03:49:09.510Z"
+    }
+  ]
+}

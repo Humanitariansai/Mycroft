@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    container_name: rag_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/data:/app/data
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+
+  frontend:
+    build: ./frontend
+    container_name: rag_frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend

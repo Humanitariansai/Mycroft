@@ -1,0 +1,6 @@
+{
+  "migration": "0004_subscription_status_paused.py",
+  "branch": "add-paused-subscription-status",
+  "title": "Add `paused` to `subscription_status` enum",
+  "description": "Billing wants to support a \"paused\" state for subscriptions that are temporarily inactive without being cancelled (e.g., customer-requested holds, dunning pauses). Adds the enum value and a follow-up PR will surface it in the admin UI."
+}

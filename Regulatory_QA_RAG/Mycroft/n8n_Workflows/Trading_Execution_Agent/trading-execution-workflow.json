@@ -1,0 +1,167 @@
+{
+  "name": "Mycroft Trading Execution Agent",
+  "nodes": [
+    {
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [200, 300],
+      "parameters": {}
+    },
+    {
+      "id": "get-portfolio",
+      "name": "Get Portfolio from Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [400, 300],
+      "parameters": {
+        "operation": "read",
+        "sheetId": "{{ $env.PORTFOLIO_SHEET_ID }}",
+        "range": "Portfolio_Positions!A:E"
+      }
+    },
+    {
+      "id": "process-positions",
+      "name": "Process Portfolio Positions",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 300],
+      "parameters": {
+        "jsCode": "// Process portfolio data and identify positions needing analysis\nconst positions = $input.all();\nconst processedPositions = [];\n\nfor (const position of positions) {\n  if (position.json.Ticker && position.json.Shares) {\n    processedPositions.push({\n      ticker: position.json.Ticker,\n      shares: parseFloat(position.json.Shares),\n      costBasis: parseFloat(position.json.Cost_Basis),\n      currentValue: parseFloat(position.json.Current_Value),\n      targetAllocation: parseFloat(position.json.Target_Allocation)\n    });\n  }\n}\n\nreturn processedPositions.map(pos => ({ json: pos }));"
+      }
+    },
+    {
+      "id": "get-market-signals",
+      "name": "Get Market Signals",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [800, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8001/api/analyze",
+        "sendHeaders": true,
+        "headerParameters": {
+          "Content-Type": "application/json"
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "ticker": "={{ $json.ticker }}"
+        },
+        "responseFormat": "json"
+      }
+    },
+    {
+      "id": "risk-assessment",
+      "name": "Risk Assessment",
+      "type": "n8n-nodes-base.httpRequest", 
+      "position": [800, 400],
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/risk-assessment",
+        "sendHeaders": true,
+        "headerParameters": {
+          "Content-Type": "application/json"
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "ticker": "={{ $json.ticker }}",
+          "currentPosition": "={{ $json.shares }}",
+          "costBasis": "={{ $json.costBasis }}"
+        },
+        "responseFormat": "json"
+      }
+    },
+    {
+      "id": "execution-decision",
+      "name": "Trading Decision Logic",
+      "type": "n8n-nodes-base.code",
+      "position": [1000, 300],
+      "parameters": {
+        "jsCode": "// Combine market signals and risk assessment to make trading decision\nconst marketSignal = $('Get Market Signals').all()[0].json;\nconst riskAssessment = $('Risk Assessment').all()[0].json;\nconst position = $json;\n\n// Decision logic\nlet action = 'HOLD';\nlet quantity = 0;\nlet reason = '';\n\n// Extract signal recommendation\nconst recommendation = marketSignal.data.final_recommendation.decision;\nconst confidence = marketSignal.data.final_recommendation.score;\nconst riskScore = riskAssessment.risk_score || 0.5;\n\n// Safety checks\nif (riskScore > 0.7) {\n  action = 'HOLD';\n  reason = 'Risk score too high: ' + riskScore;\n} else if (confidence < 0.6) {\n  action = 'HOLD';\n  reason = 'Signal confidence too low: ' + confidence;\n} else if (recommendation === 'BUY' && position.shares < 100) {\n  action = 'BUY';\n  quantity = Math.min(50, Math.floor(1000 / marketSignal.currentPrice)); // Max $1000 position\n  reason = 'Strong buy signal with acceptable risk';\n} else if (recommendation === 'SELL' && position.shares > 0) {\n  action = 'SELL';\n  quantity = Math.floor(position.shares * 0.5); // Sell 50% of position\n  reason = 'Sell signal triggered';\n}\n\nreturn [{\n  json: {\n    ticker: position.ticker,\n    action: action,\n    quantity: quantity,\n    reason: reason,\n    confidence: confidence,\n    riskScore: riskScore,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      }
+    },
+    {
+      "id": "place-order",
+      "name": "Place Order (Alpaca)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1200, 300], 
+      "parameters": {
+        "method": "POST",
+        "url": "https://paper-api.alpaca.markets/v2/orders",
+        "sendHeaders": true,
+        "headerParameters": {
+          "APCA-API-KEY-ID": "={{ $env.ALPACA_API_KEY }}",
+          "APCA-API-SECRET-KEY": "={{ $env.ALPACA_SECRET_KEY }}",
+          "Content-Type": "application/json"
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "symbol": "={{ $json.ticker }}",
+          "qty": "={{ $json.quantity }}",
+          "side": "={{ $json.action.toLowerCase() }}",
+          "type": "market",
+          "time_in_force": "day"
+        },
+        "responseFormat": "json",
+        "ignoreHttpStatusErrors": true
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "log-trade",
+      "name": "Log Trade to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [1400, 300],
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{ $env.PORTFOLIO_SHEET_ID }}",
+        "range": "Trade_Execution_Log!A:J",
+        "valueInputOption": "RAW",
+        "values": {\n          \"values\": [[\n            \"={{ $json.timestamp }}\",\n            \"={{ $json.ticker }}\",\n            \"={{ $json.action }}\",\n            \"={{ $json.quantity }}\",\n            \"={{ $('Place Order (Alpaca)').all()[0].json.filled_avg_price || 'PENDING' }}\",\n            \"={{ $json.quantity * ($('Place Order (Alpaca)').all()[0].json.filled_avg_price || 0) }}\",\n            \"={{ $json.riskScore }}\",\n            \"={{ $json.confidence }}\",\n            \"={{ $('Place Order (Alpaca)').all()[0].json.id || 'ERROR' }}\",\n            \"={{ $('Place Order (Alpaca)').all()[0].json.status || 'FAILED' }}\"\n          ]]\n        }
+      }
+    },
+    {
+      "id": "send-notification",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [1600, 300],
+      "parameters": {
+        "fromEmail": "mycroft-trading@example.com",
+        "toEmail": "trader@example.com",
+        "subject": "Trading Execution Report - {{ $json.ticker }}",
+        "message": "Trade Executed:\\n\\nTicker: {{ $json.ticker }}\\nAction: {{ $json.action }}\\nQuantity: {{ $json.quantity }}\\nReason: {{ $json.reason }}\\nRisk Score: {{ $json.riskScore }}\\nConfidence: {{ $json.confidence }}\\nTimestamp: {{ $json.timestamp }}\\n\\nOrder Status: {{ $('Place Order (Alpaca)').all()[0].json.status || 'FAILED' }}"
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [["Get Portfolio from Sheets"]]
+    },
+    "Get Portfolio from Sheets": {
+      "main": [["Process Portfolio Positions"]]
+    },
+    "Process Portfolio Positions": {
+      "main": [["Get Market Signals", "Risk Assessment"]]
+    },
+    "Get Market Signals": {
+      "main": [["Trading Decision Logic"]]
+    },
+    "Risk Assessment": {
+      "main": [["Trading Decision Logic"]]
+    },
+    "Trading Decision Logic": {
+      "main": [["Place Order (Alpaca)"]]
+    },
+    "Place Order (Alpaca)": {
+      "main": [["Log Trade to Sheets"]]
+    },
+    "Log Trade to Sheets": {
+      "main": [["Send Email Notification"]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["trading", "mycroft", "execution", "alpaca"],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-15T12:00:00.000Z",
+  "versionId": "1.0"
+}

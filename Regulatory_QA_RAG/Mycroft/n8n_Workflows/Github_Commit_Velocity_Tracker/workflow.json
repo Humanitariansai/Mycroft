@@ -1,0 +1,772 @@
+{
+  "name": "GitHub Commit Velocity Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "id": "4f76acb1-2309-44e6-acee-16abe6e0636d",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "path": "run-github-pipeline",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1a6fa06a-b1f4-4b5f-8c29-9227aa2dcc47",
+      "name": "Manual Pipeline Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        384
+      ],
+      "webhookId": "run-github-pipeline"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Fetch Watchlist — returns the 7 AI watchlist companies.\n// Header auth on the webhook validates X-Pipeline-Secret = $env.PIPELINE_SECRET.\nconst watchlist = [\n  { ticker: \"NVDA\",  company: \"NVIDIA\",    org: \"NVIDIA\" },\n  { ticker: \"AMD\",   company: \"AMD\",       org: \"GPUOpen-Tools\" },\n  { ticker: \"INTC\",  company: \"Intel\",     org: \"intel\" },\n  { ticker: \"GOOGL\", company: \"Google\",    org: \"google\" },\n  { ticker: \"AAPL\",  company: \"Apple\",     org: \"apple\" },\n  { ticker: \"MSFT\",  company: \"Microsoft\", org: \"microsoft\" },\n  { ticker: \"META\",  company: \"Meta\",      org: \"facebookresearch\" }\n];\n\nreturn watchlist.map((w, idx) => ({ json: { ...w, index: idx } }));"
+      },
+      "id": "5131ec8c-186a-4c95-921d-c871e32ace20",
+      "name": "Fetch Watchlist",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/orgs/NVIDIA/repos?per_page=10&sort=pushed&type=public",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Investment-Intelligence/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d0e83032-227e-4b66-9002-6482e2120f53",
+      "name": "Fetch NVIDIA GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/orgs/GPUOpen-Tools/repos?per_page=10&sort=pushed&type=public",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Investment-Intelligence/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "15ea6806-91f4-4882-aac5-223186ab5310",
+      "name": "Fetch AMD GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/orgs/intel/repos?per_page=10&sort=pushed&type=public",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Investment-Intelligence/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "050b6bcb-7832-4e71-b76b-7eff9abc3743",
+      "name": "Fetch Intel GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/orgs/google/repos?per_page=10&sort=pushed&type=public",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Investment-Intelligence/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d1d960ba-f69f-46a1-851a-17e58f5c7905",
+      "name": "Fetch Google GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/orgs/apple/repos?per_page=10&sort=pushed&type=public",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Investment-Intelligence/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f04923d2-db6f-4aa3-9132-92acf8772e10",
+      "name": "Fetch Apple GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/orgs/microsoft/repos?per_page=10&sort=pushed&type=public",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Investment-Intelligence/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b29bdbae-556a-4ae1-9044-09b7cf38bea9",
+      "name": "Fetch Microsoft GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/orgs/facebookresearch/repos?per_page=10&sort=pushed&type=public",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mycroft-Investment-Intelligence/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6009b0d7-67b2-4116-8355-897aeb0472d4",
+      "name": "Fetch Meta GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 7
+      },
+      "id": "fb2520ab-a00d-4e1f-af6a-4f20dc8fe337",
+      "name": "Merge GitHub Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        320,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse & Calculate Velocity\n// Merge (mergeByPosition) yields one item per input position 0-6.\n// Each item is the GitHub /orgs/{org}/repos response (an array of repos)\n// OR a single repo object depending on how n8n wrapped it. We map by index.\nconst watchlist = [\n  { ticker: \"NVDA\",  company: \"NVIDIA\",    org: \"NVIDIA\" },\n  { ticker: \"AMD\",   company: \"AMD\",       org: \"GPUOpen-Tools\" },\n  { ticker: \"INTC\",  company: \"Intel\",     org: \"intel\" },\n  { ticker: \"GOOGL\", company: \"Google\",    org: \"google\" },\n  { ticker: \"AAPL\",  company: \"Apple\",     org: \"apple\" },\n  { ticker: \"MSFT\",  company: \"Microsoft\", org: \"microsoft\" },\n  { ticker: \"META\",  company: \"Meta\",      org: \"facebookresearch\" }\n];\n\nconst items = $input.all();\nconst now = Date.now();\nconst THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;\nconst out = [];\n\nfor (let i = 0; i < watchlist.length; i++) {\n  const wl = watchlist[i];\n  const raw = items[i] ? items[i].json : {};\n\n  // GitHub returns an array of repos. n8n may store it under a key or as the\n  // object itself. Normalize to an array of repo objects.\n  let repos = [];\n  if (Array.isArray(raw)) {\n    repos = raw;\n  } else if (Array.isArray(raw.data)) {\n    repos = raw.data;\n  } else if (raw && raw.name && raw.full_name) {\n    repos = [raw];\n  } else if (raw && typeof raw === 'object') {\n    // Fallback: collect numeric-keyed repo objects\n    const vals = Object.values(raw).filter(v => v && v.name && v.full_name);\n    if (vals.length) repos = vals;\n  }\n\n  const activeRepos = repos.filter(r => {\n    if (!r.pushed_at) return false;\n    return (now - new Date(r.pushed_at).getTime()) <= THIRTY_DAYS;\n  });\n\n  const total_stars = repos.reduce((s, r) => s + (r.stargazers_count || 0), 0);\n\n  let top_repo = null;\n  let maxStars = -1;\n  for (const r of repos) {\n    if ((r.stargazers_count || 0) > maxStars) {\n      maxStars = r.stargazers_count || 0;\n      top_repo = r.name;\n    }\n  }\n\n  const languages = [...new Set(repos.map(r => r.language).filter(Boolean))];\n  const repo_names = repos.slice(0, 10).map(r => r.name);\n\n  out.push({\n    json: {\n      ticker: wl.ticker,\n      company: wl.company,\n      org: wl.org,\n      total_repos_active: activeRepos.length,\n      total_stars,\n      top_repo,\n      languages,\n      repo_names\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "6d0c18c5-54f9-47c9-90b1-11a417b728af",
+      "name": "Parse & Calculate Velocity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Load Previous Run from Supabase\n// Pulls the most recent 7 signal rows to build a ticker -> previous metrics map.\nconst SUPABASE_URL = $env.SUPABASE_URL;\nconst SUPABASE_KEY = $env.SUPABASE_KEY;\n\nconst currentItems = $input.all();\n\nlet prevMap = {};\ntry {\n  const url = `${SUPABASE_URL}/rest/v1/github_signals?select=ticker,total_repos_active,total_stars,run_timestamp&order=run_timestamp.desc&limit=7`;\n  const res = await this.helpers.httpRequest({\n    method: 'GET',\n    url,\n    headers: {\n      apikey: SUPABASE_KEY,\n      Authorization: `Bearer ${SUPABASE_KEY}`,\n      Accept: 'application/json'\n    },\n    json: true\n  });\n  const rows = Array.isArray(res) ? res : [];\n  for (const row of rows) {\n    // Keep only the first (most recent) row seen per ticker.\n    if (!prevMap[row.ticker]) {\n      prevMap[row.ticker] = {\n        total_repos_active: row.total_repos_active,\n        total_stars: row.total_stars,\n        run_timestamp: row.run_timestamp\n      };\n    }\n  }\n} catch (e) {\n  // No previous data / table empty / network error -> treat as first run.\n  prevMap = {};\n}\n\n// Attach the previous map to every current company record.\nreturn currentItems.map(item => ({\n  json: {\n    ...item.json,\n    _previous: prevMap[item.json.ticker] || null\n  }\n}));"
+      },
+      "id": "1e74f6d6-78ef-4d68-a326-ef6f344dfac0",
+      "name": "Load Previous Run from Supabase",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate Week-over-Week Delta\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const prev = j._previous;\n  const current = j.total_repos_active || 0;\n  const currentStars = j.total_stars || 0;\n\n  const is_first_run = !prev;\n  const prevRepos = prev ? (prev.total_repos_active || 0) : 0;\n  const prevStars = prev ? (prev.total_stars || 0) : 0;\n\n  const repos_delta = current - prevRepos;\n  const stars_delta = currentStars - prevStars;\n\n  let velocity_direction;\n  if (is_first_run) {\n    velocity_direction = 'STABLE';\n  } else if (repos_delta > 2) {\n    velocity_direction = 'ACCELERATING';\n  } else if (repos_delta < -2) {\n    velocity_direction = 'DECELERATING';\n  } else {\n    velocity_direction = 'STABLE';\n  }\n\n  let delta_pct;\n  if (is_first_run || prevRepos === 0) {\n    delta_pct = 0;\n  } else {\n    delta_pct = parseFloat((((current - prevRepos) / prevRepos) * 100).toFixed(1));\n  }\n\n  const { _previous, ...rest } = j;\n  out.push({\n    json: {\n      ...rest,\n      repos_delta,\n      stars_delta,\n      velocity_direction,\n      delta_pct,\n      is_first_run,\n      prev_total_repos_active: prevRepos,\n      prev_total_stars: prevStars\n    }\n  });\n}\nreturn out;"
+      },
+      "id": "d3b35ea1-c2cc-452e-84c5-819c2ee4e622",
+      "name": "Calculate Week-over-Week Delta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate for Groq\n// Build a compact summary of all 7 companies for the classifier, and carry\n// the full per-company records forward so later nodes can re-read them.\nconst companies = $input.all().map(i => i.json);\n\nconst summary = companies.map(c => ({\n  ticker: c.ticker,\n  company: c.company,\n  total_repos_active: c.total_repos_active,\n  total_stars: c.total_stars,\n  top_repo: c.top_repo,\n  languages: c.languages,\n  repo_names: c.repo_names,\n  velocity_direction: c.velocity_direction,\n  delta_pct: c.delta_pct,\n  repos_delta: c.repos_delta\n}));\n\nreturn [{\n  json: {\n    companies,        // full records preserved for downstream nodes\n    summary,          // compact slice for the LLM\n    summary_json: JSON.stringify(summary, null, 2)\n  }\n}];"
+      },
+      "id": "843bedbd-8bff-4dc7-8380-8a34ee0307a2",
+      "name": "Aggregate for Groq",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GROQ_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.1,\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an engineering intelligence analyst. Return valid JSON only. No markdown, no preamble.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyze the weekly GitHub engineering activity for these AI watchlist companies and return a JSON array. For each company return an object with EXACTLY these fields: ticker (string), activity_classification (one of HIGHLY_ACTIVE, ACTIVE, MODERATE, LOW_ACTIVITY), momentum_signal (one of BUILDING, MAINTAINING, SLOWING, PIVOTING), key_observation (one sentence string), notable_repos (array of 1-2 repo name strings), risk_flag (boolean — true if engineering activity looks concerning, e.g. sharp deceleration or near-silence). Return ONLY the JSON array keyed by ticker, nothing else.\\n\\nData:\\n{{ $json.summary_json }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "93d5b93b-aa0b-4b8b-8faa-278309abec62",
+      "name": "Groq: Activity Classifier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1488,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Groq Response\nlet parsed = null;\ntry {\n  const resp = $input.first().json;\n  let content = resp?.choices?.[0]?.message?.content || '';\n  // Strip ```json ... ``` or ``` ... ``` fences.\n  content = content.trim()\n    .replace(/^```json\\s*/i, '')\n    .replace(/^```\\s*/i, '')\n    .replace(/```\\s*$/i, '')\n    .trim();\n  parsed = JSON.parse(content);\n} catch (e) {\n  parsed = null;\n}\n\n// Pull the previously-computed company data from Aggregate for Groq.\nconst agg = $('Aggregate for Groq').first().json;\nconst companies = agg.companies || [];\n\nreturn [{\n  json: {\n    groq_parsed: parsed,        // array or null\n    groq_ok: parsed !== null,\n    companies\n  }\n}];"
+      },
+      "id": "6cdab3a6-be8b-4881-af0a-02a7ad14f789",
+      "name": "Parse Groq Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Signal Assembler\n// Merge Groq output into company records by ticker, mint one agent_run_id\n// for the whole run, compute the ISO week, and emit one item per company.\n\nfunction uuidv4() {\n  // Deterministic-ish RFC4122 v4 generator (crypto-free for n8n sandbox).\n  let d = new Date().getTime();\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {\n    const r = (d + Math.random() * 16) % 16 | 0;\n    d = Math.floor(d / 16);\n    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);\n  });\n}\n\nfunction isoWeek(date) {\n  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));\n  const dayNum = (d.getUTCDay() + 6) % 7; // Mon=0..Sun=6\n  d.setUTCDate(d.getUTCDate() - dayNum + 3); // nearest Thursday\n  const firstThursday = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));\n  const firstDayNum = (firstThursday.getUTCDay() + 6) % 7;\n  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDayNum + 3);\n  const week = 1 + Math.round((d - firstThursday) / (7 * 24 * 60 * 60 * 1000));\n  return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;\n}\n\nconst input = $input.first().json;\nconst companies = input.companies || [];\nconst groq = Array.isArray(input.groq_parsed) ? input.groq_parsed : [];\n\nconst groqByTicker = {};\nfor (const g of groq) {\n  if (g && g.ticker) groqByTicker[g.ticker] = g;\n}\n\nconst run_timestamp = new Date().toISOString();\nconst agent_run_id = uuidv4();\nconst run_week = isoWeek(new Date());\n\nlet acceleratingCount = 0;\nlet deceleratingCount = 0;\nlet riskFlagCount = 0;\n\nconst records = companies.map(c => {\n  const g = groqByTicker[c.ticker] || {};\n  const risk_flag = g.risk_flag === true;\n\n  if (c.velocity_direction === 'ACCELERATING') acceleratingCount++;\n  if (c.velocity_direction === 'DECELERATING') deceleratingCount++;\n  if (risk_flag) riskFlagCount++;\n\n  return {\n    ticker: c.ticker,\n    company: c.company,\n    run_timestamp,\n    run_week,\n    agent_run_id,\n    total_repos_active: c.total_repos_active,\n    total_stars: c.total_stars,\n    top_repo: c.top_repo,\n    languages: c.languages || [],\n    repo_names: c.repo_names || [],\n    velocity_direction: c.velocity_direction,\n    delta_pct: c.delta_pct,\n    repos_delta: c.repos_delta,\n    stars_delta: c.stars_delta,\n    activity_classification: g.activity_classification || 'MODERATE',\n    momentum_signal: g.momentum_signal || 'MAINTAINING',\n    key_observation: g.key_observation || 'No classification available for this run.',\n    notable_repos: Array.isArray(g.notable_repos) ? g.notable_repos : [],\n    risk_flag,\n    is_first_run: c.is_first_run === true,\n    // run-level summary carried on every record for downstream report nodes\n    _run_summary: { acceleratingCount, deceleratingCount, riskFlagCount, agent_run_id, run_week, run_timestamp }\n  };\n});\n\n// Re-stamp the final (complete) run summary onto every record.\nconst runSummary = { acceleratingCount, deceleratingCount, riskFlagCount, agent_run_id, run_week, run_timestamp };\nreturn records.map(r => ({ json: { ...r, _run_summary: runSummary } }));"
+      },
+      "id": "77f49ab8-e073-4da1-a03d-af0ed74e07d3",
+      "name": "Signal Assembler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert"
+      },
+      "id": "eab49325-6ddf-470c-9a4b-c30c03ce9f30",
+      "name": "Upsert to Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2208,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate Report — build the full markdown signal report.\nconst records = $input.all().map(i => i.json);\nif (!records.length) {\n  return [{ json: { report: '# GitHub Commit Velocity Tracker — No data', runId: null, companies_tracked: 0, accelerating_count: 0, decelerating_count: 0, risk_flag_count: 0 } }];\n}\n\nconst summary = records[0]._run_summary || {};\nconst runId = summary.agent_run_id || 'unknown';\nconst run_week = summary.run_week || 'unknown';\nconst run_timestamp = summary.run_timestamp || new Date().toISOString();\n\nconst acceleratingCount = summary.acceleratingCount || 0;\nconst deceleratingCount = summary.deceleratingCount || 0;\nconst riskFlagCount = summary.riskFlagCount || 0;\nconst stableCount = records.filter(r => r.velocity_direction === 'STABLE').length;\n\nconst esc = (v) => (v === null || v === undefined || v === '') ? '—' : String(v);\nconst pct = (r) => `${r.delta_pct > 0 ? '+' : ''}${esc(r.delta_pct)}%`;\nconst joinArr = (a) => (Array.isArray(a) && a.length) ? a.join(', ') : '—';\n\nlet md = '';\nmd += '# GitHub Commit Velocity Tracker — Signal Report\\n\\n';\nmd += `**Run ID:** \\`${runId}\\`  \\n`;\nmd += `**Generated:** ${run_timestamp}  \\n`;\nmd += `**Period:** ${run_week}\\n\\n`;\nmd += '---\\n\\n';\n\n// Executive Summary\nmd += '## Executive Summary\\n\\n';\nmd += '| Metric | Value |\\n|---|---|\\n';\nmd += `| Companies tracked | ${records.length} |\\n`;\nmd += `| Accelerating | ${acceleratingCount} |\\n`;\nmd += `| Stable | ${stableCount} |\\n`;\nmd += `| Decelerating | ${deceleratingCount} |\\n`;\nmd += `| Risk flags | ${riskFlagCount} |\\n\\n`;\n\n// Engineering Velocity Rankings\nmd += '## Engineering Velocity Rankings\\n\\n';\nconst ranked = [...records].sort((a, b) => (b.total_repos_active || 0) - (a.total_repos_active || 0));\nranked.forEach((r, i) => {\n  md += `### ${i + 1}. ${esc(r.company)} (${esc(r.ticker)})\\n\\n`;\n  md += `- **Velocity:** ${esc(r.velocity_direction)} (${pct(r)})\\n`;\n  md += `- **Activity:** ${esc(r.activity_classification)}\\n`;\n  md += `- **Momentum:** ${esc(r.momentum_signal)}\\n`;\n  md += `- **Active repos:** ${esc(r.total_repos_active)} | **Stars:** ${esc(r.total_stars)}\\n`;\n  md += `- **Observation:** ${esc(r.key_observation)}\\n`;\n  md += `- **Top repo:** ${esc(r.top_repo)}\\n`;\n  md += `- **Notable repos:** ${joinArr(r.notable_repos)}\\n`;\n  md += `- **Risk flag:** ${r.risk_flag ? '⚠️ YES' : 'no'}\\n\\n`;\n});\n\n// Accelerating Companies\nmd += '## Accelerating Companies\\n\\n';\nconst accel = records.filter(r => r.velocity_direction === 'ACCELERATING');\nif (accel.length) {\n  accel.forEach(r => { md += `- **${esc(r.company)} (${esc(r.ticker)})** — ${pct(r)}, ${esc(r.activity_classification)} — ${esc(r.key_observation)}\\n`; });\n} else {\n  md += '_No companies accelerating this period._\\n';\n}\nmd += '\\n';\n\n// Risk Flags\nmd += '## Risk Flags\\n\\n';\nconst risks = records.filter(r => r.risk_flag === true);\nif (risks.length) {\n  risks.forEach(r => { md += `- ⚠️ **${esc(r.company)} (${esc(r.ticker)})** — ${esc(r.momentum_signal)} — ${esc(r.key_observation)}\\n`; });\n} else {\n  md += '_No risk flags this period._\\n';\n}\nmd += '\\n';\n\n// Week-over-Week Delta Table\nmd += '## Week-over-Week Delta Table\\n\\n';\nmd += '| Company | Ticker | Repos This Week | Repos Last Week | Delta | Direction |\\n';\nmd += '|---|---|---|---|---|---|\\n';\nrecords.forEach(r => {\n  const last = (r.total_repos_active || 0) - (r.repos_delta || 0);\n  md += `| ${esc(r.company)} | ${esc(r.ticker)} | ${esc(r.total_repos_active)} | ${r.is_first_run ? '—' : last} | ${r.repos_delta > 0 ? '+' : ''}${esc(r.repos_delta)} | ${esc(r.velocity_direction)} |\\n`;\n});\nmd += '\\n';\n\n// Language Landscape\nmd += '## Language Landscape\\n\\n';\nrecords.forEach(r => {\n  md += `- **${esc(r.company)} (${esc(r.ticker)}):** ${joinArr(r.languages)}\\n`;\n});\nmd += '\\n';\n\n// Known Limitations\nmd += '## Known Limitations\\n\\n';\nmd += '- Top 10 repos per org only — deeper backlogs are not sampled.\\n';\nmd += '- Repos delta is an activity proxy, not a raw commit count.\\n';\nmd += '- First run has no week-over-week comparison.\\n';\nmd += '- GitHub token required (5,000 req/hr authenticated).\\n\\n';\n\nmd += '---\\n\\n';\nmd += '_Mycroft — GitHub Commit Velocity Tracker | Agent 4_  \\n';\nmd += '_Stack: n8n + GitHub REST API + Groq + Supabase_\\n';\n\nreturn [{\n  json: {\n    report: md,\n    runId,\n    companies_tracked: records.length,\n    accelerating_count: acceleratingCount,\n    decelerating_count: deceleratingCount,\n    risk_flag_count: riskFlagCount\n  }\n}];"
+      },
+      "id": "aa18c608-2b2e-4db1-a978-19c6ec87b0d9",
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "0ca15125-81b6-496f-95df-5fcc2c9d8556",
+      "name": "Store Report in Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2688,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Generate Report').first().json.report }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/markdown"
+              }
+            ]
+          }
+        }
+      },
+      "id": "2aeef2e7-38b4-40d2-8ea8-4be3f859e23a",
+      "name": "Pipeline Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2928,
+        256
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Pipeline Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch NVIDIA GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch AMD GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Intel GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Google GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Apple GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Microsoft GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Meta GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch NVIDIA GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge GitHub Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch AMD GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge GitHub Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch Intel GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge GitHub Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Fetch Google GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge GitHub Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Fetch Apple GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge GitHub Results",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Fetch Microsoft GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge GitHub Results",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Fetch Meta GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge GitHub Results",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Merge GitHub Results": {
+      "main": [
+        [
+          {
+            "node": "Parse & Calculate Velocity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Calculate Velocity": {
+      "main": [
+        [
+          {
+            "node": "Load Previous Run from Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Previous Run from Supabase": {
+      "main": [
+        [
+          {
+            "node": "Calculate Week-over-Week Delta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Week-over-Week Delta": {
+      "main": [
+        [
+          {
+            "node": "Aggregate for Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate for Groq": {
+      "main": [
+        [
+          {
+            "node": "Groq: Activity Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq: Activity Classifier": {
+      "main": [
+        [
+          {
+            "node": "Parse Groq Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Groq Response": {
+      "main": [
+        [
+          {
+            "node": "Signal Assembler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signal Assembler": {
+      "main": [
+        [
+          {
+            "node": "Upsert to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Store Report in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Report in Supabase": {
+      "main": [
+        [
+          {
+            "node": "Pipeline Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5c02da6e-b31d-48b2-b6e7-5393e4feeafa",
+  "meta": {
+    "instanceId": "f92ba833cfc01dd064a94201fa4bb20b3305c9c67348abfd124c90886d0575b8"
+  },
+  "id": "PHc9wOKkoIivG3rX",
+  "tags": [
+    {
+      "createdAt": "2026-06-15T18:33:54.815Z",
+      "updatedAt": "2026-06-15T18:33:54.815Z",
+      "id": "P8dQHhDADapCADQb",
+      "name": "Mycroft"
+    },
+    {
+      "name": "Agent 4",
+      "id": "iIB52ExdLWFIV2XO",
+      "createdAt": "2026-06-17T03:48:38.907Z",
+      "updatedAt": "2026-06-17T03:48:38.907Z"
+    }
+  ]
+}

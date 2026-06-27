@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# OS
+.DS_Store
+
+# Secrets — never commit an API key
+.env
+*.env
+
+# Generated data artifacts (rebuilt by the Phase 1 steps in README.md)
+mock-analytics/raw/*.parquet
+mock-analytics/*.duckdb
+mock-analytics/target/
+mock-analytics/dbt_packages/
+mock-analytics/logs/
+
+# Docker volume data is managed by Docker, not the repo

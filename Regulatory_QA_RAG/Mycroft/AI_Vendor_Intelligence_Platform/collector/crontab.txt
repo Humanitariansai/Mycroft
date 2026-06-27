@@ -1,0 +1,15 @@
+# AI Vendor Intelligence Platform — collector crontab
+# Install with:  crontab collector/crontab.txt
+# Logs land in:  /var/log/mycroft/   (create with: sudo mkdir -p /var/log/mycroft && sudo chown ec2-user /var/log/mycroft)
+
+# EDGAR filings — every 6 hours (public companies only; respects SEC rate limits)
+0 */6 * * * cd /home/ec2-user/mycroft-vendor-lens && python3 collector/edgar_collector.py >> /var/log/mycroft/edgar.log 2>&1
+
+# GitHub activity — every 4 hours (release velocity + star counts)
+0 */4 * * * cd /home/ec2-user/mycroft-vendor-lens && python3 collector/github_collector.py >> /var/log/mycroft/github.log 2>&1
+
+# ArXiv papers — daily at 8 AM UTC (low churn; one sweep per day is enough)
+0 8 * * * cd /home/ec2-user/mycroft-vendor-lens && python3 collector/arxiv_collector.py >> /var/log/mycroft/arxiv.log 2>&1
+
+# News signals — every 2 hours (highest signal freshness requirement)
+0 */2 * * * cd /home/ec2-user/mycroft-vendor-lens && python3 collector/news_collector.py >> /var/log/mycroft/news.log 2>&1

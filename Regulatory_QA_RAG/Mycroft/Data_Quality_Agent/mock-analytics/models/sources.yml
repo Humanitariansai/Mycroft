@@ -1,0 +1,76 @@
+version: 2
+
+sources:
+  - name: app_service
+    description: "Operational tables from mock-app-service, extracted to Parquet by scripts/load_from_postgres.py and exposed to DuckDB as external tables."
+    meta:
+      external_location: "read_parquet('raw/{name}.parquet')"
+    tables:
+      - name: users
+        description: "Operational users table. Note: `signup_date` is the planted Scenario 1 trap."
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: email
+            tests:
+              - not_null
+          - name: signup_date
+            description: "When the user signed up. Scenario 1's PR renames this to created_at."
+
+      - name: accounts
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: owner_user_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('app_service', 'users')
+                  field: id
+
+      - name: subscriptions
+        description: "Operational subscriptions. `amount_cents` (Scenario 2 trap) and `status` enum (Scenario 3 trap) are both load-bearing."
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: account_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('app_service', 'accounts')
+                  field: id
+          - name: amount_cents
+            description: "Subscription price in **cents**. stg_subscriptions divides by 100 to produce dollars. Scenario 2 renames this and changes the unit; the staging model must change in lockstep."
+            tests:
+              - not_null
+          - name: status
+            description: "Enum: active, trialing, cancelled. Scenario 3 adds 'paused' — fct_mrr's filter must be updated."
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ["active", "trialing", "cancelled"]
+                  config:
+                    severity: warn
+
+      - name: transactions
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: account_id
+            tests:
+              - not_null
+
+      - name: events
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null

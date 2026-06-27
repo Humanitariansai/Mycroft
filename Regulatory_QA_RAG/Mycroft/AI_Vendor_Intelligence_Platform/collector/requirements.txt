@@ -1,0 +1,31 @@
+# Database
+psycopg2-binary~=2.9
+python-dotenv~=1.0
+
+# SEC EDGAR
+edgartools~=4.0
+
+# GitHub
+PyGithub~=2.0
+
+# ArXiv
+arxiv~=1.4
+
+# News / HTTP
+requests~=2.31
+feedparser~=6.0
+
+# LLM — Groq inference
+groq~=0.4
+
+# Observability — Langfuse tracing
+langfuse~=2.0
+
+# AWS — Bedrock agents
+boto3~=1.28
+
+# Graph database — Neo4j
+neo4j~=5.0
+
+# Data utilities
+pandas~=2.0

@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+backend/data/raw_docs/*
+backend/data/vector_store/*
+.env
+.DS_Store
