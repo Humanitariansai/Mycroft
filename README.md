@@ -76,3 +76,43 @@ This approach distinguishes Mycroft from commercial "black box" systems that mak
 As artificial intelligence continues to transform industries worldwide, the Mycroft educational experiment offers a compelling example of how open-source development can contribute to our collective understanding of AI applications. By building and testing a recursive intelligence that helps investors navigate the very technological revolution it embodies, we're creating an educational platform that discovers what actually works.
 
 Whether some of Mycroft's experimental approaches will prove effective remains to be seen—that's the nature of educational experimentation. But in combining specialized AI agents under the coordination of a sophisticated orchestration layer, the framework represents a significant opportunity for collaborative learning—one that could help individual investors have a better understand the AI revolution reshaping our world.
+
+---
+
+## Congressional Trade Signal Module
+
+> *"They write the laws. They also trade the stocks."*
+
+An experimental intelligence agent that scrapes U.S. congressional STOCK Act disclosures,
+enriches them with equity price data, and surfaces investment signals through an
+AI-readable MCP server — a concrete implementation of Mycroft's Intelligence Agent concept.
+
+**Key finding (3,336 trades, 14 members, May 2023–May 2026):**
+
+| Signal type | Raw return | Alpha vs SPY |
+|------------|-----------|-------------|
+| All BUY trades (n=1,147) | +2.32% | **−1.59%** |
+| Semiconductor cluster buys | +9.4%–+77.7% | **+11%–+69%** |
+| High-signal filter (n=43) | — | **+11.2%** |
+
+See [`CONGRESSIONAL_SIGNALS_README.md`](CONGRESSIONAL_SIGNALS_README.md) for full documentation,
+[`PAPER_DRAFT.md`](PAPER_DRAFT.md) for the academic paper, and [`dashboard.html`](dashboard.html)
+for the interactive visualization.
+
+### Module files
+
+| File | Purpose |
+|------|---------|
+| `scraper.py` | Selenium headless Chrome pipeline — Capitol Trades → `data/trades.csv` |
+| `enricher.py` | Adds yfinance price columns → `data/enriched_trades.csv` |
+| `market_adjusted.py` | Per-trade SPY benchmark → `abnormal_return` column |
+| `server.py` | FastMCP server with 5 signal tools |
+| `dashboard.html` | Standalone Chart.js dashboard |
+| `PAPER_DRAFT.md` | Academic paper draft |
+
+```bash
+pip install -r requirements.txt
+python scraper.py        # scrape disclosures
+python enricher.py       # add price data
+python market_adjusted.py  # compute alpha
+```

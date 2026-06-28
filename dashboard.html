@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Congressional Trade Signals — Mycroft</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff;
+      --bg2: #f7f7f5;
+      --bg3: #f0efe8;
+      --text: #1a1a18;
+      --text2: #5f5e5a;
+      --text3: #888780;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.2);
+      --green: #639922;
+      --green-light: #97C459;
+      --green-bg: #eaf3de;
+      --red: #E24B4A;
+      --red-light: #F09595;
+      --red-bg: #fcebeb;
+      --blue: #185FA5;
+      --blue-bg: #e6f1fb;
+      --amber: #BA7517;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #242422;
+        --bg3: #2c2c2a;
+        --text: #f0efe8;
+        --text2: #b4b2a9;
+        --text3: #888780;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.18);
+        --green-bg: #1e2e10;
+        --red-bg: #2e1414;
+        --blue-bg: #0c1e38;
+      }
+    }
+    body {
+      background: var(--bg3);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 24px 16px 48px;
+    }
+    .page { max-width: 960px; margin: 0 auto; }
+    .header { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 0.5px solid var(--border); }
+    .header-eyebrow { font-size: 11px; color: var(--text3); letter-spacing: 0.06em; margin-bottom: 4px; }
+    .header h1 { font-size: 26px; font-weight: 500; margin-bottom: 4px; }
+    .header p { font-size: 13px; color: var(--text2); }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .kpi-card { background: var(--bg); border-radius: var(--radius); padding: 14px 16px; border: 0.5px solid var(--border); }
+    .kpi-card .label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+    .kpi-card .value { font-size: 24px; font-weight: 500; }
+    .kpi-card .sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .compare-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+    .compare-card.featured { border: 2px solid var(--green-light); }
+    .compare-card .card-title { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 12px; }
+    .compare-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .compare-row .row-label { font-size: 12px; color: var(--text2); }
+    .compare-row .row-val { font-size: 13px; font-weight: 500; }
+    .compare-divider { border-top: 0.5px solid var(--border); margin: 10px 0 8px; }
+    .compare-alpha { display: flex; justify-content: space-between; align-items: center; }
+    .compare-alpha .alpha-label { font-size: 12px; color: var(--text2); }
+    .compare-alpha .alpha-val { font-size: 20px; font-weight: 500; }
+    .section-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; font-size: 12px; color: var(--text2); }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+    .chart-wrap { position: relative; width: 100%; margin-bottom: 24px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+    .table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+    thead tr { background: var(--bg2); border-bottom: 0.5px solid var(--border); }
+    th { padding: 9px 14px; text-align: left; font-weight: 500; color: var(--text2); }
+    th.r { text-align: right; }
+    th.c { text-align: center; }
+    tbody tr { border-bottom: 0.5px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 9px 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td.r { text-align: right; color: var(--text2); }
+    td.c { text-align: center; }
+    .alpha-pos { color: #3B6D11; font-weight: 500; }
+    .alpha-neg { color: #A32D2D; font-weight: 500; }
+    .no-data { color: var(--text3); font-style: italic; font-size: 12px; }
+    .mini-bar-wrap { height: 7px; background: var(--bg2); border-radius: 4px; overflow: hidden; display: flex; }
+    .mini-bar { height: 100%; border-radius: 4px; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; }
+    .badge-green { background: var(--green-bg); color: #3B6D11; }
+    .badge-amber { background: #faeeda; color: #854F0B; }
+    .badge-red { background: var(--red-bg); color: #A32D2D; }
+    .badge-gray { background: var(--bg2); color: var(--text3); }
+    .footnote { font-size: 12px; color: var(--text3); margin-top: 8px; }
+    .section-gap { margin-bottom: 24px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .foot { border-top: 0.5px solid var(--border); margin-top: 32px; padding-top: 16px; font-size: 12px; color: var(--text3); }
+    @media (max-width: 640px) {
+      .compare-grid, .two-col { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <p class="header-eyebrow">MYCROFT · CONGRESSIONAL TRADE SIGNAL MODULE · STOCK ACT ANALYSIS 2023–2026</p>
+    <h1>Congressional trade signals</h1>
+    <p>14 members scraped · 3,336 trades · 30-day post-disclosure returns, market-adjusted vs SPY</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="label">Members analyzed</div>
+      <div class="value">14</div>
+      <div class="sub">of 187 targeted</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">Total trades</div>
+      <div class="value">3,336</div>
+      <div class="sub">BUY + SELL</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">Priced trades</div>
+      <div class="value">2,048</div>
+      <div class="sub">61.4% coverage</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">Avg BUY alpha</div>
+      <div class="value" style="color:#A32D2D;">−1.59%</div>
+      <div class="sub">vs SPY same window</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">SPY 30d avg</div>
+      <div class="value" style="color:#185FA5;">+3.73%</div>
+      <div class="sub">disclosure windows</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">Top cluster alpha</div>
+      <div class="value" style="color:#3B6D11;">+68.9%</div>
+      <div class="sub">DDOG, 2 politicians</div>
+    </div>
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card">
+      <div class="card-title">BUY trades (n=1,147)</div>
+      <div class="compare-row"><span class="row-label">Raw return</span><span class="row-val">+2.32%</span></div>
+      <div class="compare-row"><span class="row-label">SPY same window</span><span class="row-val" style="color:#185FA5;">+3.91%</span></div>
+      <div class="compare-divider"></div>
+      <div class="compare-alpha"><span class="alpha-label">Alpha vs SPY</span><span class="alpha-val" style="color:#A32D2D;">−1.59%</span></div>
+    </div>
+    <div class="compare-card">
+      <div class="card-title">SELL trades (n=897)</div>
+      <div class="compare-row"><span class="row-label">Raw return</span><span class="row-val">+2.86%</span></div>
+      <div class="compare-row"><span class="row-label">SPY same window</span><span class="row-val" style="color:#185FA5;">+3.50%</span></div>
+      <div class="compare-divider"></div>
+      <div class="compare-alpha"><span class="alpha-label">Alpha vs SPY</span><span class="alpha-val" style="color:#A32D2D;">−0.64%</span></div>
+    </div>
+    <div class="compare-card featured">
+      <div class="card-title">High-signal filter (n=43)</div>
+      <div class="compare-row"><span class="row-label">Cluster size ≥ 2</span><span class="row-val" style="color:var(--text3);">required</span></div>
+      <div class="compare-row"><span class="row-label">Buy-conviction ratio &gt; 0.65</span><span class="row-val" style="color:var(--text3);">required</span></div>
+      <div class="compare-divider"></div>
+      <div class="compare-alpha"><span class="alpha-label">Avg return</span><span class="alpha-val" style="color:#3B6D11;">+11.2%</span></div>
+    </div>
+  </div>
+
+  <div class="section-gap">
+    <div class="section-title">Cluster signal alpha vs SPY — 2+ politicians bought same ticker within 30-day window</div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#97C459;"></span>Beat SPY (positive alpha)</span>
+      <span><span class="legend-dot" style="background:#F09595;"></span>Lagged SPY (negative alpha)</span>
+      <span style="color:var(--text3);">Number in parentheses = politicians in cluster</span>
+    </div>
+    <div class="chart-wrap">
+      <div style="position:relative;height:580px;">
+        <canvas id="clusterChart" role="img" aria-label="Horizontal bar chart of cluster signal alpha vs SPY. DDOG +68.94% leads, LULU -23.06% is worst.">DDOG +68.94%, SNDK +63.07%, INTC +31.81%, MU +26.65%, ENTG +15.84%, GEV +14.23%, PANW +14.17%, VRT +11.76%, AMD +11.55%, CSCO +11.41%. Worst: CTSH -22.79%, LULU -23.06%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-gap">
+    <div class="section-title">Politician leaderboard — BUY trades, market-adjusted alpha (all 14 members)</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:26%;">Politician</th>
+            <th class="r" style="width:10%;">Buys</th>
+            <th class="r" style="width:10%;">Priced</th>
+            <th class="r" style="width:12%;">Raw</th>
+            <th class="r" style="width:12%;">Alpha</th>
+            <th class="r" style="width:10%;">Win%</th>
+            <th style="width:20%;">Alpha bar</th>
+          </tr>
+        </thead>
+        <tbody id="pol-tbody"></tbody>
+      </table>
+    </div>
+    <p class="footnote">* n &lt; 20 priced trades: insufficient sample for statistical inference. Alpha = raw return minus SPY over exact same 30-day window per trade. Bar scaled to ±20%. — = no priced buy data available.</p>
+  </div>
+
+  <div class="section-gap">
+    <div class="section-title">Aggregate overview — raw return vs SPY baseline</div>
+    <div class="chart-wrap">
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;font-size:12px;color:var(--text2);">
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#B5D4F4;border:1px solid #378ADD;"></span>Raw 30d return</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#FAC775;border:1px solid #BA7517;"></span>SPY same window</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#F09595;border:1px solid #E24B4A;"></span>Alpha (raw minus SPY)</span>
+      </div>
+      <div style="position:relative;height:220px;">
+        <canvas id="aggChart" role="img" aria-label="Grouped bar chart: BUY trades raw +2.32%, SPY +3.91%, alpha -1.59%. SELL trades raw +2.86%, SPY +3.50%, alpha -0.64%.">BUY: raw +2.32%, SPY +3.91%, alpha -1.59%. SELL: raw +2.86%, SPY +3.50%, alpha -0.64%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>Data source: Capitol Trades (capitoltrades.com) · Price data: Yahoo Finance via yfinance · Analysis period: May 2023 – May 2026</p>
+    <p style="margin-top:4px;">Mycroft — Congressional Trade Signal Module · Open source educational experiment · <a href="https://github.com/Humanitariansai/Mycroft" style="color:var(--blue);">github.com/Humanitariansai/Mycroft</a></p>
+  </div>
+
+</div>
+
+<script>
+const clusterData = [
+  {ticker:'DDOG',name:'Datadog',alpha:68.94,pols:2},
+  {ticker:'SNDK',name:'SanDisk',alpha:63.07,pols:2},
+  {ticker:'INTC',name:'Intel',alpha:31.81,pols:3},
+  {ticker:'MU',name:'Micron',alpha:26.65,pols:2},
+  {ticker:'ENTG',name:'Entegris',alpha:15.84,pols:2},
+  {ticker:'GEV',name:'GE Vernova',alpha:14.23,pols:2},
+  {ticker:'PANW',name:'Palo Alto Ntwks',alpha:14.17,pols:2},
+  {ticker:'VRT',name:'Vertiv',alpha:11.76,pols:2},
+  {ticker:'AMD',name:'AMD',alpha:11.55,pols:3},
+  {ticker:'CSCO',name:'Cisco',alpha:11.41,pols:4},
+  {ticker:'APO',name:'Apollo Global',alpha:9.24,pols:2},
+  {ticker:'GLW',name:'Corning',alpha:8.13,pols:2},
+  {ticker:'GOOGL',name:'Alphabet',alpha:8.13,pols:4},
+  {ticker:'AMZN',name:'Amazon',alpha:7.10,pols:3},
+  {ticker:'UNH',name:'UnitedHealth',alpha:6.14,pols:5},
+  {ticker:'AVGO',name:'Broadcom',alpha:5.89,pols:5},
+  {ticker:'EFX',name:'Equifax',alpha:-12.79,pols:2},
+  {ticker:'BSX',name:'Boston Scientific',alpha:-13.73,pols:3},
+  {ticker:'CTSH',name:'Cognizant',alpha:-22.79,pols:2},
+  {ticker:'LULU',name:'Lululemon',alpha:-23.06,pols:2},
+];
+
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const tc = isDark ? '#888780' : '#888780';
+const gc = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+new Chart(document.getElementById('clusterChart'), {
+  type: 'bar',
+  data: {
+    labels: clusterData.map(d => `${d.ticker}  (${d.pols})`),
+    datasets: [{
+      label: 'Alpha vs SPY',
+      data: clusterData.map(d => d.alpha),
+      backgroundColor: clusterData.map(d => d.alpha >= 0 ? '#97C459' : '#F09595'),
+      borderColor: clusterData.map(d => d.alpha >= 0 ? '#639922' : '#E24B4A'),
+      borderWidth: 1,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {display: false},
+      tooltip: {
+        callbacks: {
+          title: items => {
+            const d = clusterData[items[0].dataIndex];
+            return `${d.ticker} — ${d.name}`;
+          },
+          label: ctx => ` Alpha vs SPY: ${ctx.raw >= 0 ? '+' : ''}${ctx.raw.toFixed(2)}%  ·  ${clusterData[ctx.dataIndex].pols} politicians`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: {color: gc},
+        ticks: {callback: v => (v >= 0 ? '+' : '') + v + '%', color: tc, font: {size: 11}},
+        border: {display: false}
+      },
+      y: {
+        grid: {display: false},
+        ticks: {color: tc, font: {size: 12, weight: '500'}},
+        border: {display: false}
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('aggChart'), {
+  type: 'bar',
+  data: {
+    labels: ['BUY trades (n=1,147)', 'SELL trades (n=897)'],
+    datasets: [
+      {label:'Raw return', data:[2.32,2.86], backgroundColor:'#B5D4F4', borderColor:'#378ADD', borderWidth:1, borderRadius:3},
+      {label:'SPY same window', data:[3.91,3.50], backgroundColor:'#FAC775', borderColor:'#BA7517', borderWidth:1, borderRadius:3},
+      {label:'Alpha', data:[-1.59,-0.64], backgroundColor:'#F09595', borderColor:'#E24B4A', borderWidth:1, borderRadius:3},
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {display: false},
+      tooltip: {
+        callbacks: {label: ctx => ` ${ctx.dataset.label}: ${ctx.raw >= 0 ? '+' : ''}${ctx.raw.toFixed(2)}%`}
+      }
+    },
+    scales: {
+      x: {grid: {display: false}, ticks: {color: tc, font: {size: 12}}, border: {display: false}},
+      y: {
+        grid: {color: gc},
+        ticks: {callback: v => (v >= 0 ? '+' : '') + v + '%', color: tc, font: {size: 11}},
+        border: {display: false}
+      }
+    }
+  }
+});
+
+const pols = [
+  {name:'Tina Smith',      buys:4,   priced:4,   raw:17.08, alpha:14.47, win:100},
+  {name:'Kelly Morrison',  buys:45,  priced:10,  raw:15.51, alpha:9.24,  win:90},
+  {name:'Greg Stanton',    buys:94,  priced:93,  raw:6.44,  alpha:0.36,  win:53.8},
+  {name:'Gil Cisneros',    buys:462, priced:374, raw:1.71,  alpha:-0.19, win:42.5},
+  {name:'Suzan DelBene',   buys:75,  priced:1,   raw:4.05,  alpha:-0.32, win:0},
+  {name:'M.E. Salazar',    buys:50,  priced:29,  raw:4.21,  alpha:-0.40, win:44.8},
+  {name:'Kevin Hern',      buys:127, priced:105, raw:0.81,  alpha:-0.96, win:37.1},
+  {name:'Tony Wied',       buys:29,  priced:22,  raw:0.57,  alpha:-1.82, win:54.5},
+  {name:'Michael McCaul',  buys:407, priced:207, raw:0.76,  alpha:-2.69, win:29.5},
+  {name:'A. McClain Delaney', buys:126, priced:107, raw:0.58, alpha:-3.12, win:36.4},
+  {name:'Ro Khanna',       buys:451, priced:195, raw:3.91,  alpha:-4.58, win:27.2},
+  {name:'Ann Wagner',      buys:15,  priced:0,   raw:null,  alpha:null,  win:null},
+  {name:'Buddy Carter',    buys:3,   priced:0,   raw:null,  alpha:null,  win:null},
+  {name:'Chip Roy',        buys:2,   priced:0,   raw:null,  alpha:null,  win:null},
+];
+
+const tbody = document.getElementById('pol-tbody');
+pols.forEach(p => {
+  const hasData = p.alpha !== null;
+  const lowN = hasData && p.priced < 20;
+
+  const aStr = hasData ? (p.alpha >= 0 ? '+' : '') + p.alpha.toFixed(2) + '%' : '—';
+  const aClass = !hasData ? 'no-data' : p.alpha >= 0 ? 'alpha-pos' : 'alpha-neg';
+  const rawStr = hasData ? '+' + p.raw.toFixed(2) + '%' : '—';
+  const winStr = hasData ? p.win.toFixed(1) + '%' : '—';
+
+  let badge = '';
+  if (!hasData) badge = '<span class="badge badge-gray">no price data</span>';
+  else if (lowN) badge = '<span class="badge badge-amber">low n*</span>';
+
+  const barW = hasData ? Math.min(Math.abs(p.alpha) / 20 * 100, 100).toFixed(1) : 0;
+  const barColor = hasData && p.alpha >= 0 ? '#97C459' : '#F09595';
+  const barDir = hasData && p.alpha >= 0 ? 'flex-start' : 'flex-end';
+
+  const barHtml = hasData
+    ? `<div class="mini-bar-wrap" style="justify-content:${barDir};"><div class="mini-bar" style="width:${barW}%;background:${barColor};"></div></div>`
+    : `<span style="color:var(--text3);font-size:11px;">no data</span>`;
+
+  tbody.innerHTML += `<tr>
+    <td>${p.name} ${badge}</td>
+    <td class="r">${p.buys}</td>
+    <td class="r">${p.priced}</td>
+    <td class="r">${rawStr}</td>
+    <td class="r ${aClass}">${aStr}</td>
+    <td class="r">${winStr}</td>
+    <td>${barHtml}</td>
+  </tr>`;
+});
+</script>
+</body>
+</html>
