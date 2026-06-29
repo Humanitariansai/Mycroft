@@ -136,6 +136,47 @@ Graph contains:
 - 22 COMPETES_WITH relationships (bidirectional)
 - 17 BACKED_BY relationships
 
+## Generating a Brief
+
+Once collectors have populated the database and the graph is seeded, generate vendor intelligence briefs:
+
+```bash
+python agents/run_brief.py "Cohere"
+python agents/run_brief.py "Anthropic"
+python agents/run_brief.py "Mistral"
+```
+
+This runs 5 specialist LangGraph agents (Financial, Technology, News, Personnel, Competitive) coordinated by a supervisor, each querying real data from Postgres and Neo4j, powered by AWS Bedrock Nova Micro.
+
+The brief includes:
+- **Financial Health** — funding signals, executive changes, SEC filings
+- **Technology Momentum** — GitHub activity, ArXiv research, release velocity
+- **News & Sentiment** — partnerships, product launches, negative signals
+- **Personnel Stability** — executive movement and leadership assessment
+- **Competitive Position** — direct competitors, investors, market risks
+- **Executive Summary** — synthesis for procurement decision-making
+
+## Agent Orchestration
+
+The brief generation uses a **LangGraph StateGraph** where the supervisor LLM intelligently routes between specialist agents:
+
+![Agent orchestration graph](docs/agents_graph.png)
+
+**How it works:**
+1. **Supervisor** starts the workflow, checks what's been analyzed
+2. **Routes to agents** in intelligent order (LLM decides next best agent)
+3. **Each agent** queries Postgres signals and Neo4j graph data
+4. **Returns to supervisor** until all analysis complete
+5. **Synthesis** combines outputs into final structured brief
+
+**Architecture:**
+- **5 Specialist Agents** (Financial, Technology, News, Personnel, Competitive)
+- **Supervisor Node** (LLM-based intelligent routing)
+- **Synthesis Node** (final brief generation with Bedrock)
+- **StateGraph** (manages state flow and conditional routing)
+
+This design allows the supervisor to prioritize which dimensions matter most for each company, rather than always running agents sequentially.
+
 ## Known Limitations
 
 - Private companies with no SEC filings or press coverage produce thin briefs
