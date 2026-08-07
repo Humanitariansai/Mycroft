@@ -13,7 +13,7 @@
     "note": "CLI video in the REQUIRED spine: B00 cold open (ClaudeComposerAsk, ask answered) · B01 PROBLEM (STOCK Act, 13,877 trades, the copy-Congress question) · B02 ASK · B03 CODE (market_adjusted.py, the ACTUAL code) · B04 OUTPUT(manim, aggregate alpha +0.13%) · B05 CHANGE (cluster tiering revision) · B06 CODE (backtest.py tag_signal) · B07 OUTPUT(manim, tier table) · B08 SUMMARY (manim recap) · B09 NEXT STEPS (handoff, 'Your turn.') · B10 outro (ClaudeTitleOutro). All numbers sourced from RESEARCH_REPORT.md — see SOURCES.md. IN-FOR-BEAR LAW applies (Liam, Onyx).",
     "total_estimated_duration_seconds": 214,
     "build": {
-      "at": "2026-07-27T13:53:12",
+      "at": "2026-08-07T11:34:24",
       "cut": "master",
       "filled": 11,
       "of": 11,
@@ -26,7 +26,7 @@
       "beat_id": "B00",
       "act": "INTRO",
       "role_note": "COLD OPEN LAW — open on the Claude UI, ask shown answered; IN-FOR-BEAR LAW in narration",
-      "narration_text": "Namaste — this is Liam, in for Bear. Nik Bear Brown: build it with Claude, then take it apart. Today: thirteen thousand congressional stock trades, and the one signal inside them that isn't noise.",
+      "narration_text": "Namaste — this is Liam, in for Ameya. Build it with Claude, then take it apart. Today: thirteen thousand congressional stock trades, and the one signal inside them that isn't noise.",
       "shot": {
         "type": "GRAPHIC",
         "source": "remotion",
@@ -37,6 +37,7 @@
             "command": "claude \"backtest 13,877 congressional stock-trade disclosures — does copying Congress beat the market?\"",
             "topic": "CLAUDE CODE · CONGRESSIONAL TRADES",
             "segment": "The Cluster Signal",
+            "folderLabel": "@HumanitariansAI",
             "greeting": "Namaste, Liam",
             "runningText": "running backtest…",
             "output": [
@@ -53,12 +54,12 @@
       },
       "estimated_duration_s": 12,
       "audio_file": "mp3/beat-B00.mp3",
-      "actual_duration_s": 11.2,
+      "actual_duration_s": 10.43,
       "build": {
         "status": "VIDEO",
         "src": "media\\B00.mp4",
         "filled_by": "media",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -83,7 +84,7 @@
         "status": "MANIM",
         "src": "manim\\B01.mp4",
         "filled_by": "manim:B01_StockAct",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -101,6 +102,7 @@
             "command": "claude \"write market_adjusted.py — for each trade: 30-day return from the DISCLOSURE date minus SPY over the identical window; per-trade alpha, no look-ahead\"",
             "topic": "CLAUDE CODE · CONGRESSIONAL TRADES",
             "segment": "The Cluster Signal",
+            "folderLabel": "@HumanitariansAI",
             "greeting": "The ask,",
             "runningText": "computing per-trade alpha…"
           },
@@ -117,7 +119,7 @@
         "status": "VIDEO",
         "src": "media\\B02.mp4",
         "filled_by": "media",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -149,7 +151,7 @@
         "status": "VIDEO",
         "src": "media\\B03.mp4",
         "filled_by": "media",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -174,7 +176,7 @@
         "status": "MANIM",
         "src": "manim\\B04.mp4",
         "filled_by": "manim:B04_AggregateAlpha",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -192,6 +194,7 @@
             "command": "claude \"update backtest.py — tier every BUY at entry: cluster = ≥2 politicians, same ticker, 30-day window; signal_score = cluster_size × max BCR; report alpha + win rate per tier\"",
             "topic": "CLAUDE CODE · CONGRESSIONAL TRADES",
             "segment": "The Cluster Signal",
+            "folderLabel": "@HumanitariansAI",
             "greeting": "The revision,",
             "runningText": "updating backtest…"
           },
@@ -208,7 +211,7 @@
         "status": "VIDEO",
         "src": "media\\B05.mp4",
         "filled_by": "media",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -240,7 +243,7 @@
         "status": "VIDEO",
         "src": "media\\B06.mp4",
         "filled_by": "media",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -265,7 +268,7 @@
         "status": "MANIM",
         "src": "manim\\B07.mp4",
         "filled_by": "manim:B07_TierTable",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -290,7 +293,7 @@
         "status": "MANIM",
         "src": "manim\\B08.mp4",
         "filled_by": "manim:B08_Recap",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
@@ -308,6 +311,7 @@
             "command": "claude \"pull the last 90 days of congressional BUY disclosures, find tickers with ≥2 distinct buyers in a 30-day window, and compare each cluster's 30-day return to SPY\"",
             "topic": "CLAUDE CODE · CONGRESSIONAL TRADES",
             "segment": "The Cluster Signal",
+            "folderLabel": "@HumanitariansAI",
             "greeting": "Your turn.",
             "runningText": "paste this into Claude…"
           },
@@ -324,14 +328,14 @@
         "status": "VIDEO",
         "src": "media\\B09.mp4",
         "filled_by": "media",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     },
     {
       "beat_id": "B10",
       "act": "OUTRO",
       "role_note": "OUTRO LAW — restate the episode title; IN-FOR-BEAR sign-off",
-      "narration_text": "Congress doesn't beat the market. The cluster does — barely. This is Liam, in for Bear. Build it with Claude, then take it apart.",
+      "narration_text": "Congress doesn't beat the market. The cluster does — barely. This is Liam, in for Ameya. Build it with Claude, then take it apart.",
       "shot": {
         "type": "GRAPHIC",
         "source": "remotion",
@@ -340,7 +344,7 @@
           "pattern": "ClaudeTitleOutro",
           "props": {
             "title": "Congress Doesn't Beat the Market. The Cluster Does.",
-            "handle": "@NikBearBrown",
+            "handle": "@HumanitariansAI",
             "subline": "built with Claude, taken apart"
           },
           "rendered": {
@@ -351,12 +355,12 @@
       },
       "estimated_duration_s": 10,
       "audio_file": "mp3/beat-B10.mp3",
-      "actual_duration_s": 7.4,
+      "actual_duration_s": 7.49,
       "build": {
         "status": "VIDEO",
         "src": "media\\B10.mp4",
         "filled_by": "media",
-        "at": "2026-07-27T13:53:12"
+        "at": "2026-08-07T11:34:24"
       }
     }
   ]

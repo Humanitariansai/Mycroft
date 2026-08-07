@@ -15,7 +15,7 @@ Spine: INTRO → PROBLEM → ASK → CODE → OUTPUT → CHANGE → CODE → OUT
 | B07 | manim | B07_TierTable | ✅ scenes.py | run 2 — alpha + win% by tier (the result) |
 | B08 | manim | B08_Recap | ✅ scenes.py | the lesson — what carries the edge |
 | B09 | remotion | ClaudeComposerAsk | ✅ auto | HANDOFF — "Your turn." prompt typed in |
-| B10 | remotion | ClaudeTitleOutro | ✅ auto | title restate + @NikBearBrown |
+| B10 | remotion | ClaudeTitleOutro | ✅ auto | title restate + @HumanitariansAI |
 
 **Open slots:** none. All Manim outputs are authored in `scenes.py`; all input/
 bookend beats render from the Claude Remotion templates. No pantry stills needed.

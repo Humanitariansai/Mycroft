@@ -1,6 +1,6 @@
 # PEDAGOGY.md — GATE P — congress-cluster-signal
 
-**Skill:** cli-explainer · **Persona:** Liam (Onyx, `am_onyx`) · **Channel:** @NikBearBrown
+**Skill:** cli-explainer · **Persona:** Liam, in for Ameya (Onyx, `am_onyx`) · **Channel:** @HumanitariansAI
 **Register:** Teardown · **Est. runtime:** ~3:30 (16:9)
 
 GATE P is a QUALITY gate: a human reviews the narration and pedagogy on this
