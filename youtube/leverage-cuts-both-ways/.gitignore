@@ -1,0 +1,16 @@
+# Rendered artifacts — regenerate from beat_sheet.json + scenes.py for $0.00.
+# Ship SOURCE, not rendered media (brutalist convention).
+media/
+mp3/
+manim/
+mp4/
+images/
+clips/
+pantry/
+_qc/
+__pycache__/
+*.mp4
+*.mp3
+
+# keep the committed QC contact sheet
+!qc-sheet.png
