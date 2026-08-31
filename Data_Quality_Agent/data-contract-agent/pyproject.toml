@@ -11,9 +11,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# The metric-impact simulation stands up a throwaway DuckDB warehouse. Optional
+# so the parser/lineage/impact layers stay installable with no binary wheels.
+sim = [
+    "duckdb>=1.0",
+]
 dev = [
     "pytest>=8.3",
     "ruff>=0.6",
+    "duckdb>=1.0",
 ]
 
 [project.scripts]

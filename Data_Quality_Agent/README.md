@@ -7,7 +7,9 @@ The hard problem isn't the breaks that crash. It's the ones that **compile, run,
 pass every test, and return a number that is quietly wrong**. This project builds a
 two-layer agent for exactly those: a deterministic layer that traces column-level
 lineage and proves structural impact, and a focused LLM layer that reads the change's
-intent and judges whether it's a silent semantic break.
+intent and judges whether it's a silent semantic break. On top of both sits a
+simulation layer that stops arguing and just rebuilds the marts before and after the
+change, so the warning is a number rather than a hunch.
 
 > **Thesis:** use deterministic tooling for the mechanical half (what changed, what it
 > feeds) and confine the LLM to the one thing machines are bad at — reading intent.
@@ -27,6 +29,8 @@ Each is a realistic PR against the operational schema. They get progressively na
 
 Verified ground truth (deterministic seed): baseline MRR is **$108,176.33**; after
 Scenario 2 it collapses to **$1,081.76**; after Scenario 3 it drops to **$91,587.67**.
+Those first two were established by hand in Phase 1 — `contract-agent --simulate` now
+reproduces the collapse on its own, from the migration alone.
 
 ---
 
@@ -55,10 +59,11 @@ Data-Quality_project/
     │   ├── migration_parser.py   ← AST-parse Alembic → structured changes
     │   ├── lineage.py            ← sqlglot over dbt manifest → column lineage
     │   ├── impact.py             ← join → categorized findings (deterministic)
+    │   ├── simulate.py           ← rebuild the marts before/after → metric diff
     │   ├── semantic.py           ← LLM layer (Anthropic API) → silent-break verdict
     │   └── cli.py                ← `contract-agent` entrypoint
     ├── fixtures/            ←     3 scenario migrations + control + PR text + manifest
-    └── tests/              ←     parser, lineage, impact, semantic
+    └── tests/              ←     parser, lineage, impact, simulation, semantic
 ```
 
 `mock-app-service` is where schema changes are born; `mock-analytics` is what breaks;
@@ -132,6 +137,29 @@ pytest        # parser, column-level lineage, impact classification
 **Expected:** Scenario 1 → `STRUCTURAL BREAK` (3 models); Scenario 2 → `STRUCTURAL BREAK`
 + `SEMANTIC REVIEW` (unit risk); Scenario 3 → `ENUM REVIEW`; control → no impact.
 
+### Phase 2.5 — the metric-impact simulation (no API key, no Docker needed)
+
+Phase 2 tells you *which* models a change touches. This tells you what the numbers do.
+
+```bash
+# still in data-contract-agent, with the venv active
+pip install -e ".[sim]"     # adds duckdb
+
+contract-agent fixtures/migrations/0003_subscriptions_amount.py     --manifest fixtures/manifest.json --simulate
+```
+
+**Expected:** four models fail to build as-is (the loud half); the agent then applies
+the mechanical `amount_cents → amount` rename a reviewer would make, rebuilds, and
+reports that **everything compiles and `fct_mrr` is ×0.01** — the 100×-low MRR, measured
+rather than inferred. Scenario 1 → 3 models break, then **zero** metric drift once
+renamed. Scenario 3 → a labelled counterfactual (10% of active/trialing subscriptions
+adopt `'paused'`) showing rows and revenue falling out of `fct_mrr`, plus a per-1%
+sensitivity. Control → no drift at all.
+
+By default this runs on a deterministic synthetic seed, so it needs neither Docker nor
+a `dbt build`. Add `--sources ../mock-analytics/raw` after Phase 1 to run it against the
+real seeded data and reproduce the exact $108,176.33 → $1,081.76 figures.
+
 ### Phase 3 — the LLM semantic layer (needs an API key)
 
 ```bash
@@ -160,6 +188,7 @@ flags the 100×-wrong MRR from a PR that looks like routine cleanup.
 | 0 | Design lock (schema, scenarios, decisions) | ✅ done |
 | 1 | Mock repos + dbt pipeline; traps proven by hand | ✅ done & verified |
 | 2 | Deterministic layer (parser + lineage + impact) | ✅ done; tests green |
+| 2.5 | Metric-impact simulation (rebuild + diff the marts) | ✅ done; tests green |
 | 3 | LLM semantic analyzer | ✅ built; run live with an API key |
 | 4 | GitHub App (webhook → comment on PR) | ⬜ not started |
 | 6 | 50-PR labeled eval set; target **F1 ≥ 0.8** | ⬜ not started |

@@ -77,3 +77,37 @@ Decision: **Two health-check endpoints only** (`GET /health`, `GET /health/db`).
 Rationale: the migration history is the product. Time spent on CRUD endpoints does not advance any Phase 2+ goal. If a future demo needs a "real engineer changes the API alongside the schema" beat, that's a deliberate addition at the time, not speculative scaffolding now.
 
 Revisit if: a scenario emerges where the demo needs PR changes that span API + migration + dbt.
+
+---
+
+## 2026-08-30 — Metric-impact simulation: synthetic seed by default, real data opt-in
+
+Context: the agent could say "fct_mrr may be silently wrong" but never what the number actually becomes. Adding a simulation layer that rebuilds the marts before/after a migration needs source data, and the honest source is the Phase 1 Postgres seed — which requires Docker, `alembic upgrade`, `seed.py`, a Parquet export and a `dbt build` before the agent will run at all.
+
+Options considered:
+- Require the Phase 1 pipeline; refuse to simulate without it.
+- Generate a deterministic synthetic seed from the baseline migration's schema; accept `--sources <dir>` for the real Parquet extract.
+- Ship a fixture Parquet snapshot in the repo.
+
+Decision: **synthetic seed by default, `--sources` for real data.**
+
+Rationale: the finding rests on a *ratio* (×0.01, N rows dropped), not on an absolute dollar value, and the ratio is invariant to the data. Making the headline result reproducible in ~2s with no Docker is worth far more than matching $108,176.33 exactly, and `--sources ../mock-analytics/raw` still gets the exact figures when someone wants them. A committed Parquet snapshot was rejected as binary data in git that silently goes stale against the schema.
+
+Revisit if: a scenario appears whose damage depends on the *distribution* of real data rather than its shape, so the synthetic seed stops being representative.
+
+---
+
+## 2026-08-30 — The simulation builds twice, and applies the reviewer's fix itself
+
+Context: replaying Scenario 2's migration makes every model that reads `amount_cents` fail to compile. That is the loud half of the break and reveals nothing the deterministic layer didn't already prove. The 100x error is invisible until the compile error is fixed.
+
+Options considered:
+- Report the build failures and stop.
+- Simulate only changes that don't break compilation.
+- Build twice: once as-is, then again with the mechanical rename a reviewer would apply.
+
+Decision: **build twice** (`--no-auto-patch` opts out).
+
+Rationale: nobody merges a red pipeline. The realistic sequence is that someone renames the column in the staging model and moves on, and that is exactly the state in which the metric is silently wrong — so the simulation has to reach it to have anything to say. The rename map is already available from `impact.infer_renames`, and scoping the patch by lineage rather than by name keeps `transactions.amount_cents` (a different column that happens to share a name) untouched.
+
+Revisit if: the mechanical fix stops being a plausible reviewer action for some change class — e.g. a rename that also needs a type cast — in which case pass 2 needs to model a more realistic repair or say it can't.

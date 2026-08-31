@@ -25,6 +25,7 @@ from .impact import (
 )
 from .lineage import build_lineage
 from .migration_parser import load_baseline_schema, parse_migration
+from .simulate import DEFAULT_ENUM_SHIFT
 
 _DEFAULT_MANIFEST = Path("../mock-analytics/target/manifest.json")
 _DEFAULT_BASELINE = Path("fixtures/migrations/0001_initial.py")
@@ -71,6 +72,34 @@ _ORDER = [STRUCTURAL_BREAK, SEMANTIC_REVIEW, ENUM_REVIEW, INFORMATIONAL]
     default=None,
     help="Override the Claude model for the semantic layer (default: claude-opus-4-8).",
 )
+@click.option(
+    "--simulate",
+    "run_simulation",
+    is_flag=True,
+    default=False,
+    help="Rebuild the marts before/after the change and diff the numbers.",
+)
+@click.option(
+    "--sources",
+    type=click.Path(file_okay=False),
+    default=None,
+    help=(
+        "Directory of <table>.parquet for the simulation (e.g. ../mock-analytics/raw). "
+        "Omit to use a deterministic synthetic seed."
+    ),
+)
+@click.option(
+    "--enum-shift",
+    type=click.FloatRange(0.0, 1.0),
+    default=DEFAULT_ENUM_SHIFT,
+    show_default=True,
+    help="Counterfactual: fraction of currently-included rows that adopt a new enum value.",
+)
+@click.option(
+    "--auto-patch/--no-auto-patch",
+    default=True,
+    help="Apply the mechanical rename a reviewer would make before diffing metrics.",
+)
 def main(
     migration: str,
     manifest: str,
@@ -78,6 +107,10 @@ def main(
     pr_path: str | None,
     semantic: bool,
     model: str | None,
+    run_simulation: bool,
+    sources: str | None,
+    enum_shift: float,
+    auto_patch: bool,
 ) -> None:
     """Analyze a single Alembic MIGRATION for downstream analytics impact."""
     if not Path(manifest).exists():
@@ -118,10 +151,132 @@ def main(
     else:
         click.echo("\n  No deterministic impact detected.")
 
+    if run_simulation:
+        _run_simulation(changes, manifest, schema, index, sources, enum_shift, auto_patch)
+
     if semantic:
         _run_semantic(migration, manifest, baseline, pr_path, model, report)
 
     click.echo("")
+
+
+def _num(value: float | None, decimals: int = 2) -> str:
+    if value is None:
+        return "—"
+    return f"{value:,.{decimals}f}"
+
+
+def _run_simulation(
+    changes, manifest, schema, index, sources, enum_shift, auto_patch
+) -> None:
+    """Rebuild the warehouse before/after and print the metric diff.
+
+    Degrades gracefully for the same reason the semantic layer does: the
+    deterministic findings above are the floor, and a simulation that can't run
+    (no duckdb, no usable source data) must not take them down with it.
+    """
+    from .simulate import SimulationUnavailable, biggest_mover, simulate
+
+    click.echo("\n  Metric impact simulation")
+    click.echo("  " + "-" * 66)
+
+    try:
+        sim = simulate(
+            changes,
+            manifest,
+            schema,
+            index,
+            sources=sources,
+            enum_shift=enum_shift,
+            auto_patch=auto_patch,
+        )
+    except SimulationUnavailable as exc:
+        click.echo(f"    Not run: {exc}")
+        return
+    except Exception as exc:  # noqa: BLE001 - graceful degradation, as above
+        click.echo(f"    Simulation failed ({type(exc).__name__}: {exc}).")
+        click.echo("    Deterministic findings above stand on their own.")
+        return
+
+    rows = ", ".join(f"{t}={n:,}" for t, n in sorted(sim.source_rows.items()))
+    click.echo(f"    warehouse: {sim.source_mode}")
+    click.echo(f"    seeded:    {rows}")
+    if sim.source_mode == "synthetic":
+        click.echo(
+            "               (synthetic seed — absolute values are illustrative; "
+            "the ratios are what matter)"
+        )
+    click.echo(f"    replayed:  {len(sim.applied)} statement(s) against the source tables")
+
+    for cf in sim.counterfactuals:
+        scope = f" currently in ({', '.join(cf.from_values)})" if cf.from_values else ""
+        click.echo(
+            f"\n    Counterfactual: '{cf.value}' does not exist in any row yet, so the "
+            f"simulation moves\n    {cf.fraction:.0%} of {cf.table}.{cf.column}"
+            f"{scope} into it ({cf.rows_moved:,} rows) to project the impact."
+        )
+
+    if sim.as_is_failures:
+        click.echo("\n    Build as-is — the loud half, what CI would show you:")
+        for m, err in sim.as_is_failures.items():
+            click.echo(f"      x {m}: {err}")
+
+    if sim.patches:
+        fixes = ", ".join(sorted({f"{p.rename} in {p.model}" for p in sim.patches}))
+        verdict = (
+            "The numbers do not survive:"
+            if sim.deltas
+            else "Everything compiles and every metric is identical — loud, but safe "
+            "once the rename lands."
+        )
+        click.echo(
+            f"\n    Then applied the mechanical fix a reviewer would make ({fixes}) "
+            f"and rebuilt.\n    {verdict}"
+        )
+
+    if not sim.deltas:
+        if not sim.patches:
+            click.echo(
+                "\n    No metric drift: every model rebuilt and every metric is unchanged."
+            )
+    else:
+        for model_name in sim.changed_models:
+            click.echo(f"\n      {model_name}")
+            for d in sim.deltas_for(model_name):
+                if d.broke:
+                    click.echo(f"        {d.metric:<32} builds no longer — cannot measure")
+                    continue
+                decimals = 0 if d.metric == "rows" else 2
+                line = (
+                    f"        {d.metric:<32} {_num(d.before, decimals):>16} -> "
+                    f"{_num(d.after, decimals):>16}"
+                )
+                if d.scale is not None:
+                    line += f"   x{d.scale:g}"
+                elif d.pct_change is not None:
+                    line += f"   {d.pct_change:+.1f}%"
+                click.echo(line)
+
+    for line in sim.headlines():
+        click.echo(f"\n    ! {line}")
+
+    for cf in sim.counterfactuals:
+        biggest = biggest_mover(sim.deltas)
+        if biggest is not None and cf.fraction:
+            per_point = biggest.pct_change / (cf.fraction * 100)
+            click.echo(
+                f"    ! Sensitivity: every 1% of {cf.table} adopting '{cf.value}' moves "
+                f"{biggest.model}.{biggest.metric[4:-1]} by {per_point:+.2f}%. "
+                "Scale to your own adoption estimate."
+            )
+
+    if sim.skipped:
+        click.echo("\n    Not simulated:")
+        for note in sim.skipped:
+            click.echo(f"      - {note}")
+
+    for note in sim.notes:
+        click.echo(f"    note: {note}")
 
 
 def _run_semantic(migration, manifest, baseline, pr_path, model, report) -> None:
