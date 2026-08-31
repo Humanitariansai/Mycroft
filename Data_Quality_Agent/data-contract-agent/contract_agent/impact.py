@@ -25,6 +25,74 @@ _ARITHMETIC_BACKFILL = re.compile(r"[/*]\s*100(\.0+)?\b|\b100(\.0+)?\s*[/*]")
 
 
 @dataclass
+class RenamePair:
+    """A column rename, either declared outright or inferred from add+backfill+drop.
+
+    The simulation layer needs these to reproduce the mechanical fix a reviewer
+    would apply to the downstream models before the *silent* break shows up.
+    """
+
+    table: str
+    old_column: str
+    new_column: str
+    explicit: bool = False  # came from op.alter_column(new_column_name=...)
+    backfill_sql: str | None = None
+    arithmetic: bool = False  # backfill multiplies/divides -> likely a unit change
+
+
+def infer_renames(changes: list[SchemaChange]) -> list[RenamePair]:
+    """Every column rename in a migration, declared or disguised.
+
+    Alembic's ``alter_column(new_column_name=...)`` is the honest form. The
+    dangerous form is add-column + backfill + drop-column, which is a rename that
+    can also quietly change the column's units. Both are returned here so callers
+    can reason about them uniformly.
+    """
+    pairs: list[RenamePair] = []
+
+    for ch in changes:
+        if ch.kind is ChangeKind.RENAME_COLUMN and ch.table and ch.column and ch.new_column:
+            pairs.append(
+                RenamePair(
+                    table=ch.table,
+                    old_column=ch.column,
+                    new_column=ch.new_column,
+                    explicit=True,
+                )
+            )
+
+    adds = [c for c in changes if c.kind is ChangeKind.ADD_COLUMN]
+    drops = [c for c in changes if c.kind is ChangeKind.DROP_COLUMN]
+    backfills = [c for c in changes if c.kind is ChangeKind.RAW_SQL and c.raw_sql]
+
+    for add in adds:
+        for drop in drops:
+            if add.table != drop.table:
+                continue
+            related = [
+                b
+                for b in backfills
+                if add.column in (b.raw_sql or "") and drop.column in (b.raw_sql or "")
+            ]
+            if not related:
+                continue
+            pairs.append(
+                RenamePair(
+                    table=add.table,
+                    old_column=drop.column,
+                    new_column=add.column,
+                    explicit=False,
+                    backfill_sql=related[0].raw_sql,
+                    arithmetic=any(
+                        _ARITHMETIC_BACKFILL.search(b.raw_sql or "") for b in related
+                    ),
+                )
+            )
+
+    return pairs
+
+
+@dataclass
 class Finding:
     category: str
     summary: str
@@ -159,42 +227,30 @@ def _enum_finding(
 def _detect_unit_rename(
     changes: list[SchemaChange], index: LineageIndex, report: ImpactReport
 ) -> None:
-    adds = [c for c in changes if c.kind is ChangeKind.ADD_COLUMN]
-    drops = [c for c in changes if c.kind is ChangeKind.DROP_COLUMN]
-    backfills = [
-        c for c in changes if c.kind is ChangeKind.RAW_SQL and c.raw_sql
-    ]
-    for add in adds:
-        for drop in drops:
-            if add.table != drop.table:
-                continue
-            related = [
-                b
-                for b in backfills
-                if add.column in (b.raw_sql or "") and drop.column in (b.raw_sql or "")
-            ]
-            if not related:
-                continue
-            arithmetic = any(_ARITHMETIC_BACKFILL.search(b.raw_sql or "") for b in related)
-            models = index.models_reading(drop.table, drop.column)
-            unit_hint = (
-                " The backfill divides/multiplies by 100, and the dropped column's "
-                "name carried a unit suffix -- a units-of-measure change (e.g. cents -> "
-                "dollars) that compiles cleanly but silently rescales every downstream "
-                "metric. Confirm downstream conversions are updated in lockstep."
-                if arithmetic
-                else " Verify downstream models are updated to the new column."
+    by_column = {
+        (c.table, c.column): c for c in changes if c.kind is ChangeKind.ADD_COLUMN
+    }
+    for pair in infer_renames(changes):
+        if pair.explicit:
+            continue  # a declared rename is already reported as a structural break
+        models = index.models_reading(pair.table, pair.old_column)
+        unit_hint = (
+            " The backfill divides/multiplies by 100, and the dropped column's "
+            "name carried a unit suffix -- a units-of-measure change (e.g. cents -> "
+            "dollars) that compiles cleanly but silently rescales every downstream "
+            "metric. Confirm downstream conversions are updated in lockstep."
+            if pair.arithmetic
+            else " Verify downstream models are updated to the new column."
+        )
+        report.findings.append(
+            Finding(
+                category=SEMANTIC_REVIEW,
+                summary=(
+                    f"Likely rename {pair.table}.{pair.old_column} -> {pair.new_column} "
+                    f"with backfill `{(pair.backfill_sql or '').strip()}`." + unit_hint
+                ),
+                affected_models=models,
+                deterministic=False,
+                change=by_column.get((pair.table, pair.new_column)),
             )
-            report.findings.append(
-                Finding(
-                    category=SEMANTIC_REVIEW,
-                    summary=(
-                        f"Likely rename {drop.table}.{drop.column} -> {add.column} "
-                        f"with backfill `{related[0].raw_sql.strip()}`."
-                        + unit_hint
-                    ),
-                    affected_models=models,
-                    deterministic=False,
-                    change=add,
-                )
-            )
+        )

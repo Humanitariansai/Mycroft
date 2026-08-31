@@ -66,7 +66,7 @@ def _strip_quotes(s: str) -> str:
     return s.replace('"', "").replace("`", "")
 
 
-class _ManifestGraph:
+class ManifestGraph:
     """Thin view over the dbt manifest: nodes, sources, and relation->name maps."""
 
     def __init__(self, manifest: dict):
@@ -123,7 +123,7 @@ class _ManifestGraph:
 
 def build_lineage(manifest_path: str | Path, schema: BaselineSchema) -> LineageIndex:
     manifest = json.loads(Path(manifest_path).read_text())
-    g = _ManifestGraph(manifest)
+    g = ManifestGraph(manifest)
     index = LineageIndex()
 
     # sqlglot schema: physical sources from the baseline, models filled in as we go.
@@ -165,7 +165,7 @@ def build_lineage(manifest_path: str | Path, schema: BaselineSchema) -> LineageI
     return index
 
 
-def _depth_of(g: _ManifestGraph, node_id: str) -> int:
+def _depth_of(g: ManifestGraph, node_id: str) -> int:
     deps = [
         d
         for d in g.models[node_id].get("depends_on", {}).get("nodes", [])
@@ -181,7 +181,7 @@ def _trace_column(
     col: str,
     sql: str,
     sg_schema: dict,
-    g: _ManifestGraph,
+    g: ManifestGraph,
     index: LineageIndex,
 ) -> set[SourceCol]:
     """Source-column footprint of one output column, stitched transitively."""
