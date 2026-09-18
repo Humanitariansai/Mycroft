@@ -13,7 +13,7 @@
     "note": "ai-explainer (short) on Ch.6 Margin & Short Selling. Spine: B00 cold-open composer (ask answered) -> B01-B05 concept-illustrated Manim body (ILLUSTRATE LAW) -> B06 HANDOFF ('Your turn.') -> B07 ClaudeTitleOutro. Persona: Liam, in for Ameya (Onyx). Channel chip @HumanitariansAI throughout. All numbers from Computational Finance Ch.6 cheat sheet, verified in FACTCHECK.md; the disputed short margin-call price is deliberately NOT shown (source inconsistent).",
     "total_estimated_duration_seconds": 148,
     "build": {
-      "at": "2026-08-14T12:17:04",
+      "at": "2026-09-14T10:38:40",
       "cut": "master",
       "filled": 8,
       "of": 8,
@@ -59,7 +59,7 @@
         "status": "VIDEO",
         "src": "media\\B00.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     },
     {
@@ -84,7 +84,7 @@
         "status": "MANIM",
         "src": "manim\\B01.mp4",
         "filled_by": "manim:B01_Leverage",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     },
     {
@@ -109,7 +109,7 @@
         "status": "MANIM",
         "src": "manim\\B02.mp4",
         "filled_by": "manim:B02_CutsBothWays",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     },
     {
@@ -134,7 +134,7 @@
         "status": "MANIM",
         "src": "manim\\B03.mp4",
         "filled_by": "manim:B03_MarginCall",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     },
     {
@@ -159,7 +159,7 @@
         "status": "MANIM",
         "src": "manim\\B04.mp4",
         "filled_by": "manim:B04_ShortSqueeze",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     },
     {
@@ -184,7 +184,7 @@
         "status": "MANIM",
         "src": "manim\\B05.mp4",
         "filled_by": "manim:B05_Verdict",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     },
     {
@@ -219,7 +219,7 @@
         "status": "VIDEO",
         "src": "media\\B06.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     },
     {
@@ -251,7 +251,7 @@
         "status": "VIDEO",
         "src": "media\\B07.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:17:04"
+        "at": "2026-09-14T10:38:40"
       }
     }
   ]

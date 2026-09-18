@@ -13,7 +13,7 @@
     "note": "cli-explainer: build a RAG pipeline in PyTorch that answers questions from a PDF. Spine: B00 INTRO -> B01 PROBLEM -> [cycle 1] B02 ASK -> B03 CODE (real embed code) -> B04 OUTPUT (Manim embed) -> [cycle 2 / revision] B05 CHANGE -> B06 CODE (real retrieve code) -> B07 OUTPUT (Manim retrieve) -> B08 SUMMARY -> B09 NEXT STEPS -> B10 OUTRO. Persona: Liam, in for Ameya (Onyx). @HumanitariansAI throughout. CODE beats show ACTUAL PyTorch (sentence-transformers + torch cosine similarity + topk) — ACTUAL-CODE LAW.",
     "total_estimated_duration_seconds": 210,
     "build": {
-      "at": "2026-08-14T12:53:22",
+      "at": "2026-09-14T10:45:23",
       "cut": "master",
       "filled": 11,
       "of": 11,
@@ -59,7 +59,7 @@
         "status": "VIDEO",
         "src": "media\\B00.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -84,7 +84,7 @@
         "status": "MANIM",
         "src": "manim\\B01.mp4",
         "filled_by": "manim:B01_Problem",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -119,7 +119,7 @@
         "status": "VIDEO",
         "src": "media\\B02.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -151,7 +151,7 @@
         "status": "VIDEO",
         "src": "media\\B03.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -176,7 +176,7 @@
         "status": "MANIM",
         "src": "manim\\B04.mp4",
         "filled_by": "manim:B04_Embed",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -211,7 +211,7 @@
         "status": "VIDEO",
         "src": "media\\B05.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -243,7 +243,7 @@
         "status": "VIDEO",
         "src": "media\\B06.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -268,7 +268,7 @@
         "status": "MANIM",
         "src": "manim\\B07.mp4",
         "filled_by": "manim:B07_Retrieve",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -293,7 +293,7 @@
         "status": "MANIM",
         "src": "manim\\B08.mp4",
         "filled_by": "manim:B08_Summary",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -328,7 +328,7 @@
         "status": "VIDEO",
         "src": "media\\B09.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     },
     {
@@ -360,7 +360,7 @@
         "status": "VIDEO",
         "src": "media\\B10.mp4",
         "filled_by": "media",
-        "at": "2026-08-14T12:53:22"
+        "at": "2026-09-14T10:45:23"
       }
     }
   ]

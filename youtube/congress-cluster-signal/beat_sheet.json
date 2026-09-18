@@ -13,7 +13,7 @@
     "note": "CLI video in the REQUIRED spine: B00 cold open (ClaudeComposerAsk, ask answered) · B01 PROBLEM (STOCK Act, 13,877 trades, the copy-Congress question) · B02 ASK · B03 CODE (market_adjusted.py, the ACTUAL code) · B04 OUTPUT(manim, aggregate alpha +0.13%) · B05 CHANGE (cluster tiering revision) · B06 CODE (backtest.py tag_signal) · B07 OUTPUT(manim, tier table) · B08 SUMMARY (manim recap) · B09 NEXT STEPS (handoff, 'Your turn.') · B10 outro (ClaudeTitleOutro). All numbers sourced from RESEARCH_REPORT.md — see SOURCES.md. IN-FOR-BEAR LAW applies (Liam, Onyx).",
     "total_estimated_duration_seconds": 214,
     "build": {
-      "at": "2026-08-07T11:34:24",
+      "at": "2026-09-14T10:32:42",
       "cut": "master",
       "filled": 11,
       "of": 11,
@@ -59,7 +59,7 @@
         "status": "VIDEO",
         "src": "media\\B00.mp4",
         "filled_by": "media",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -84,7 +84,7 @@
         "status": "MANIM",
         "src": "manim\\B01.mp4",
         "filled_by": "manim:B01_StockAct",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -119,7 +119,7 @@
         "status": "VIDEO",
         "src": "media\\B02.mp4",
         "filled_by": "media",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -151,7 +151,7 @@
         "status": "VIDEO",
         "src": "media\\B03.mp4",
         "filled_by": "media",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -176,7 +176,7 @@
         "status": "MANIM",
         "src": "manim\\B04.mp4",
         "filled_by": "manim:B04_AggregateAlpha",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -211,7 +211,7 @@
         "status": "VIDEO",
         "src": "media\\B05.mp4",
         "filled_by": "media",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -243,7 +243,7 @@
         "status": "VIDEO",
         "src": "media\\B06.mp4",
         "filled_by": "media",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -268,7 +268,7 @@
         "status": "MANIM",
         "src": "manim\\B07.mp4",
         "filled_by": "manim:B07_TierTable",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -293,7 +293,7 @@
         "status": "MANIM",
         "src": "manim\\B08.mp4",
         "filled_by": "manim:B08_Recap",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -328,7 +328,7 @@
         "status": "VIDEO",
         "src": "media\\B09.mp4",
         "filled_by": "media",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     },
     {
@@ -360,7 +360,7 @@
         "status": "VIDEO",
         "src": "media\\B10.mp4",
         "filled_by": "media",
-        "at": "2026-08-07T11:34:24"
+        "at": "2026-09-14T10:32:42"
       }
     }
   ]
